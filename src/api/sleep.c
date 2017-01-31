@@ -1,16 +1,14 @@
+/* sleep.c
+    burin - Jan 29, 2017
+    Extended from class notes ecen5023 - IOT
+*/
+
 #include "sleep.h"
 #include "em_core.h"
 #include "em_emu.h"
 #include <stdbool.h>
 
 uint8_t sleep_block_counter[EM_MAX];
-
-/*
- * sleep.c
- *
- *  Created on: Jan 29, 2017
- *      Author: burin
- */
 
 void sleep(void) {
     if (sleep_block_counter[EM0] > 0) {
@@ -30,20 +28,16 @@ void sleep(void) {
 
 void blockSleepMode(e_emode minimumMode)
 {
-//INT_Disable();
 CORE_CriticalDisableIrq();
-sleep_block_counter[minimumMode]++;
-//INT_Enable();
+    sleep_block_counter[minimumMode]++;
 CORE_CriticalEnableIrq();
 }
 
 void unblockSleepMode(e_emode minimumMode)
 {
-//INT_Disable();
 CORE_CriticalDisableIrq();
-if(sleep_block_counter[minimumMode] > 0) {
-sleep_block_counter[minimumMode]--;
-}
-//INT_Enable();
+    if(sleep_block_counter[minimumMode] > 0) {
+        sleep_block_counter[minimumMode]--;
+    }
 CORE_CriticalEnableIrq();
 }

@@ -39,12 +39,18 @@
 #include "em_letimer.h"
 #include "em_core.h"
 
-#define LETIMER_TICK_MS   33UL
-
+// LED will be turned on every LETIMER_PERIOD_MS for LETIMER_BLINK_MS
 #define LETIMER_PERIOD_MS 1750UL
 #define LETIMER_BLINK_MS  30UL
-#define LETIMER_TOP (LETIMER_PERIOD_MS * LETIMER_TICK_MS)
-#define LETIMER_COMP1 (LETIMER_TOP - (LETIMER_BLINK_MS * LETIMER_TICK_MS))
+
+// LXFO Setup
+#define LETIMER_LFXO_TICK_MS   33UL
+#define LETIMER_TOP_EM2 (LETIMER_PERIOD_MS * LETIMER_LFXO_TICK_MS)
+#define LETIMER_COMP1_EM2 (LETIMER_TOP_EM2 - (LETIMER_BLINK_MS * LETIMER_LFXO_TICK_MS))
+
+// ULFRCO setup, oscillator ticks are milliseconds
+#define LETIMER_TOP_EM3 (LETIMER_PERIOD_MS) 
+#define LETIMER_COMP1_EM3 (LETIMER_TOP_EM3 - LETIMER_BLINK_MS)
 
 void LETIMER0_setup(e_emode e) {
 
@@ -61,49 +67,41 @@ if (e < EM3) {
 }
     CMU_ClockEnable(cmuClock_HFLE, true);
     CMU_ClockEnable(cmuClock_LETIMER0, true);
-//    CMU_ClockDivSet(cmuClock_LETIMER0,cmuClkDiv_2); 
 
+// LETIMER COMP0 will be used for period, COMP1 for duration
 if (e < EM3) {
-    // Set initial compare values for COMP0, COMP1
-    LETIMER_CompareSet(LETIMER0, 0, LETIMER_TOP);
-    LETIMER_CompareSet(LETIMER0, 1, LETIMER_COMP1);
+    LETIMER_CompareSet(LETIMER0, 0, LETIMER_TOP_EM2);
+    LETIMER_CompareSet(LETIMER0, 1, LETIMER_COMP1_EM2);
 } else {
     LETIMER_CompareSet(LETIMER0, 0, 1750);
     LETIMER_CompareSet(LETIMER0, 1, 1720);
 }
 
+// Set configurations for LETIMER 0
+const LETIMER_Init_TypeDef letimerInit =
+{
+    .enable         = true,                 // Start counting when init completed
+    .debugRun       = false,                // Do not stop counter during debug halt
+    .comp0Top       = true,                 // Load COMP0 into CNT on underflow
+    .bufTop         = false,                // Do not load COMP1 into COMP0 when REP0 reaches 0
+    .out0Pol        = 0,                    // Idle value 0 for output 0
+    .out1Pol        = 0,                    // Idle value 0 for output 1
+    .ufoa0          = letimerUFOANone,      // No action on underflow on output 0
+    .ufoa1          = letimerUFOANone,      // No action on underflow on output 1
+    .repMode        = letimerRepeatFree     // Count until stopped by SW
+};
 
+// Initialize LETIMER
+LETIMER_Init(LETIMER0, &letimerInit);
 
-
-    /* Set configurations for LETIMER 0 */
-    const LETIMER_Init_TypeDef letimerInit =
-    {
-        .enable         = true,                 // Start counting when init completed
-        .debugRun       = false,                // Do not stop counter during debug halt
-        .comp0Top       = true,                // Load COMP0 into CNT on underflow
-        .bufTop         = false,                // Do not load COMP1 into COMP0 when REP0 reaches 0
-        .out0Pol        = 0,                    // Idle value 0 for output 0
-        .out1Pol        = 0,                    // Idle value 0 for output 1
-        .ufoa0          = letimerUFOANone,      // No action on underflow on output 0
-        .ufoa1          = letimerUFOANone,      // No action on underflow on output 1
-        .repMode        = letimerRepeatFree     // Count until stopped by SW
-    };
-
-    /* Initialize LETIMER */
-    LETIMER_Init(LETIMER0, &letimerInit);
-
+// Setup LETIMER interrupts
 CORE_CriticalDisableIrq();
-    // Clear all interrupts for LETIMER0
     LETIMER0->IFC   = LETIMER_IFC_COMP0;
     LETIMER0->IFC   = LETIMER_IFC_COMP1;
-    //Set COMP0 interrupt
     LETIMER0->IEN   |= LETIMER_IEN_COMP0;
     LETIMER0->IEN   |= LETIMER_IEN_COMP1;
     NVIC_EnableIRQ(LETIMER0_IRQn);
 CORE_CriticalEnableIrq();
-
-//BlockSleep.....
-
 
 }
 
@@ -117,13 +115,10 @@ CORE_CriticalDisableIrq();
 
     if (intFlags & LETIMER_IFS_COMP0) {
         GPIO_PinOutSet(gpioPortE, 2);
-        //GPIO_PinOutToggle(gpioPortE, 2);
     }
     if (intFlags & LETIMER_IFS_COMP1) {
         GPIO_PinOutClear(gpioPortE, 2);
-        //GPIO_PinOutToggle(gpioPortE, 2);
     }
-
 
 CORE_CriticalEnableIrq();
 }
