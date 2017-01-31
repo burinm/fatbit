@@ -39,8 +39,6 @@
 #include "em_letimer.h"
 #include "em_core.h"
 
-#include "sleep.h"
-
 #define LETIMER_TICK_MS   33UL
 
 #define LETIMER_PERIOD_MS 1750UL
@@ -48,21 +46,33 @@
 #define LETIMER_TOP (LETIMER_PERIOD_MS * LETIMER_TICK_MS)
 #define LETIMER_COMP1 (LETIMER_TOP - (LETIMER_BLINK_MS * LETIMER_TICK_MS))
 
-void LETIMER0_setup() {
+void LETIMER0_setup(e_emode e) {
 
-blockSleepMode(EM2);
+blockSleepMode(e);
 
-CMU_OscillatorEnable(cmuOsc_LFXO,true,false);
-    /* Enable necessary clocks */
+if (e < EM3) {
+    CMU_OscillatorEnable(cmuOsc_LFXO,true,false);
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
-    //CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_HFCLKLE);
+} else {
+    CMU_OscillatorEnable(cmuOsc_ULFRCO,true,false);
+    ////CMU_ClockEnable(cmuClock_LFA, false);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO);
+
+}
     CMU_ClockEnable(cmuClock_HFLE, true);
     CMU_ClockEnable(cmuClock_LETIMER0, true);
 //    CMU_ClockDivSet(cmuClock_LETIMER0,cmuClkDiv_2); 
 
+if (e < EM3) {
     // Set initial compare values for COMP0, COMP1
     LETIMER_CompareSet(LETIMER0, 0, LETIMER_TOP);
     LETIMER_CompareSet(LETIMER0, 1, LETIMER_COMP1);
+} else {
+    LETIMER_CompareSet(LETIMER0, 0, 1750);
+    LETIMER_CompareSet(LETIMER0, 1, 1720);
+}
+
+
 
 
     /* Set configurations for LETIMER 0 */
