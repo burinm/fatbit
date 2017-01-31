@@ -12,6 +12,7 @@ int main(void)
   /* Chip errata */
   CHIP_Init();
 
+// Note: this also turns on GPIO clock 
 //BSP_TraceProfilerSetup();
 
     CMU_setup();
