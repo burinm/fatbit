@@ -2,10 +2,10 @@
 #include "em_chip.h"
 #include "periph.h"
 #include "sleep.h"
+#include "main.h"
 
 //#include "bsp_trace.h"
 
-#define LOWEST_POWER_MODE   EM3
 
 int main(void)
 {

@@ -34,6 +34,10 @@ extern uint8_t sleep_block_counter[EM_MAX];
 
  After the peripheral is finished with the operation, it should call unblock with the same state
 
+ Inputs: e_emode
+    Minimum sleep mode
+ Globals:  sleep_block_counter
+
 */
 void blockSleepMode(e_emode minimumMode);
 
@@ -43,6 +47,10 @@ void blockSleepMode(e_emode minimumMode);
  -- To be called by peripheral HAL's --
 
  This should be called after all transactions on a peripheral are done.
+
+ Inputs: e_emode
+    Minimum sleep mode
+ Globals:  sleep_block_counter
 */
 void unblockSleepMode(e_emode minimumMode);
 
