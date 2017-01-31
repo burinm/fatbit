@@ -10,4 +10,13 @@ void CMU_setup();
 */
 void LED0_setup();
 
+/* Turn LED0 on 
+*/
+void led0_on();
+
+/* Turn LED0 off 
+*/
+void led0_off();
+
+
 #endif

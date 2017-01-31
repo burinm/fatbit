@@ -121,11 +121,6 @@
 			<locationURI>PARENT-6-PROJECT_LOC/opt/Gecko_SDK-5.0.0/platform/emlib/src/em_idac.c</locationURI>
 		</link>
 		<link>
-			<name>emlib/em_int.c</name>
-			<type>1</type>
-			<locationURI>PARENT-6-PROJECT_LOC/opt/Gecko_SDK-5.0.0/platform/emlib/src/em_int.c</locationURI>
-		</link>
-		<link>
 			<name>emlib/em_lcd.c</name>
 			<type>1</type>
 			<locationURI>PARENT-6-PROJECT_LOC/opt/Gecko_SDK-5.0.0/platform/emlib/src/em_lcd.c</locationURI>

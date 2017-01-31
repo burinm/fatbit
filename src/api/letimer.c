@@ -39,6 +39,7 @@
 #include "em_letimer.h"
 #include "em_core.h"
 #include "main.h"
+#include "periph.h"
 
 // LED will be turned on every LETIMER_PERIOD_MS for LETIMER_BLINK_MS
 #define LETIMER_PERIOD_S (LED_OFF_SECONDS)
@@ -115,10 +116,10 @@ CORE_CriticalDisableIrq();
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP1);
 
     if (intFlags & LETIMER_IFS_COMP0) {
-        GPIO_PinOutSet(gpioPortE, 2);
+        led0_on();    
     }
     if (intFlags & LETIMER_IFS_COMP1) {
-        GPIO_PinOutClear(gpioPortE, 2);
+        led0_off();
     }
 
 CORE_CriticalEnableIrq();

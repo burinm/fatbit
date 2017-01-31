@@ -26,6 +26,14 @@ extern uint8_t sleep_block_counter[EM_MAX];
     EM4 (shutdown) - 20nA
 */
 
+/* Sleep according to the minimum energy mode required by peripherals
+
+    Globals: sleep_block_counter
+        Array of each enery mode counting peripherals in use
+*/
+void sleep(void);
+
+
 
 /* Block the microcontroller from sleeping below a certain mode
 
