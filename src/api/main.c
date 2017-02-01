@@ -7,7 +7,6 @@
 
 //#include "bsp_trace.h"
 
-
 int main(void)
 {
   /* Chip errata */

@@ -28,8 +28,10 @@ extern uint8_t sleep_block_counter[EM_MAX];
 
 /* Sleep according to the minimum energy mode required by peripherals
 
+    Inputs: none
     Globals: sleep_block_counter
         Array of each enery mode counting peripherals in use
+    Return: none
 */
 void sleep(void);
 
@@ -42,9 +44,10 @@ void sleep(void);
 
  After the peripheral is finished with the operation, it should call unblock with the same state
 
- Inputs: e_emode
-    Minimum sleep mode
- Globals:  sleep_block_counter
+    Inputs: e_emode
+        Minimum sleep mode
+    Globals:  sleep_block_counter
+    Return: none
 
 */
 void blockSleepMode(e_emode minimumMode);
@@ -56,9 +59,10 @@ void blockSleepMode(e_emode minimumMode);
 
  This should be called after all transactions on a peripheral are done.
 
- Inputs: e_emode
-    Minimum sleep mode
- Globals:  sleep_block_counter
+    Inputs: e_emode
+        Minimum sleep mode
+    Globals:  sleep_block_counter
+    Return: none
 */
 void unblockSleepMode(e_emode minimumMode);
 

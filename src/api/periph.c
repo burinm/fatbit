@@ -4,7 +4,6 @@
 #include "em_core.h"
 
 void CMU_setup() {
-
 }
 
 void LED0_setup() {
