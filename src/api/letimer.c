@@ -50,7 +50,6 @@ if (e < EM3) {
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
 } else {
     CMU_OscillatorEnable(cmuOsc_ULFRCO,true,false);
-    ////CMU_ClockEnable(cmuClock_LFA, false);
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO);
 
 }
