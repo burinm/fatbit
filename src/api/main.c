@@ -62,22 +62,38 @@ printswo_uint(87654321);
 };
 
     LETIMER_Init(LETIMER0, &letimerInit);
-    LETIMER0->CNT=0xffff;
+    LETIMER0->CNT=0x8000;
 
     TIMER_Enable(TIMER1, true);
     TIMER_Enable(TIMER0, true);
     LETIMER_Enable(LETIMER0, true);
     while(LETIMER_CounterGet(LETIMER0));
-    //LETIMER0->COMP0=0xffff;
-    //LETIMER_Enable(LETIMER0, true);
-    //while(LETIMER_CounterGet(LETIMER0));
 
     TIMER_Enable(TIMER0, false);
     uint32_t reference_lo = TIMER_CounterGet(TIMER0);
     uint32_t reference_hi = TIMER_CounterGet(TIMER1);
-
     printswo_uint(reference_lo);
     printswo_uint(reference_hi);
+
+    //Now measure ULFRCO
+    CMU_OscillatorEnable(cmuOsc_ULFRCO,true,false);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO);
+    LETIMER_Init(LETIMER0, &letimerInit);
+    LETIMER0->CNT=1000;
+    TIMER0->CNT=0;
+    TIMER1->CNT=0;
+    TIMER_Enable(TIMER1, true);
+    TIMER_Enable(TIMER0, true);
+    LETIMER_Enable(LETIMER0, true);
+    while(LETIMER_CounterGet(LETIMER0));
+
+    TIMER_Enable(TIMER0, false);
+    uint32_t ulfrco_lo = TIMER_CounterGet(TIMER0);
+    uint32_t ulfrco_hi = TIMER_CounterGet(TIMER1);
+
+
+    printswo_uint(ulfrco_lo);
+    printswo_uint(ulfrco_hi);
     printswo_uint(12345678);
     
   /* Infinite loop */
