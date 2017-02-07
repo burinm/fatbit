@@ -1,4 +1,5 @@
 #include "timers.h"
+#include "periph.h"
 #include "em_cmu.h"
 #include "em_timer.h"
 #include "em_core.h"
@@ -11,8 +12,8 @@ CMU_ClockSelectSet(cmuClock_TIMER0, cmuSelect_HFRCO);
 CMU_ClockSelectSet(cmuClock_TIMER1, cmuSelect_HFRCO);
 
 const TIMER_Init_TypeDef timer0Init = {
-    .enable = true,                     /* Enable timer when init complete. */
-    .debugRun = false,                  /* Stop counter during debug halt. */
+    .enable = false,                     /* Enable timer when init complete. */
+    .debugRun = true,                  /* Do not stop counter during debug halt. */
     .prescale = timerPrescale1,         /* No prescaling. */
     .clkSel = timerClkSelHFPerClk,      /* Select HFPER clock. */
     .fallAction = timerInputActionNone, /* No action on falling input edge. */
@@ -25,17 +26,17 @@ const TIMER_Init_TypeDef timer0Init = {
 };
 
 const TIMER_Init_TypeDef timer1Init = {
-    .enable = true,                     /* Enable timer when init complete. */
-    .debugRun = false,                  /* Stop counter during debug halt. */
+    .enable = false,                     /* Enable timer when init complete. */
+    .debugRun = true,                  /*  Do not stop counter during debug halt. */
     .prescale = timerPrescale1,         /* No prescaling. */
-    .clkSel = timerClkSelCascade,      /* Select Timer0. */
+    .clkSel = timerClkSelCascade,           /* Select Timer0. */
     .fallAction = timerInputActionNone, /* No action on falling input edge. */
     .riseAction = timerInputActionNone, /* No action on rising input edge. */
     .mode = timerModeUp,                /* Up-counting. */ 
     .dmaClrAct = false,                 /* Do not clear DMA requests when DMA channel is active. */
     .quadModeX4 = false,                /* Select X2 quadrature decode mode (if used). */ 
     .oneShot = false,                   /* Disable one shot. */
-    .sync = true                        /* Started/stopped/reloaded by other timers. */    
+    .sync = true                            /* Started/stopped/reloaded by other timers. */    
 };
 
 
