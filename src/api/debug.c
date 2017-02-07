@@ -1,28 +1,8 @@
 #include "debug.h"
-#include "em_device.h"
-#include <stdint.h>
-#include <stdio.h>
+//#include "em_device.h"
+//#include <stdint.h>
 
-#define PRINTF_BUF_SIZE 20
 char PRINTF_BUF[PRINTF_BUF_SIZE] = {0};
-
-void printswo_uint(unsigned int n) {
-uint8_t i=0;
-    sprintf(PRINTF_BUF,"%u\n",n);
-    while(PRINTF_BUF[i]) {
-        ITM_SendChar(PRINTF_BUF[i]);
-        i++;
-    }
-}
-
-void printswo_float(float f) {
-uint8_t i=0;
-    sprintf(PRINTF_BUF,"%f\n",f);
-    while(PRINTF_BUF[i]) {
-        ITM_SendChar(PRINTF_BUF[i]);
-        i++;
-    }
-}
 
 void setupSWOForPrint(void)
 /* Copied from instructional notes in Silicon Labs, commander application

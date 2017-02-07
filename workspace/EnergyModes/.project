@@ -211,6 +211,11 @@
 			<locationURI>PARENT-6-PROJECT_LOC/opt/Gecko_SDK-5.0.0/platform/emlib/src/em_wdog.c</locationURI>
 		</link>
 		<link>
+			<name>src/debug.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/api/debug.c</locationURI>
+		</link>
+		<link>
 			<name>src/letimer.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/letimer.c</locationURI>
@@ -224,6 +229,11 @@
 			<name>src/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/main.c</locationURI>
+		</link>
+		<link>
+			<name>src/main.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/api/main.h</locationURI>
 		</link>
 		<link>
 			<name>src/periph.c</name>
@@ -244,6 +254,11 @@
 			<name>src/sleep.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/sleep.h</locationURI>
+		</link>
+		<link>
+			<name>src/timers.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/timers.c</locationURI>
 		</link>
 		<link>
 			<name>CMSIS/EFM32LG/startup_gcc_efm32lg.s</name>

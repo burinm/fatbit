@@ -1,6 +1,10 @@
 #ifndef __PERIPH_H__
 #define __PERIPH_H__
 
+/* Set clocks to boot up configuration
+*/
+void clock_defaults();
+
 /* Turn on necessary clocks for application
     Currently unused
 */
