@@ -70,10 +70,13 @@ printswo_uint(87654321);
     while(LETIMER_CounterGet(LETIMER0));
 
     TIMER_Enable(TIMER0, false);
+    TIMER_Enable(LETIMER0, false);
     uint32_t reference_lo = TIMER_CounterGet(TIMER0);
     uint32_t reference_hi = TIMER_CounterGet(TIMER1);
+    double reference_time = (65536 * reference_hi) + reference_lo;
     printswo_uint(reference_lo);
     printswo_uint(reference_hi);
+    //printswo_uint(reference_time);
 
     //Now measure ULFRCO
     CMU_OscillatorEnable(cmuOsc_ULFRCO,true,false);
@@ -85,15 +88,25 @@ printswo_uint(87654321);
     TIMER_Enable(TIMER1, true);
     TIMER_Enable(TIMER0, true);
     LETIMER_Enable(LETIMER0, true);
+led0_on();
     while(LETIMER_CounterGet(LETIMER0));
+led1_on();
 
     TIMER_Enable(TIMER0, false);
+    TIMER_Enable(LETIMER0, false);
     uint32_t ulfrco_lo = TIMER_CounterGet(TIMER0);
     uint32_t ulfrco_hi = TIMER_CounterGet(TIMER1);
+    double ulfrco_time = (65536 * ulfrco_hi) + ulfrco_lo;
 
 
     printswo_uint(ulfrco_lo);
     printswo_uint(ulfrco_hi);
+    //printswo_uint(ulfrco_time);
+
+    double clock_ratio = reference_time / ulfrco_time;
+    clock_ratio *= 1000;
+    uint16_t ulfrco_ticks = clock_ratio;
+    printswo_uint(ulfrco_ticks);
     printswo_uint(12345678);
     
   /* Infinite loop */

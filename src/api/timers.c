@@ -39,7 +39,11 @@ const TIMER_Init_TypeDef timer1Init = {
     .sync = true                            /* Started/stopped/reloaded by other timers. */    
 };
 
+TIMER_Init(TIMER1, &timer1Init);
+TIMER_Init(TIMER0, &timer0Init);
+}
 
+#if 0
 // Setup TIMER interrupts
 CORE_CriticalDisableIrq();
     TIMER0->IFC   = TIMER_IFC_OF;
@@ -51,10 +55,7 @@ CORE_CriticalDisableIrq();
     NVIC_EnableIRQ(TIMER1_IRQn);
 CORE_CriticalEnableIrq();
 
-TIMER_Init(TIMER1, &timer1Init);
-TIMER_Init(TIMER0, &timer0Init);
 
-}
 
 void TIMER0_IRQHandler() {
 int intFlags;
@@ -81,3 +82,4 @@ CORE_CriticalDisableIrq();
 
 CORE_CriticalEnableIrq();
 }
+#endif
