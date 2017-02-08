@@ -10,7 +10,7 @@
 
 void LETIMER0_setup(e_emode e) {
 
-//LETIMER_Enable(LETIMER0, false);
+// LETIMER jams up after use in ULFRCO and one-shot mode, hard reset
 LETIMER_Reset(LETIMER0);
 
 
@@ -82,8 +82,9 @@ CORE_CriticalDisableIrq();
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP1);
 
     if (intFlags & LETIMER_IFS_COMP0) {
-        led0_on();    
+//        led0_on();    
 
+        CMU_ClockEnable(cmuClock_GPIO, true);
         if (is_led1_on()) {
            ACMP_fire_up(VDD_LIGHTNESS);
         } else {
@@ -104,7 +105,8 @@ CORE_CriticalDisableIrq();
             }
         }
         ACMP_Disable(ACMP0);
-        led0_off();
+        CMU_ClockEnable(cmuClock_GPIO, false);
+//        led0_off();
     }
 
 CORE_CriticalEnableIrq();

@@ -102,7 +102,6 @@ uint16_t calibrate_ULFRCO_ticks() {
     clock_ratio *= 1000;
     uint16_t ulfrco_ticks = clock_ratio;
 
-    clock_defaults();
     return ulfrco_ticks;
 }
 

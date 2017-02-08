@@ -9,18 +9,17 @@
 
 
 void ACMP_fire_up(uint8_t vdd) {
-    //CMU_ClockSelectSet(cmuClock_ACMP0, cmuSelect_HFRCO);
     CMU_ClockEnable(cmuClock_ACMP0, true);
-    CMU_ClockEnable(cmuClock_GPIO, true);
 
     const ACMP_Init_TypeDef ACMP_init = {
-        .fullBias               = true,                 /* fullBias */
-        .halfBias               = false,                /* halfBias */
-        .biasProg               = 0x7,                  /* biasProg */
+        .fullBias               = false,                 /* fullBias */
+        .halfBias               = true,                /* halfBias */
+        .biasProg               = 0x0,                  /* biasProg */
         .interruptOnFallingEdge = true,                 /* No interrupt on falling edge. */
         .interruptOnRisingEdge  = false,                /* No interrupt on rising edge. */
         .warmTime               = acmpWarmTime512,      /* 512 cycle warmup to be safe */
-        .hysteresisLevel        = acmpHysteresisLevel0,
+        //.hysteresisLevel        = acmpHysteresisLevel0,
+        .hysteresisLevel        = acmpHysteresisLevel7,
         .inactiveValue          = false,                /* Disabled emitting inactive value during warmup. */
         .lowPowerReferenceEnabled = false,              /* low power reference */
         .vddLevel               = vdd,                  /* VDD level */
@@ -28,16 +27,18 @@ void ACMP_fire_up(uint8_t vdd) {
     };
     ACMP_Init(ACMP0, &ACMP_init);
 
-
     // Select Negative Input scaled VDD, positive channel6 = LES_LIGHT_SENSE
     ACMP_ChannelSet(ACMP0, acmpChannelVDD, acmpChannel6);
+    ACMP_Enable(ACMP0);
 
+    //Do all GPIO
+    //CMU_ClockEnable(cmuClock_GPIO, true);
     //LES_LIGHT_SENSE
-    GPIO_PinModeSet(gpioPortC, 6, gpioModeDisabled, 0); //Pull up down??
+    //GPIO_PinModeSet(gpioPortC, 6, gpioModeDisabled, 0); //Pull up down??
 
     //Turn on LES_LIGHT_EXCITE
-    GPIO_PinModeSet(gpioPortD, 6, gpioModePushPull, 0);
-    GPIO_PinOutSet(gpioPortD, 6);
+    //GPIO_PinModeSet(gpioPortD, 6, gpioModePushPull, 0);
+    //GPIO_PinOutSet(gpioPortD, 6);
     //wait_m_sec(4);
 
 #if 0
@@ -50,7 +51,6 @@ CORE_CriticalDisableIrq();
 CORE_CriticalEnableIrq();
 #endif
 
-    ACMP_Enable(ACMP0);
 }
 
 #if 0
