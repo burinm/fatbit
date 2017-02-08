@@ -115,9 +115,20 @@ CORE_CriticalDisableIrq();
 
     if (intFlags & LETIMER_IFS_COMP0) {
         led0_on();    
+        ACMP_fire_up();
+        while (ACMP0->STATUS & ACMP_STATUS_ACMPACT == 0);
+
+
     }
+
     if (intFlags & LETIMER_IFS_COMP1) {
+        if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
+            led1_on();
+        } else {
+            led1_off();
+        }
         led0_off();
+        ACMP_Disable(ACMP0);
     }
 
 CORE_CriticalEnableIrq();
