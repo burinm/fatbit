@@ -3,6 +3,11 @@
 
 #include "sleep.h"
 
+//This assumes the C preprocessor can do floating point math
+#define LED_OFF_SECONDS (1.25) // Period must be in the range 0 - 2 seconds
+#define LED_ON_SECONDS (.002)  //  Off + On period duration must cumulatively be 2 seconds or less
+
+
 // LED will be turned on every LETIMER_PERIOD_MS for LETIMER_BLINK_MS
 #define LETIMER_PERIOD_S (LED_OFF_SECONDS)
 #define LETIMER_BLINK_S  (LED_ON_SECONDS)

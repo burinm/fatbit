@@ -1,38 +1,3 @@
-/***************************************************************************//**
- * Modified by  - burin 1/29/2017
- *
- * Parts taken from the ANN0026SW demo code
- * em_letimer.h
- * Low Energy Timer (LETIMER) peripheral API
- * version 5.0.0
- *******************************************************************************
- * section License
- * Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com
- *******************************************************************************
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
- *
- ******************************************************************************/
-
 #include "letimer.h"
 #include "em_cmu.h"
 #include "em_gpio.h"
@@ -43,15 +8,13 @@
 #include "periph.h"
 #include "acmp.h"
 
-int dark_mode = 1;
-
 void LETIMER0_setup(e_emode e) {
 
-LETIMER_Enable(LETIMER0, false);
+//LETIMER_Enable(LETIMER0, false);
+LETIMER_Reset(LETIMER0);
 
 
 blockSleepMode(e);
-
 
 
 if (e < EM3) {
@@ -69,15 +32,15 @@ if (e < EM3) {
 if (e < EM3) {
     LETIMER_CompareSet(LETIMER0, 0, LETIMER_TOP_EM2);
     LETIMER_CompareSet(LETIMER0, 1, LETIMER_COMP1_EM2);
+    // divide by 2 for LFXO timer
+    CMU->LFAPRESC0 |= ((_CMU_LFAPRESC0_LETIMER0_DIV2 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
 } else {
-    LETIMER_CompareSet(LETIMER0, 0, LETIMER_TOP_EM3);
-    LETIMER_CompareSet(LETIMER0, 1, LETIMER_COMP1_EM3);
+    LETIMER_CompareSet(LETIMER0, 0, 2500);
+    LETIMER_CompareSet(LETIMER0, 1, 2497);
 }
 
-// divide by 2 for timer
-CMU->LFAPRESC0 |= ((_CMU_LFAPRESC0_LETIMER0_DIV2 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
 
-// Set configurations for LETIMER 0
+// Defaults modified from Silicon AN0026SW examples
 const LETIMER_Init_TypeDef letimerInit =
 {
     .enable         = false,                // Do not start counting when init completed
@@ -90,7 +53,8 @@ const LETIMER_Init_TypeDef letimerInit =
     .ufoa1          = letimerUFOANone,      // No action on underflow on output 1
     .repMode        = letimerRepeatFree     // Count until stopped by SW
 };
-// Initialize LETIMER
+
+// Initialize LETIMER0
 LETIMER_Init(LETIMER0, &letimerInit);
 LETIMER0->CNT=0;
 
@@ -106,7 +70,6 @@ CORE_CriticalEnableIrq();
 
 LETIMER_Enable(LETIMER0, true);
 
-
 }
 
 void LETIMER0_IRQHandler() {
@@ -121,8 +84,7 @@ CORE_CriticalDisableIrq();
     if (intFlags & LETIMER_IFS_COMP0) {
         led0_on();    
 
-        //if (is_led1_on()) {
-        if (dark_mode) {
+        if (is_led1_on()) {
            ACMP_fire_up(VDD_LIGHTNESS);
         } else {
             ACMP_fire_up(VDD_DARKNESS);
@@ -132,15 +94,13 @@ CORE_CriticalDisableIrq();
 
 
     if (intFlags & LETIMER_IFS_COMP1) {
-        if (dark_mode) {
+        if (is_led1_on()) {
             if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
                 led1_off();
-                dark_mode=0;
             }
         } else {
             if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
                 led1_on();
-                dark_mode=1;
             }
         }
         ACMP_Disable(ACMP0);

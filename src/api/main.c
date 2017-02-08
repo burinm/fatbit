@@ -9,6 +9,10 @@
 
 #include "bsp_trace.h"
 
+//Set this to tell the main program what the lowest power mode is
+#define LOWEST_POWER_MODE   EM3
+
+
 int main(void)
 {
   /* Chip errata */
@@ -32,27 +36,14 @@ clock_defaults();
 
    LED0_setup();
    LED1_setup();
-    led1_on();
-
-    //CMU_ClockSelectSet(cmuClock_ACMP0, cmuSelect_HFRCO);
-   // ACMP_fire_up();
+   //LED1 is both the state and the indicator for dark mode
+   led1_on();
 
 
-#if 0
-    while(1) {
-        if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
-            led0_on();
-        } else {
-            led0_off();
-        }
-    }
-#endif
-        
-
-LETIMER0_setup(EM2);
+   LETIMER0_setup(LOWEST_POWER_MODE);
     
   /* Infinite loop */
   while (1) {
-//    sleep();
+    sleep();
   }
 }

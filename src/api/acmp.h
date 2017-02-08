@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define VDD_DARKNESS 2 
+#define VDD_DARKNESS 4 
 #define VDD_LIGHTNESS 31
 
 void ACMP_fire_up(uint8_t); 
