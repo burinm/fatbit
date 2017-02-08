@@ -38,8 +38,12 @@
 #include "em_gpio.h"
 #include "em_letimer.h"
 #include "em_core.h"
+#include "em_acmp.h"
 #include "main.h"
 #include "periph.h"
+#include "acmp.h"
+
+int dark_mode = 1;
 
 void LETIMER0_setup(e_emode e) {
 
@@ -108,6 +112,7 @@ LETIMER_Enable(LETIMER0, true);
 void LETIMER0_IRQHandler() {
 int intFlags;
 
+
 CORE_CriticalDisableIrq();
     intFlags = LETIMER_IntGet(LETIMER0);
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP0);
@@ -115,20 +120,31 @@ CORE_CriticalDisableIrq();
 
     if (intFlags & LETIMER_IFS_COMP0) {
         led0_on();    
-        ACMP_fire_up();
+
+        //if (is_led1_on()) {
+        if (dark_mode) {
+           ACMP_fire_up(VDD_LIGHTNESS);
+        } else {
+            ACMP_fire_up(VDD_DARKNESS);
+        }
         while (ACMP0->STATUS & ACMP_STATUS_ACMPACT == 0);
-
-
     }
 
+
     if (intFlags & LETIMER_IFS_COMP1) {
-        if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
-            led1_on();
+        if (dark_mode) {
+            if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
+                led1_off();
+                dark_mode=0;
+            }
         } else {
-            led1_off();
+            if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
+                led1_on();
+                dark_mode=1;
+            }
         }
-        led0_off();
         ACMP_Disable(ACMP0);
+        led0_off();
     }
 
 CORE_CriticalEnableIrq();

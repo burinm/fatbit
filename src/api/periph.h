@@ -1,6 +1,8 @@
 #ifndef __PERIPH_H__
 #define __PERIPH_H__
 
+#include <stdint.h>
+
 /* Set clocks to boot up configuration
 */
 void clock_defaults();
@@ -19,7 +21,6 @@ void CMU_setup();
     Return: none
 */
 void LED0_setup();
-
 
 /* Turn LED0 on 
 
@@ -47,7 +48,7 @@ void led0_toggle();
 
 /* LED1 */
 
-/* Turn LED0 on 
+/* Set LED1 to push/pull configuration 
 
     Inputs: none
     Globals: none
@@ -55,7 +56,16 @@ void led0_toggle();
 */
 void LED1_setup();
 
-/* Set LED1 to push/pull configuration
+/* Is LED1 on 
+
+    Inputs: none
+    Globals: none
+    Return: >0 if on
+*/
+uint8_t is_led1_on(); 
+
+
+/* Turn LED1 on 
 
     Inputs: none
     Globals: none

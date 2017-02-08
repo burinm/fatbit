@@ -32,6 +32,8 @@ clock_defaults();
 
    LED0_setup();
    LED1_setup();
+    led1_on();
+
     //CMU_ClockSelectSet(cmuClock_ACMP0, cmuSelect_HFRCO);
    // ACMP_fire_up();
 

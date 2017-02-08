@@ -5,11 +5,10 @@
 #include "em_core.h"
 #include "em_gpio.h"
 
-extern int acmp0_warm = 0;
+//extern int acmp0_warm = 0;
 
-#define VDD_DARKNESS 2
 
-void ACMP_fire_up() {
+void ACMP_fire_up(uint8_t vdd) {
     //CMU_ClockSelectSet(cmuClock_ACMP0, cmuSelect_HFRCO);
     CMU_ClockEnable(cmuClock_ACMP0, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
@@ -24,8 +23,8 @@ void ACMP_fire_up() {
         .hysteresisLevel        = acmpHysteresisLevel0,
         .inactiveValue          = false,                /* Disabled emitting inactive value during warmup. */
         .lowPowerReferenceEnabled = false,              /* low power reference */
-        .vddLevel               = VDD_DARKNESS,               /* VDD level */
-        .enable                 = false                  /* Enable after init. */
+        .vddLevel               = vdd,                  /* VDD level */
+        .enable                 = false                 /* Do not enable after init. */
     };
     ACMP_Init(ACMP0, &ACMP_init);
 
