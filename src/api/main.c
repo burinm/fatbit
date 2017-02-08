@@ -50,9 +50,8 @@ clock_defaults();
     //LES_LIGHT_SENSE
     GPIO_PinModeSet(gpioPortC, 6, gpioModeDisabled, 0); //Pull up down??
     
-    //Turn on LES_LIGHT_EXCITE 
+    //Setup LES_LIGHT_EXCITE 
     GPIO_PinModeSet(gpioPortD, 6, gpioModePushPull, 0);
-    GPIO_PinOutSet(gpioPortD, 6);
 
     //GPIOs will keep thier state, so we only need to toggle clock
     CMU_ClockEnable(cmuClock_GPIO, false);

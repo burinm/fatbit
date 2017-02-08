@@ -111,6 +111,7 @@ CORE_CriticalDisableIrq();
 //        led0_on();    
 
         CMU_ClockEnable(cmuClock_GPIO, true);
+        GPIO_PinOutSet(gpioPortD, 6);
         if (is_led1_on()) {
            ACMP_fire_up(VDD_LIGHTNESS);
         } else {
@@ -131,6 +132,7 @@ CORE_CriticalDisableIrq();
             }
         }
         ACMP_Disable(ACMP0);
+        GPIO_PinOutClear(gpioPortD, 6);
         CMU_ClockEnable(cmuClock_GPIO, false);
 //        led0_off();
     }
