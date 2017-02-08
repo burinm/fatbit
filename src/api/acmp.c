@@ -12,16 +12,15 @@ void ACMP_fire_up(uint8_t vdd) {
     CMU_ClockEnable(cmuClock_ACMP0, true);
 
     const ACMP_Init_TypeDef ACMP_init = {
-        .fullBias               = false,                 /* fullBias */
-        .halfBias               = true,                /* halfBias */
+        .fullBias               = false,                /* fullBias */
+        .halfBias               = true,                 /* halfBias */
         .biasProg               = 0x0,                  /* biasProg */
         .interruptOnFallingEdge = true,                 /* No interrupt on falling edge. */
         .interruptOnRisingEdge  = false,                /* No interrupt on rising edge. */
         .warmTime               = acmpWarmTime512,      /* 512 cycle warmup to be safe */
-        //.hysteresisLevel        = acmpHysteresisLevel0,
-        .hysteresisLevel        = acmpHysteresisLevel7,
+        .hysteresisLevel        = acmpHysteresisLevel7, /* Not sure this matters for our app */
         .inactiveValue          = false,                /* Disabled emitting inactive value during warmup. */
-        .lowPowerReferenceEnabled = false,              /* low power reference */
+        .lowPowerReferenceEnabled = true,               /* Saves 2-3 uA!! low power reference */
         .vddLevel               = vdd,                  /* VDD level */
         .enable                 = false                 /* Do not enable after init. */
     };
