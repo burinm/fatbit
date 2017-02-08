@@ -48,10 +48,12 @@ clock_defaults();
     //setup all GPIO before entering sleep
     CMU_ClockEnable(cmuClock_GPIO, true);
     //LES_LIGHT_SENSE
-    GPIO_PinModeSet(gpioPortC, 6, gpioModeDisabled, 0); //Pull up down??
+    GPIO_PinModeSet(LES_LIGHT_SENSE_PORT, LES_LIGHT_SENSE_PORT_NUM,
+                        gpioModeDisabled, 0);
     
     //Setup LES_LIGHT_EXCITE 
-    GPIO_PinModeSet(gpioPortD, 6, gpioModePushPull, 0);
+    GPIO_PinModeSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM,
+                        gpioModePushPull, 0);
 
     //GPIOs will keep thier state, so we only need to toggle clock
     CMU_ClockEnable(cmuClock_GPIO, false);

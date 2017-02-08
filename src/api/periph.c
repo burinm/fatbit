@@ -16,7 +16,6 @@ void clock_defaults() {
     CMU_OscillatorEnable(cmuOsc_LFRCO, false, false);
     CMU_OscillatorEnable(cmuOsc_ULFRCO, false, false);
     //CMU_OscillatorEnable(cmuOsc_AUXHFRCO, false, false);
-
 }
 
 void CMU_setup() {
@@ -24,38 +23,38 @@ void CMU_setup() {
 
 void LED0_setup() {
     CMU_ClockEnable(cmuClock_GPIO, true);
-    GPIO_PinModeSet(gpioPortE, 2, gpioModePushPull, 0);
+    GPIO_PinModeSet(LED0_PORT, LED0_PORT_NUM, gpioModePushPull, 0);
 }
 
 inline void led0_on() {
-    GPIO_PinOutSet(gpioPortE, 2);
+    GPIO_PinOutSet(LED0_PORT, LED0_PORT_NUM);
 }
 
 inline void led0_off() {
-    GPIO_PinOutClear(gpioPortE, 2);
+    GPIO_PinOutClear(LED0_PORT, LED0_PORT_NUM);
 }
 
 inline void led0_toggle() {
-    GPIO_PinOutToggle(gpioPortE, 2);
+    GPIO_PinOutToggle(LED0_PORT, LED0_PORT_NUM);
 }
 
 void LED1_setup() {
     CMU_ClockEnable(cmuClock_GPIO, true);
-    GPIO_PinModeSet(gpioPortE, 3, gpioModePushPull, 0);
+    GPIO_PinModeSet(LED1_PORT, LED1_PORT_NUM, gpioModePushPull, 0);
 }
 
 inline uint8_t is_led1_on() {
-    return GPIO->P[gpioPortE].DOUT & (1 << 3);
+    return GPIO->P[LED1_PORT].DOUT & (1 << LED1_PORT_NUM);
 }
 
 inline void led1_on() {
-    GPIO_PinOutSet(gpioPortE, 3);
+    GPIO_PinOutSet(LED1_PORT, LED1_PORT_NUM);
 }
 
 inline void led1_off() {
-    GPIO_PinOutClear(gpioPortE, 3);
+    GPIO_PinOutClear(LED1_PORT, LED1_PORT_NUM);
 }
 
 inline void led1_toggle() {
-    GPIO_PinOutToggle(gpioPortE, 3);
+    GPIO_PinOutToggle(LED1_PORT, LED1_PORT_NUM);
 }

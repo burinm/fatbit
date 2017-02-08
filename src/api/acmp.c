@@ -5,9 +5,6 @@
 #include "em_core.h"
 #include "em_gpio.h"
 
-//extern int acmp0_warm = 0;
-
-
 void ACMP_fire_up(uint8_t vdd) {
     CMU_ClockEnable(cmuClock_ACMP0, true);
 
@@ -29,16 +26,6 @@ void ACMP_fire_up(uint8_t vdd) {
     // Select Negative Input scaled VDD, positive channel6 = LES_LIGHT_SENSE
     ACMP_ChannelSet(ACMP0, acmpChannelVDD, acmpChannel6);
     ACMP_Enable(ACMP0);
-
-    //Do all GPIO
-    //CMU_ClockEnable(cmuClock_GPIO, true);
-    //LES_LIGHT_SENSE
-    //GPIO_PinModeSet(gpioPortC, 6, gpioModeDisabled, 0); //Pull up down??
-
-    //Turn on LES_LIGHT_EXCITE
-    //GPIO_PinModeSet(gpioPortD, 6, gpioModePushPull, 0);
-    //GPIO_PinOutSet(gpioPortD, 6);
-    //wait_m_sec(4);
 
 #if 0
 CORE_CriticalDisableIrq();
@@ -74,4 +61,3 @@ CORE_CriticalDisableIrq();
 CORE_CriticalEnableIrq();
 }
 #endif
-

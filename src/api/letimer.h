@@ -26,7 +26,7 @@ void LETIMER0_setup(e_emode);
 
 /* Interrupt routine for LETIMER, flashes LED
     Inputs: none
-    Globals: none
+    Globals: ulfrco_ticks, used to set LETIMER with ULFRCO
     Return: none
 */
 void LETIMER0_IRQHandler();

@@ -5,11 +5,25 @@
 #include "em_device.h"
 #include <stdio.h>
 
+// Define DEBUG_ON to use, currently in main.h
+
 
 #define PRINTF_BUF_SIZE 20
 extern char PRINTF_BUF[PRINTF_BUF_SIZE];
 
+/* Need to call to turn on SWO printf-like functionality
+     Inputs: none, Globals: none, Return: none
+*/
 void setupSWOForPrint(void);
+
+/* Print an unsigned interger to SWO console 
+     Inputs: none
+
+     Globals: PRINTF_BUF[PRINTF_BUF_SIZE]
+        Used with sprintf
+
+     Return: none
+*/
 void printswo_uint(unsigned int);
 
 
