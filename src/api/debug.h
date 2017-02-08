@@ -1,6 +1,7 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
+#include "main.h"
 #include "em_device.h"
 #include <stdio.h>
 
@@ -13,17 +14,11 @@ void printswo_uint(unsigned int);
 
 
 #ifdef DEBUG_ON
-    void printswo_uint(unsigned int n) {\
-    uint8_t i=0;\
-        sprintf(PRINTF_BUF,"%u\n",n);\
-        while(PRINTF_BUF[i]) {\
-            ITM_SendChar(PRINTF_BUF[i]);\
-            i++;\
-        }\
-    }
     #define PRINTSWO_UINT(n) printswo_uint(n) 
+    #define SETUPSWOFORPRINT() setupSWOForPrint() 
 #else
     #define PRINTSWO_UINT(n)
+    #define SETUPSWOFORPRINT()
 #endif
 
 #if 0

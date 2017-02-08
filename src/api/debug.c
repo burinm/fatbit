@@ -1,8 +1,17 @@
 #include "debug.h"
-//#include "em_device.h"
-//#include <stdint.h>
+
+#ifdef DEBUG_ON
 
 char PRINTF_BUF[PRINTF_BUF_SIZE] = {0};
+
+void printswo_uint(unsigned int n) {
+    uint8_t i=0;
+        sprintf(PRINTF_BUF,"%u\n",n);
+        while(PRINTF_BUF[i]) {
+            ITM_SendChar(PRINTF_BUF[i]);
+                i++;
+        }
+}
 
 void setupSWOForPrint(void)
 /* Copied from instructional notes in Silicon Labs, commander application
@@ -49,6 +58,8 @@ void setupSWOForPrint(void)
   TPI->FFCR = 0x00000100;
   ITM->TER  = 0x1;
 }
+
+#endif
 
 /*
  Need to implement the  two Retarget IO functions with the read/write functions we want to use for printf. 

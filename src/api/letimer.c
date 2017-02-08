@@ -8,7 +8,31 @@
 #include "periph.h"
 #include "acmp.h"
 
+    #include "debug.h"
+
 void LETIMER0_setup(e_emode e) {
+
+// Ticks calculations
+double le_period_seconds = LE_PERIOD_SECONDS;
+double le_on_seconds = LE_ON_SECONDS;
+
+// LXFO Timings
+uint16_t le_lfxo_ticks_second = LETIMER_LFXO_TICK_S / (LE_DIVIDER2 ? 2:1); //Divider on/off
+
+uint16_t le_comp0_em2 = le_period_seconds * le_lfxo_ticks_second; 
+uint16_t le_comp1_em2 = le_comp0_em2 - (le_on_seconds * le_lfxo_ticks_second); 
+
+// ULFRCO setup, oscillator ticks are milliseconds
+uint16_t le_ulfrco_ticks_second = ulfrco_ticks;
+uint16_t le_comp0_em3 = le_period_seconds * le_ulfrco_ticks_second;
+uint16_t le_comp1_em3 = le_comp0_em3 - (le_on_seconds * le_ulfrco_ticks_second);
+
+PRINTSWO_UINT(77777);
+PRINTSWO_UINT(le_comp0_em3);
+PRINTSWO_UINT(le_comp1_em3);
+PRINTSWO_UINT(77777);
+
+//End ticks calc
 
 // LETIMER jams up after use in ULFRCO and one-shot mode, hard reset
 LETIMER_Reset(LETIMER0);
@@ -30,13 +54,15 @@ if (e < EM3) {
 
 // LETIMER COMP0 will be used for period, COMP1 for duration
 if (e < EM3) {
-    LETIMER_CompareSet(LETIMER0, 0, LETIMER_TOP_EM2);
-    LETIMER_CompareSet(LETIMER0, 1, LETIMER_COMP1_EM2);
-    // divide by 2 for LFXO timer
-    CMU->LFAPRESC0 |= ((_CMU_LFAPRESC0_LETIMER0_DIV2 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
+    LETIMER_CompareSet(LETIMER0, 0, le_comp0_em2);
+    LETIMER_CompareSet(LETIMER0, 1, le_comp1_em2);
+    if (LE_DIVIDER2) { // Scaling needed for periods 2 seconds or greater
+        CMU->LFAPRESC0 |=
+             ((_CMU_LFAPRESC0_LETIMER0_DIV2 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
+    }
 } else {
-    LETIMER_CompareSet(LETIMER0, 0, 2500);
-    LETIMER_CompareSet(LETIMER0, 1, 2497);
+    LETIMER_CompareSet(LETIMER0, 0, le_comp0_em3);
+    LETIMER_CompareSet(LETIMER0, 1, le_comp1_em3);
 }
 
 

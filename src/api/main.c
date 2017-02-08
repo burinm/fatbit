@@ -8,11 +8,13 @@
 #include "letimer.h"
 #include "debug.h"
 
-#include "bsp_trace.h"
+//#include "bsp_trace.h"
 
-//Set this to tell the main program what the lowest power mode is
-#define LOWEST_POWER_MODE   EM3
+#define LOWEST_POWER_MODE           EM3
+#define CALIBRATE_LE_ULFRCO         true
 
+// This will be calibrated if CALIBRATE_LE_ULFRCO is true
+uint16_t ulfrco_ticks = LETIMER_ULFRCO_TICK_S;
 
 int main(void)
 {
@@ -23,25 +25,23 @@ int main(void)
 // Note: this also turns on GPIO clock 
 //BSP_TraceProfilerSetup();
 
-//setupSWOForPrint();
+SETUPSWOFORPRINT();
 PRINTSWO_UINT(87654321);
 
 clock_defaults();
 
-//   blockSleepMode(EM1);
-
-    uint16_t ulfrco_ticks = calibrate_ULFRCO_ticks();
-    clock_defaults();
+    if (CALIBRATE_LE_ULFRCO) {
+        ulfrco_ticks = calibrate_ULFRCO_ticks();
+        clock_defaults();
+    }
 
     PRINTSWO_UINT(ulfrco_ticks);
     PRINTSWO_UINT(12345678);
-
 
    //LED0_setup();
    LED1_setup();
    //LED1 is both the state and the indicator for dark mode
    led1_on();
-
 
    LETIMER0_setup(LOWEST_POWER_MODE);
 
