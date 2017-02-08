@@ -43,7 +43,12 @@
 
 void LETIMER0_setup(e_emode e) {
 
+LETIMER_Enable(LETIMER0, false);
+
+
 blockSleepMode(e);
+
+
 
 if (e < EM3) {
     CMU_OscillatorEnable(cmuOsc_LFXO,true,false);
@@ -65,10 +70,13 @@ if (e < EM3) {
     LETIMER_CompareSet(LETIMER0, 1, LETIMER_COMP1_EM3);
 }
 
+// divide by 2 for timer
+CMU->LFAPRESC0 |= ((_CMU_LFAPRESC0_LETIMER0_DIV2 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
+
 // Set configurations for LETIMER 0
 const LETIMER_Init_TypeDef letimerInit =
 {
-    .enable         = true,                 // Start counting when init completed
+    .enable         = false,                // Do not start counting when init completed
     .debugRun       = false,                // Do not stop counter during debug halt
     .comp0Top       = true,                 // Load COMP0 into CNT on underflow
     .bufTop         = false,                // Do not load COMP1 into COMP0 when REP0 reaches 0
@@ -78,9 +86,10 @@ const LETIMER_Init_TypeDef letimerInit =
     .ufoa1          = letimerUFOANone,      // No action on underflow on output 1
     .repMode        = letimerRepeatFree     // Count until stopped by SW
 };
-
 // Initialize LETIMER
 LETIMER_Init(LETIMER0, &letimerInit);
+LETIMER0->CNT=0;
+
 
 // Setup LETIMER interrupts
 CORE_CriticalDisableIrq();
@@ -90,6 +99,9 @@ CORE_CriticalDisableIrq();
     LETIMER0->IEN   |= LETIMER_IEN_COMP1;
     NVIC_EnableIRQ(LETIMER0_IRQn);
 CORE_CriticalEnableIrq();
+
+LETIMER_Enable(LETIMER0, true);
+
 
 }
 

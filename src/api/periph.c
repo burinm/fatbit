@@ -18,6 +18,7 @@ void clock_defaults() {
     //CMU_OscillatorEnable(cmuOsc_AUXHFRCO, false, false);
 
 }
+
 void CMU_setup() {
 }
 

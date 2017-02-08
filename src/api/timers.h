@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+/* Wait for x milliseconds using LXFO LETIMER timer */
+//4651 usec max
+void wait_m_sec(uint16_t usecs);
+
+
 /* Return calibrated ticks for ULRCO based on LXFO */
 uint16_t calibrate_ULFRCO_ticks();
 

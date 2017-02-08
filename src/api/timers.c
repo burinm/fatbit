@@ -6,6 +6,34 @@
 #include "em_core.h"
 #include "debug.h"
 
+void wait_m_sec(uint16_t msecs) { //4651 usec max
+
+    //LETIMER0
+    CMU_OscillatorEnable(cmuOsc_LFXO,true,false);
+    CMU_ClockEnable(cmuClock_HFLE, true);
+   // CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_HFCLKLE);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
+    CMU_ClockEnable(cmuClock_LETIMER0, true);
+
+    const LETIMER_Init_TypeDef letimerInit =
+{   
+    .enable         = false,                // Do no start counting when init completed
+    .debugRun       = true,                 // Do not stop counter during debug halt
+    .comp0Top       = false,                // Do not Load COMP0 into CNT on underflow
+    .bufTop         = false,                // Do not load COMP1 into COMP0 when REP0 reaches 0
+    .out0Pol        = 0,                    // Idle value 0 for output 0
+    .out1Pol        = 0,                    // Idle value 0 for output 1
+    .ufoa0          = letimerUFOANone,      // No action on underflow on output 0
+    .ufoa1          = letimerUFOANone,      // No action on underflow on output 1
+    .repMode        = letimerRepeatOneshot  // One Shot 
+};
+
+    LETIMER_Init(LETIMER0, &letimerInit);
+    LETIMER0->CNT=(msecs * 33);
+    LETIMER_Enable(LETIMER0, true);
+    while(LETIMER_CounterGet(LETIMER0));
+}
+
 uint16_t calibrate_ULFRCO_ticks() {
 
     //Build 32 bit timer with TIMER0,1
@@ -156,4 +184,5 @@ CORE_CriticalDisableIrq();
 
 CORE_CriticalEnableIrq();
 }
+
 #endif
