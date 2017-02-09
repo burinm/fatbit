@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define VDD_DARKNESS 4 
+#define VDD_DARKNESS 2 
 #define VDD_LIGHTNESS 31
 
 /* Get ACMP0 ready for use, connects to photodiode, but does not turn on exciter
