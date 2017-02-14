@@ -103,31 +103,31 @@ CORE_CriticalDisableIrq();
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP1);
 
     if (intFlags & LETIMER_IFS_COMP0) {
-//        led0_on();    
+//        led1_on();    
         CMU_ClockEnable(cmuClock_GPIO, true);
         GPIO_PinOutSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
-        if (is_led1_on()) {
+        if (is_led0_on()) {
            ACMP_fire_up(VDD_LIGHTNESS);
         } else {
             ACMP_fire_up(VDD_DARKNESS);
         }
-        while (ACMP0->STATUS & ACMP_STATUS_ACMPACT == 0);
+        while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
     }
 
     if (intFlags & LETIMER_IFS_COMP1) {
-        if (is_led1_on()) {
+        if (is_led0_on()) {
             if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
-                led1_off();
+                led0_off();
             }
         } else {
             if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
-                led1_on();
+                led0_on();
             }
         }
         ACMP_Disable(ACMP0);
         GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
         CMU_ClockEnable(cmuClock_GPIO, false);
-//        led0_off();
+//        led1_off();
     }
 
 CORE_CriticalEnableIrq();

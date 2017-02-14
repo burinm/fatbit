@@ -33,6 +33,11 @@ void CMU_setup();
 */
 void LED0_setup();
 
+/* Is LED0 on 
+    Inputs: none, Globals: none, Return:  >0 if on
+*/
+uint8_t is_led0_on(); 
+
 /* Turn LED0 on 
     Inputs: none, Globals: none, Return: none
 */

@@ -26,6 +26,10 @@ void LED0_setup() {
     GPIO_PinModeSet(LED0_PORT, LED0_PORT_NUM, gpioModePushPull, 0);
 }
 
+inline uint8_t is_led0_on() {
+    return GPIO->P[LED0_PORT].DOUT & (1 << LED0_PORT_NUM);
+}
+
 inline void led0_on() {
     GPIO_PinOutSet(LED0_PORT, LED0_PORT_NUM);
 }

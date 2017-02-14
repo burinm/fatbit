@@ -38,10 +38,10 @@ clock_defaults();
     PRINTSWO_UINT(ulfrco_ticks);
     PRINTSWO_UINT(12345678);
 
-   //LED0_setup();
-   LED1_setup();
+   //LED1_setup();
+   LED0_setup();
    //LED1 is both the state and the indicator for dark mode
-   led1_on();
+   led0_on();
 
    LETIMER0_setup(LOWEST_POWER_MODE);
 
