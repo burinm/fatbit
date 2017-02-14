@@ -102,6 +102,8 @@ uint16_t calibrate_ULFRCO_ticks() {
     clock_ratio *= 1000;
     uint16_t ulfrco_ticks = clock_ratio;
 
+    TIMER_32_off();
+
     return ulfrco_ticks;
 }
 
@@ -142,6 +144,11 @@ const TIMER_Init_TypeDef timer1Init = {
 
 TIMER_Init(TIMER1, &timer1Init);
 TIMER_Init(TIMER0, &timer0Init);
+}
+
+void TIMER_32_off() {
+    CMU_ClockEnable(cmuClock_TIMER0, false);
+    CMU_ClockEnable(cmuClock_TIMER1, false);
 }
 
 #if 0
