@@ -31,6 +31,11 @@
 			<locationURI>PARENT-6-PROJECT_LOC/opt/Gecko_SDK-5.0.0/hardware/kit/common/bsp/bsp_trace.c</locationURI>
 		</link>
 		<link>
+			<name>driver/dmactrl.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/opt/Gecko_SDK-5.0.0/hardware/kit/common/drivers/dmactrl.c</locationURI>
+		</link>
+		<link>
 			<name>emlib/em_acmp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-6-PROJECT_LOC/opt/Gecko_SDK-5.0.0/platform/emlib/src/em_acmp.c</locationURI>
@@ -214,6 +219,11 @@
 			<name>src/acmp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/acmp.c</locationURI>
+		</link>
+		<link>
+			<name>src/adc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/adc.c</locationURI>
 		</link>
 		<link>
 			<name>src/debug.c</name>

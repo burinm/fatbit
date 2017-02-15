@@ -24,6 +24,7 @@ int main(void)
 
 
 // Note: this also turns on GPIO clock 
+//BSP_Init();
 //BSP_TraceProfilerSetup();
 
 SETUPSWOFORPRINT();

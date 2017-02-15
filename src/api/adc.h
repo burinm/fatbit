@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define TEMP_HI 20 
+#define TEMP_LO 17 
 #define ADC_TIMEBASE 13000 //1us at 13MHz
 
 /* Setup ADC0 for temperature measurement aquisition

@@ -17,12 +17,12 @@ void ADC0_Setup() {
     uint8_t adc_timebase = ADC_TimebaseCalc(0); //0 causes auto clock speed fetch
     const ADC_Init_TypeDef ADC_init = {
         .ovsRateSel = adcOvsRateSel2,             /* 2x oversampling (if enabled). */
-        .warmUpMode = adcWarmupNormal,            /* ADC shutdown after each conversion. */
+        //.warmUpMode = adcWarmupNormal,            /* ADC shutdown after each conversion. */
+        .warmUpMode = adcWarmupKeepADCWarm,  
         .timebase = adc_timebase,                 /* Timebase calulated from clock. */
         //.prescale =  _ADC_CTRL_PRESC_DEFAULT,     /* Use HW default value. */
         /** Clock division factor N, ADC clock =  HFPERCLK / (N + 1). */
-        //.prescale =  53,     /* .259 MHz*/
-        .prescale =  1,     /* 7 MHz*/
+        .prescale =  53,  // 54 - 1 
         .tailgate = false                         /* Do not use tailgate. */
     };
         
@@ -31,7 +31,7 @@ void ADC0_Setup() {
 
      const ADC_InitSingle_TypeDef ADC_singleinit = {
         .prsSel =  adcPRSSELCh0,              /* PRS ch0 (if enabled). */
-        .acqTime = adcAcqTime32,              /* 32 ADC_CLK cycle acquisition time. (3uS @ 7MHz) */
+        .acqTime = adcAcqTime16,              /* we need 13 ADC_CLK cycles acquisition time. */
         .reference = adcRef1V25,              /* 1.25V internal reference. */
         .resolution = adcRes12Bit,            /* 12 bit resolution. */
         .input = adcSingleInpTemp,            /* Internal temperature selected. */
@@ -71,17 +71,17 @@ CORE_CriticalDisableIrq();
     ADC_IntClear(ADC0, ADC_IFC_SINGLE);
 
    if (intFlags & ADC_IF_SINGLE) {
-//led1_on();
+
+
         adc_sample_buffer[adc_sample_count] = ADC0->SINGLEDATA;
         adc_sample_count++;
         if (adc_sample_count > 750) {
-     led1_on();
+
+
             adc_sample_count = 0;
             ADC0->CMD = ADC_CMD_SINGLESTOP;
-    //ADC0->IEN &= ~ADC_IEN_SINGLE; //turn off interrupt??
             unblockSleepMode(EM1);
             temperature_tally();
-            //ADC0->CMD = ADC_CMD_SINGLESTART;
         }
     }
 
@@ -91,17 +91,25 @@ CORE_CriticalEnableIrq();
 void temperature_tally() {
 float average=0;
 
-for (int i=0; i<750; i++) {
-    average+=adc_sample_buffer[i];
-    //if (i % 10 == 0) { PRINTSWO_UINT( (uint32_t)average ); }
-    //if (i % 10 == 0) { PRINTSWO_UINT( adc_sample_buffer[i] ); }
-}
+    for (int i=0; i<750; i++) {
+        average+=adc_sample_buffer[i];
+        //if (i % 10 == 0) { PRINTSWO_UINT( adc_sample_buffer[i] ); }
+    }
 
-average = average / 750;
-//PRINTSWO_UINT((uint32_t)convertToCelsius(average));
-PRINTSWO_UINT(convertToCelsius(average));
+    average = average / 750;
+    uint8_t tempC = ((uint32_t)convertToCelsius(average));
+    PRINTSWO_UINT(tempC);
 
-}
+    if ( tempC < TEMP_HI && tempC > TEMP_LO ) {
+        CMU_ClockEnable(cmuClock_GPIO, true);
+         led1_off();
+        CMU_ClockEnable(cmuClock_GPIO, false);
+    } else {
+        CMU_ClockEnable(cmuClock_GPIO, true);
+         led1_on();
+        CMU_ClockEnable(cmuClock_GPIO, false);
+    }
+}    
 
 float convertToCelsius(int32_t adcSample)
 {
