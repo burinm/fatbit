@@ -47,8 +47,8 @@ void LETIMER0_setup(e_emode e) {
     } else {
         CMU_OscillatorEnable(cmuOsc_ULFRCO,true,false);
         CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO);
-
     }
+
     CMU_ClockEnable(cmuClock_HFLE, true);
     CMU_ClockEnable(cmuClock_LETIMER0, true);
 

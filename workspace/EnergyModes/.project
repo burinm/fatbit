@@ -231,6 +231,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/debug.c</locationURI>
 		</link>
 		<link>
+			<name>src/dma.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/dma.c</locationURI>
+		</link>
+		<link>
 			<name>src/letimer.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/letimer.c</locationURI>
