@@ -31,7 +31,7 @@ void ADC0_Setup() {
 
      const ADC_InitSingle_TypeDef ADC_singleinit = {
         .prsSel =  adcPRSSELCh0,              /* PRS ch0 (if enabled). */
-        .acqTime = adcAcqTime16,              /* we need 13 ADC_CLK cycles acquisition time. */
+        .acqTime = adcAcqTime1,              /* Don't know what this does, needs to be 1. */
         .reference = adcRef1V25,              /* 1.25V internal reference. */
         .resolution = adcRes12Bit,            /* 12 bit resolution. */
         .input = adcSingleInpTemp,            /* Internal temperature selected. */
@@ -43,24 +43,12 @@ void ADC0_Setup() {
 
     ADC_InitSingle(ADC0, &ADC_singleinit);
     
-
-    // Repeat on
-    //ADC0->SINGLECTRL |= ADC_SINGLECTRL_REP;
-    // Input is tempurature reference (DIFF=0)
-    //ADC0->SINGLECTRL |= (_ADC_SINGLECTRL_INPUTSEL_TEMP << _ADC_SINGLECTRL_INPUTSEL_SHIFT); 
-    // Reference is 1.25V internal (This is default, = 0)
-    //ADC0->SINGLECTRL |= (_ADC_SINGLECTRL_REF_1V25 << _ADC_SINGLECTRL_REF_SHIFT); 
-
-
 CORE_CriticalDisableIrq();
     ADC0->IFC = ADC_IFC_SINGLE;
     ADC0->IEN |= ADC_IEN_SINGLE;
     NVIC_EnableIRQ(ADC0_IRQn);
 CORE_CriticalEnableIrq();
 
-
-    //ADC_Start(ADC0, adcStartSingle); 
-    //ADC0->CMD = ADC_CMD_SINGLESTART;
 }
 
 void ADC0_IRQHandler() {
@@ -76,8 +64,6 @@ CORE_CriticalDisableIrq();
         adc_sample_buffer[adc_sample_count] = ADC0->SINGLEDATA;
         adc_sample_count++;
         if (adc_sample_count > 750) {
-
-
             adc_sample_count = 0;
             ADC0->CMD = ADC_CMD_SINGLESTOP;
             unblockSleepMode(EM1);
