@@ -39,7 +39,7 @@ LINKER_FILE=$(SIMPLICITY_SDK)/platform/Device/SiliconLabs/EFM32LG/Source/GCC/efm
 
 SOURCES = bsp_bcc.c bsp_stk_leds.c bsp_stk.c bsp_trace.c
 SOURCES += segmentlcd.c em_lcd.c
-SOURCES += em_letimer.c em_core.c em_assert.c em_emu.c em_cmu.c em_ebi.c em_gpio.c em_system.c em_usart.c em_acmp.c
+SOURCES += em_letimer.c em_core.c em_assert.c em_emu.c em_cmu.c em_ebi.c em_gpio.c em_system.c em_usart.c em_acmp.c em_adc.c
 #SOURCES += em_assert.c  em_ebi.c em_gpio.c em_system.c
 SOURCES += em_timer.c
 SOURCES += system_efm32lg.c

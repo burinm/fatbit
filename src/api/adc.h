@@ -6,6 +6,9 @@
 #define TEMP_HI 20 
 #define TEMP_LO 17 
 #define ADC_TIMEBASE 13000 //1us at 13MHz
+#define ADC_NUMBER_SAMPLES 750
+
+extern uint16_t adc_sample_buffer[ADC_NUMBER_SAMPLES];
 
 /* Setup ADC0 for temperature measurement aquisition
 */
@@ -14,7 +17,9 @@ void ADC0_Setup();
 /* ADC0 interrupt handler, used for interrupt driven
  *  temperature sampling
  */
-void ADC0_IRQHandler();
+#ifndef USING_DMA_FOR_TEMP
+    void ADC0_IRQHandler();
+#endif
 
 /* Tally up average */
 void temperature_tally();

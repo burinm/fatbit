@@ -1,3 +1,4 @@
+#include "main.h"
 #include "letimer.h"
 #include "sleep.h"
 #include "em_cmu.h"
@@ -5,7 +6,11 @@
 #include "em_letimer.h"
 #include "em_core.h"
 #include "em_acmp.h"
-#include "main.h"
+#ifdef USING_DMA_FOR_TEMP
+    #include "adc.h"
+    #include "dma.h"
+    #include "em_dma.h"
+#endif
 #include "periph.h"
 #include "acmp.h"
 
@@ -113,6 +118,12 @@ CORE_CriticalDisableIrq();
 
         blockSleepMode(EM1);
         ADC0->CMD = ADC_CMD_SINGLESTART;
+
+        /* DMA go */
+#ifdef USING_DMA_FOR_TEMP
+        DMA_ActivateBasic(DMA_CHANNEL_FOR_ADC, true, false, &adc_sample_buffer,(void*)&(ADC0->SINGLEDATA), ADC_NUMBER_SAMPLES-1);
+#endif
+
 
         /* Light indicator section */
         CMU_ClockEnable(cmuClock_GPIO, true);

@@ -65,6 +65,11 @@ clock_defaults();
     // Setup for temperature measurement    
     ADC0_Setup();
 
+    // Setup DMA
+#ifdef USING_DMA_FOR_TEMP
+    DMA_Setup();
+#endif
+
   /* Infinite loop */
   while (1) {
     sleep();

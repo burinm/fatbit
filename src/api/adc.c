@@ -8,7 +8,7 @@
     #include "debug.h"
 
 uint16_t adc_sample_count=0;
-uint16_t  adc_sample_buffer[750] = {0};
+uint16_t  adc_sample_buffer[ADC_NUMBER_SAMPLES] = {0};
 
 void ADC0_Setup() {
 
@@ -22,7 +22,7 @@ void ADC0_Setup() {
         .timebase = adc_timebase,                 /* Timebase calulated from clock. */
         //.prescale =  _ADC_CTRL_PRESC_DEFAULT,     /* Use HW default value. */
         /** Clock division factor N, ADC clock =  HFPERCLK / (N + 1). */
-        .prescale =  53,  // 54 - 1 
+        .prescale =  52,  // 53 - 1 
         .tailgate = false                         /* Do not use tailgate. */
     };
         
@@ -43,46 +43,50 @@ void ADC0_Setup() {
 
     ADC_InitSingle(ADC0, &ADC_singleinit);
     
-CORE_CriticalDisableIrq();
-    ADC0->IFC = ADC_IFC_SINGLE;
-    ADC0->IEN |= ADC_IEN_SINGLE;
-    NVIC_EnableIRQ(ADC0_IRQn);
-CORE_CriticalEnableIrq();
+#ifndef USING_DMA_FOR_TEMP
+    CORE_CriticalDisableIrq();
+        ADC0->IFC = ADC_IFC_SINGLE;
+        ADC0->IEN |= ADC_IEN_SINGLE;
+        NVIC_EnableIRQ(ADC0_IRQn);
+    CORE_CriticalEnableIrq();
+#endif
 
 }
 
-void ADC0_IRQHandler() {
-int intFlags;
+#ifndef USING_DMA_FOR_TEMP
+    void ADC0_IRQHandler() {
+    int intFlags;
 
-CORE_CriticalDisableIrq();
-    intFlags = ADC_IntGet(ADC0);
-    ADC_IntClear(ADC0, ADC_IFC_SINGLE);
+    CORE_CriticalDisableIrq();
+        intFlags = ADC_IntGet(ADC0);
+        ADC_IntClear(ADC0, ADC_IFC_SINGLE);
 
-   if (intFlags & ADC_IF_SINGLE) {
+       if (intFlags & ADC_IF_SINGLE) {
 
 
-        adc_sample_buffer[adc_sample_count] = ADC0->SINGLEDATA;
-        adc_sample_count++;
-        if (adc_sample_count > 750) {
-            adc_sample_count = 0;
-            ADC0->CMD = ADC_CMD_SINGLESTOP;
-            unblockSleepMode(EM1);
-            temperature_tally();
+            adc_sample_buffer[adc_sample_count] = ADC0->SINGLEDATA;
+            adc_sample_count++;
+            if (adc_sample_count > ADC_NUMBER_SAMPLES) {
+                adc_sample_count = 0;
+                ADC0->CMD = ADC_CMD_SINGLESTOP;
+                unblockSleepMode(EM1);
+                temperature_tally();
+            }
         }
-    }
 
-CORE_CriticalEnableIrq();
-}
+    CORE_CriticalEnableIrq();
+    }
+#endif
 
 void temperature_tally() {
 float average=0;
 
-    for (int i=0; i<750; i++) {
+    for (int i=0; i<ADC_NUMBER_SAMPLES; i++) {
         average+=adc_sample_buffer[i];
         //if (i % 10 == 0) { PRINTSWO_UINT( adc_sample_buffer[i] ); }
     }
 
-    average = average / 750;
+    average = average / ADC_NUMBER_SAMPLES;
     uint8_t tempC = ((uint32_t)convertToCelsius(average));
     PRINTSWO_UINT(tempC);
 
@@ -111,4 +115,3 @@ float convertToCelsius(int32_t adcSample)
     temp = (cal_temp_0 - ((cal_value_0 - adcSample) / t_grad));
     return temp;
 }
-
