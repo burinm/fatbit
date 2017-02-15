@@ -116,6 +116,7 @@ CORE_CriticalDisableIrq();
 
         /* Temperature section */
 
+        //ADC on
         blockSleepMode(EM1);
         ADC0->CMD = ADC_CMD_SINGLESTART;
 

@@ -68,8 +68,6 @@ void ADC0_Setup() {
             adc_sample_count++;
             if (adc_sample_count > ADC_NUMBER_SAMPLES) {
                 adc_sample_count = 0;
-                ADC0->CMD = ADC_CMD_SINGLESTOP;
-                unblockSleepMode(EM1);
                 temperature_tally();
             }
         }
@@ -80,6 +78,10 @@ void ADC0_Setup() {
 
 void temperature_tally() {
 float average=0;
+
+    //ADC off
+    ADC0->CMD = ADC_CMD_SINGLESTOP;
+    unblockSleepMode(EM1);
 
     for (int i=0; i<ADC_NUMBER_SAMPLES; i++) {
         average+=adc_sample_buffer[i];

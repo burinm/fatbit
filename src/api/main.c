@@ -4,6 +4,9 @@
 #include "periph.h"
 #include "sleep.h"
 #include "main.h"
+#ifdef USING_DMA_FOR_TEMP
+    #include "dma.h" 
+#endif
 #include "timers.h"
 #include "letimer.h"
 #include "adc.h"
