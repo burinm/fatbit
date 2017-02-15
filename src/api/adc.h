@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#define TEMP_HI 25 
-#define TEMP_LO 23 
+#define TEMP_HI 35 
+#define TEMP_LO 15 
 #define ADC_TIMEBASE 13000 //1us at 13MHz
 #define ADC_NUMBER_SAMPLES 750
 

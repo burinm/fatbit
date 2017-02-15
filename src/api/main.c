@@ -14,9 +14,6 @@
 
 //#include "bsp_trace.h"
 
-#define LOWEST_POWER_MODE           EM3
-#define CALIBRATE_LE_ULFRCO         true
-
 // This will be calibrated if CALIBRATE_LE_ULFRCO is true
 uint16_t ulfrco_ticks = LETIMER_ULFRCO_TICK_S;
 
