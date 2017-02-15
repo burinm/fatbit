@@ -1,4 +1,5 @@
 #include "letimer.h"
+#include "sleep.h"
 #include "em_cmu.h"
 #include "em_gpio.h"
 #include "em_letimer.h"
@@ -17,7 +18,7 @@ void LETIMER0_setup(e_emode e) {
     double le_on_seconds = LE_ON_SECONDS;
 
     // LXFO Timings
-    uint16_t le_lfxo_ticks_second = LETIMER_LFXO_TICK_S / (LE_DIVIDER2 ? 2:1); //Divider on/off
+    uint16_t le_lfxo_ticks_second = LETIMER_LFXO_TICK_S / (LE_DIVIDER ? LE_DIVIDER:1); //Divider on/off
 
     uint16_t le_comp0_em2 = le_period_seconds * le_lfxo_ticks_second; 
     uint16_t le_comp1_em2 = le_comp0_em2 - (le_on_seconds * le_lfxo_ticks_second); 
@@ -55,9 +56,13 @@ void LETIMER0_setup(e_emode e) {
     if (e < EM3) {
         LETIMER_CompareSet(LETIMER0, 0, le_comp0_em2);
         LETIMER_CompareSet(LETIMER0, 1, le_comp1_em2);
-        if (LE_DIVIDER2) { // Scaling needed for periods 2 seconds or greater
+        if (LE_DIVIDER == 2) { // Scaling needed for periods 2 seconds or greater
             CMU->LFAPRESC0 |=
           ((_CMU_LFAPRESC0_LETIMER0_DIV2 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
+        }
+        if (LE_DIVIDER == 4) { // Scaling needed for periods 4 seconds or greater
+            CMU->LFAPRESC0 |=
+          ((_CMU_LFAPRESC0_LETIMER0_DIV4 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
         }
     } else {
         LETIMER_CompareSet(LETIMER0, 0, le_comp0_em3);
@@ -103,7 +108,13 @@ CORE_CriticalDisableIrq();
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP1);
 
     if (intFlags & LETIMER_IFS_COMP0) {
-//        led1_on();    
+
+        /* Temperature section */
+
+        blockSleepMode(EM1);
+        ADC0->CMD = ADC_CMD_SINGLESTART;
+
+        /* Light indicator section */
         CMU_ClockEnable(cmuClock_GPIO, true);
         GPIO_PinOutSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
         if (is_led0_on()) {
@@ -127,7 +138,6 @@ CORE_CriticalDisableIrq();
         ACMP_Disable(ACMP0);
         GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
         CMU_ClockEnable(cmuClock_GPIO, false);
-//        led1_off();
     }
 
 CORE_CriticalEnableIrq();

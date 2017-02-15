@@ -6,6 +6,7 @@
 #include "main.h"
 #include "timers.h"
 #include "letimer.h"
+#include "adc.h"
 #include "debug.h"
 
 //#include "bsp_trace.h"
@@ -35,12 +36,14 @@ clock_defaults();
         clock_defaults();
     }
 
-    PRINTSWO_UINT(ulfrco_ticks);
-    PRINTSWO_UINT(12345678);
+//    PRINTSWO_UINT(ulfrco_ticks);
+//    PRINTSWO_UINT(12345678);
 
-   //LED1_setup();
+   LED1_setup();
+   led1_off(); //start off for debugging
+
    LED0_setup();
-   //LED1 is both the state and the indicator for dark mode
+   //LED0 is both the state and the indicator for dark mode
    led0_on();
 
    LETIMER0_setup(LOWEST_POWER_MODE);
@@ -58,7 +61,9 @@ clock_defaults();
     //GPIOs will keep thier state, so we only need to toggle clock
     CMU_ClockEnable(cmuClock_GPIO, false);
 
-    
+    // Setup for temperature measurement    
+    ADC0_Setup();
+
   /* Infinite loop */
   while (1) {
     sleep();
