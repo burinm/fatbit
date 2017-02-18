@@ -17,6 +17,11 @@ find ${SIMPLICITY_SDK}/platform/Device/SiliconLabs/EFM32LG/Include -iname "efm32
 echo ${SIMPLICITY_SDK}/platform/Device/SiliconLabs/EFM32LG/Include/efm32lg990f256.h >> cscope.files
 echo ${SIMPLICITY_SDK}/platform/Device/SiliconLabs/EFM32LG/Include/em_device.h >> cscope.files
 echo ${SIMPLICITY_SDK}/platform/Device/SiliconLabs/EFM32LG/Include/system_efm32lg.h >> cscope.files
+
+#My driver libs
+find ~/drivers/src/driver -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile >> cscope.files
+
+
 cscope -b
 ctags -L ./cscope.files
 cscope
