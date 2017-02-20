@@ -32,6 +32,7 @@ PRINTSWO_UINT(87654321);
 
 clock_defaults();
 
+#if 0
     if (CALIBRATE_LE_ULFRCO) {
         ulfrco_ticks = calibrate_ULFRCO_ticks();
         clock_defaults();
@@ -69,9 +70,15 @@ clock_defaults();
 #ifdef USING_DMA_FOR_TEMP
     DMA_Setup();
 #endif
+#endif
+
+    tsl2651_open();
+
+    tsl2651_on();
+//    tsl2651_read_register(0);
 
   /* Infinite loop */
   while (1) {
-    sleep();
+    //sleep();
   }
 }

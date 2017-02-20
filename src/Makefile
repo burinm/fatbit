@@ -45,7 +45,7 @@ SOURCES += em_letimer.c em_core.c em_assert.c em_emu.c em_cmu.c em_ebi.c em_gpio
 SOURCES += em_timer.c
 SOURCES += system_efm32lg.c
 SOURCES += dmactrl.c em_dma.c 
-SOURCES += gecko_i2c.c i2c_emf32.c tsl2651.c 
+SOURCES += gecko_i2c.c i2c_emf32.c tsl2651.c em_i2c.c
 SOURCES += main.c sleep.c periph.c dma.c adc.c acmp.c letimer.c timers.c debug.c
 #SOURCES += retargetio.c
 OBJS :=$(SOURCES:%.c=%.o)
