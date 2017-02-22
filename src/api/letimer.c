@@ -150,6 +150,7 @@ CORE_CriticalDisableIrq();
         }
         while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
 #else // External Light Sensor
+
         letimer_frame++;
 
         switch (letimer_frame) {
@@ -157,6 +158,7 @@ CORE_CriticalDisableIrq();
                 light_sensor_power_on();
             break;
         }
+
 #endif
     }
 
@@ -186,6 +188,7 @@ CORE_CriticalDisableIrq();
                 letimer_frame=0;
             break;
         }
+
 #endif
     }
 

@@ -5,8 +5,8 @@
 
 //#define TEMP_HI 35 
 //#define TEMP_LO 15 
-#define TEMP_HI 27 
-#define TEMP_LO 25 
+#define TEMP_HI 26 
+#define TEMP_LO 23 
 #define ADC_NUMBER_SAMPLES 1000
 //#define ADC_PRESCALE 52 // (53 - 1)  20000 samples/3us aquisition/12 bits, 13 clocks
 #define ADC_PRESCALE 24 // (25 - 1)  40000 samples/3us aquisition/12 bits, 14 clocks

@@ -68,8 +68,7 @@ clock_defaults();
     CMU_ClockEnable(cmuClock_GPIO, false);
 
 #else
-    //light_sensor_power_on();
-    //light_sensor_program();
+    CMU_ClockEnable(cmuClock_GPIO, true);
 #endif
 
     // Setup for temperature measurement    
@@ -84,6 +83,6 @@ clock_defaults();
 
   /* Infinite loop */
   while (1) {
-//    sleep();
+    sleep();
   }
 }

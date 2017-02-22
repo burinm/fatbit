@@ -2,14 +2,21 @@
 #include "../../../drivers/src/driver/tsl2651.h"
 #include "em_gpio.h"
 #include "em_cmu.h"
+#include "em_core.h"
+#include "periph.h"
 
         #include "debug.h"
 
 void light_sensor_power_on() {
 
 //Turn power on
+GPIO_PinModeSet(LIGHT_SENSOR_POWER_PORT, LIGHT_SENSOR_POWER_PORT_NUM,
+    gpioModePushPullDrive, 1);
+//GPIO_DriveStrengthSet(LIGHT_SENSOR_POWER_PORT,gpioDriveStrengthWeakAlternateWeak);
+GPIO_DriveModeSet(LIGHT_SENSOR_POWER_PORT,gpioDriveModeLow);
 
 //Wait for power up
+// LETIMER takes care of this
 
 
 
@@ -38,7 +45,7 @@ tsl2651_write_register(TSL2651_ADDR_THRESHHIGH_HIGHB,
 tsl2651_write_register(TSL2651_ADDR_TIMING, TSL2651_TIMING_INTEG_101_MS);
 
 // Setup interrupt input on Gecko board
-CMU_ClockEnable(cmuClock_GPIO, true);
+//CMU_ClockEnable(cmuClock_GPIO, true);
 GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
     gpioModeInputPull, 1);
 
@@ -48,7 +55,6 @@ GPIO_ExtIntConfig(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM, LIGHT_SENSOR
 // GPIO interrupts on
 CORE_CriticalDisableIrq();
     NVIC_EnableIRQ(GPIO_ODD_IRQn);
-    NVIC_EnableIRQ(GPIO_EVEN_IRQn);
 CORE_CriticalEnableIrq();
 
 // Persistance level 4, level interrupts on
@@ -77,10 +83,20 @@ return ( (GPIO_PortInGet(LIGHT_SENSOR_INT_PORT) & (1 << LIGHT_SENSOR_INT_PORT_NU
 void light_sensor_power_off() {
 
 //Disable interrupts
+CORE_CriticalDisableIrq();
+    NVIC_DisableIRQ(GPIO_ODD_IRQn);
+CORE_CriticalEnableIrq();
 
 //Disable GPIO PINS - I2C pins, interrupt pin
+tsl2651_on(0); //Soft power off first, before we yank the cord
+tsl2651_close();
+
+GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
+    gpioModeInputPull, 1);
 
 //Disable power
+GPIO_PinModeSet(LIGHT_SENSOR_POWER_PORT, LIGHT_SENSOR_POWER_PORT_NUM,
+    gpioModeDisabled, 0);
 
 }
 
