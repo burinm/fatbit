@@ -3,6 +3,8 @@
 #include "em_gpio.h"
 #include "em_cmu.h"
 
+        #include "debug.h"
+
 void light_sensor_power_on() {
 
 //Turn power on
@@ -22,11 +24,15 @@ tsl2651_open();
 tsl2651_on(1);
 
 // Interrupt threshold 0x00f -> 0x0800
-tsl2651_write_register(TSL2651_ADDR_THRESHLOW_LOWB, 0x0f);
-tsl2651_write_register(TSL2651_ADDR_THRESHLOW_HIGHB, 0x00);
+tsl2651_write_register(TSL2651_ADDR_THRESHLOW_LOWB,
+         LOW_BYTE16(LIGHT_SENSOR_THRESH_LOW));
+tsl2651_write_register(TSL2651_ADDR_THRESHLOW_HIGHB,
+         HIGH_BYTE16(LIGHT_SENSOR_THRESH_LOW));
 
-tsl2651_write_register(TSL2651_ADDR_THRESHHIGH_LOWB, 0x00);
-tsl2651_write_register(TSL2651_ADDR_THRESHHIGH_HIGHB, 0x08);
+tsl2651_write_register(TSL2651_ADDR_THRESHHIGH_LOWB,
+         LOW_BYTE16(LIGHT_SENSOR_THRESH_HIGH));
+tsl2651_write_register(TSL2651_ADDR_THRESHHIGH_HIGHB,
+         HIGH_BYTE16(LIGHT_SENSOR_THRESH_HIGH));
 
 // Integration timing 101ms, Low gain
 tsl2651_write_register(TSL2651_ADDR_TIMING, TSL2651_TIMING_INTEG_101_MS);
@@ -86,6 +92,7 @@ void light_sensor_power_off() {
 
 void GPIO_ODD_IRQHandler() {
 int intFlags;
+uint16_t light=0;
 
 CORE_CriticalDisableIrq();
     intFlags = GPIO_IntGet();
@@ -93,9 +100,21 @@ CORE_CriticalDisableIrq();
 
     if ( intFlags & (1<<LIGHT_SENSOR_INT_PORT_NUM) ) {
         tsl2651_int_clear();
-        led0_toggle();
-    }
+        light=tsl2651_read_register(TSL2651_ADDR_DATA0_HIGHB);
+        light<<=8;
+        light+=tsl2651_read_register(TSL2651_ADDR_DATA0_LOWB);
 
+
+        if ( is_led0_on() ) { //Dark state
+            if (light >= LIGHT_SENSOR_THRESH_HIGH) {
+                led0_off();
+            }
+        } else { //Light state 
+            if (light <= LIGHT_SENSOR_THRESH_LOW) {
+                led0_on();
+            }
+        }
+    }
 
 CORE_CriticalEnableIrq();
 }

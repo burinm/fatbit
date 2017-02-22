@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+#define LIGHT_SENSOR_THRESH_LOW     0x000f
+#define LIGHT_SENSOR_THRESH_HIGH    0x0800 
+#define LOW_BYTE16(x)  (x & 0xff)
+#define HIGH_BYTE16(x)  ((x >> 8) & 0xff)
+
+
 #define LIGHT_SENSOR_POWER_PORT     gpioPortD
 #define LIGHT_SENSOR_POWER_PORT_NUM 0
 
