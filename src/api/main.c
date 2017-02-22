@@ -13,6 +13,9 @@
 #include "light_sensor_ext.h"
 #include "debug.h"
 
+    //debug
+    #include "em_gpio.h"
+
 //#include "bsp_trace.h"
 
 // This will be calibrated if CALIBRATE_LE_ULFRCO is true
@@ -80,9 +83,17 @@ clock_defaults();
 
     //tsl2651_on(1);
     //tsl2651_read_register(0);
-
+     LED0_setup();
   /* Infinite loop */
   while (1) {
+    if (GPIO_PortInGet(LIGHT_SENSOR_INT_PORT) & (1 << LIGHT_SENSOR_INT_PORT_NUM))
+    {
+         led0_on();
+    } else {
+        tsl2651_int_clear();
+         led0_off();
+    }
+        
     //sleep();
   }
 }
