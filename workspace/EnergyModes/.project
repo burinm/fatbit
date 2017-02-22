@@ -236,6 +236,31 @@
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/dma.c</locationURI>
 		</link>
 		<link>
+			<name>src/gecko_i2c.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/gecko_i2c.c</locationURI>
+		</link>
+		<link>
+			<name>src/gecko_i2c.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/gecko_i2c.h</locationURI>
+		</link>
+		<link>
+			<name>src/i2c.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/i2c.h</locationURI>
+		</link>
+		<link>
+			<name>src/i2c_emf32.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/i2c_emf32.c</locationURI>
+		</link>
+		<link>
+			<name>src/i2c_emf32.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/i2c_emf32.h</locationURI>
+		</link>
+		<link>
 			<name>src/letimer.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/letimer.c</locationURI>
@@ -244,6 +269,16 @@
 			<name>src/letimer.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/letimer.h</locationURI>
+		</link>
+		<link>
+			<name>src/light_sensor_ext.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/light_sensor_ext.c</locationURI>
+		</link>
+		<link>
+			<name>src/light_sensor_ext.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/light_sensor_ext.h</locationURI>
 		</link>
 		<link>
 			<name>src/main.c</name>
@@ -279,6 +314,16 @@
 			<name>src/timers.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/timers.c</locationURI>
+		</link>
+		<link>
+			<name>src/tsl2651.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/tsl2651.c</locationURI>
+		</link>
+		<link>
+			<name>src/tsl2651.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/tsl2651.h</locationURI>
 		</link>
 		<link>
 			<name>CMSIS/EFM32LG/startup_gcc_efm32lg.s</name>

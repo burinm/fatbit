@@ -20,6 +20,7 @@ INCLUDES += -I$(SIMPLICITY_SDK)/hardware/kit/EFM32LG_STK3600/examples/blink \
 -I$(SIMPLICITY_SDK)/platform/Device/SiliconLabs/EFM32LG/Include \
 -I$(SIMPLICITY_SDK)/hardware/kit/common/drivers \
 -I./api
+#-I../../drivers/src/driver
 
 CFLAGS = -g -gdwarf-2 -mcpu=cortex-m3 -mthumb -std=c99 -O0 -Wall -fmessage-length=0 -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections
 CFLAGS += '-DDEBUG_EFM=1' '-DEFM32LG990F256=1' '-DDEBUG=1'
@@ -47,6 +48,7 @@ SOURCES += system_efm32lg.c
 SOURCES += dmactrl.c em_dma.c 
 SOURCES += gecko_i2c.c i2c_emf32.c tsl2651.c em_i2c.c
 SOURCES += main.c sleep.c periph.c dma.c adc.c acmp.c letimer.c timers.c debug.c
+SOURCES += light_sensor_ext.c
 #SOURCES += retargetio.c
 OBJS :=$(SOURCES:%.c=%.o)
 OBJS += startup_efm32lg.o

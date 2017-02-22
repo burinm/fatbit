@@ -10,6 +10,7 @@
 #include "timers.h"
 #include "letimer.h"
 #include "adc.h"
+#include "light_sensor_ext.h"
 #include "debug.h"
 
 //#include "bsp_trace.h"
@@ -72,10 +73,13 @@ clock_defaults();
 #endif
 #endif
 
-    tsl2651_open();
+    light_sensor_power_on();
+    light_sensor_program();
 
-    tsl2651_on(1);
-    tsl2651_read_register(0);
+    //tsl2651_open();
+
+    //tsl2651_on(1);
+    //tsl2651_read_register(0);
 
   /* Infinite loop */
   while (1) {
