@@ -74,8 +74,8 @@ clock_defaults();
 
     tsl2651_open();
 
-    tsl2651_on();
-//    tsl2651_read_register(0);
+    tsl2651_on(1);
+    tsl2651_read_register(0);
 
   /* Infinite loop */
   while (1) {
