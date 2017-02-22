@@ -36,8 +36,24 @@ CMU_ClockEnable(cmuClock_GPIO, true);
 GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
     gpioModeInputPull, 1);
 
+#if 1
+//Falling edge
+GPIO_ExtIntConfig(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM, LIGHT_SENSOR_INT_PORT_NUM, false, true, true);
+
+// GPIO interrupts on
+CORE_CriticalDisableIrq();
+    NVIC_EnableIRQ(GPIO_ODD_IRQn);
+    NVIC_EnableIRQ(GPIO_EVEN_IRQn);
+CORE_CriticalEnableIrq();
+#endif
+
+//Debug Led on
+LED0_setup();
+
+
 // Persistance level 4, level interrupts on
 tsl2651_write_register(TSL2651_ADDR_INT, TSL2651_INT_PERSIST_4 | TSL2651_INT_CTRL_LEVEL);
+tsl2651_int_clear();
 
 
 #if 0
@@ -68,3 +84,18 @@ void light_sensor_power_off() {
 
 }
 
+void GPIO_ODD_IRQHandler() {
+int intFlags;
+
+CORE_CriticalDisableIrq();
+    intFlags = GPIO_IntGet();
+    GPIO_IntClear(1<<LIGHT_SENSOR_INT_PORT_NUM);
+
+    if ( intFlags & (1<<LIGHT_SENSOR_INT_PORT_NUM) ) {
+        tsl2651_int_clear();
+        led0_toggle();
+    }
+
+
+CORE_CriticalEnableIrq();
+}

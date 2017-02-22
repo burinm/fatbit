@@ -34,6 +34,7 @@ int main(void)
 SETUPSWOFORPRINT();
 PRINTSWO_UINT(87654321);
 
+#if 0
 clock_defaults();
 
     if (CALIBRATE_LE_ULFRCO) {
@@ -53,6 +54,7 @@ clock_defaults();
 
    LETIMER0_setup(LOWEST_POWER_MODE);
 
+#ifdef INTERNAL_LIGHT_SENSOR
     //setup all GPIO before entering sleep
     CMU_ClockEnable(cmuClock_GPIO, true);
     //LES_LIGHT_SENSE
@@ -65,6 +67,7 @@ clock_defaults();
 
     //GPIOs will keep thier state, so we only need to toggle clock
     CMU_ClockEnable(cmuClock_GPIO, false);
+#endif
 
     // Setup for temperature measurement    
     ADC0_Setup();
@@ -74,6 +77,9 @@ clock_defaults();
     DMA_Setup();
 #endif
 
+#endif
+
+
     light_sensor_power_on();
     light_sensor_program();
 
@@ -81,10 +87,10 @@ clock_defaults();
 
     //tsl2651_on(1);
     //tsl2651_read_register(0);
-    // LED0_setup();
   /* Infinite loop */
   while (1) {
     #if 0
+    CMU_ClockEnable(cmuClock_GPIO, true);
     if (GPIO_PortInGet(LIGHT_SENSOR_INT_PORT) & (1 << LIGHT_SENSOR_INT_PORT_NUM))
     {
          led0_on();
@@ -92,8 +98,9 @@ clock_defaults();
         tsl2651_int_clear();
          led0_off();
     }
+    CMU_ClockEnable(cmuClock_GPIO, false);
     #endif
         
-    sleep();
+//    sleep();
   }
 }

@@ -126,6 +126,7 @@ CORE_CriticalDisableIrq();
 #endif
 
 
+#ifdef INTERNAL_LIGHT_SENSOR
         /* Light indicator section */
         CMU_ClockEnable(cmuClock_GPIO, true);
         GPIO_PinOutSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
@@ -135,9 +136,11 @@ CORE_CriticalDisableIrq();
             ACMP_fire_up(VDD_DARKNESS);
         }
         while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
+#endif
     }
 
     if (intFlags & LETIMER_IFS_COMP1) {
+#ifdef INTERNAL_LIGHT_SENSOR
         if (is_led0_on()) {
             if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
                 led0_off();
@@ -150,6 +153,7 @@ CORE_CriticalDisableIrq();
         ACMP_Disable(ACMP0);
         GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
         CMU_ClockEnable(cmuClock_GPIO, false);
+#endif
     }
 
 CORE_CriticalEnableIrq();
