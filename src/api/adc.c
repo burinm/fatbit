@@ -22,7 +22,7 @@ void ADC0_Setup() {
         .timebase = adc_timebase,                 /* Timebase calulated from clock. */
         //.prescale =  _ADC_CTRL_PRESC_DEFAULT,     /* Use HW default value. */
         /** Clock division factor N, ADC clock =  HFPERCLK / (N + 1). */
-        .prescale =  52,  // 53 - 1 
+        .prescale =  ADC_PRESCALE,
         .tailgate = false                         /* Do not use tailgate. */
     };
         

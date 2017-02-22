@@ -3,10 +3,13 @@
 
 #include <stdint.h>
 
-#define TEMP_HI 35 
-#define TEMP_LO 15 
-#define ADC_TIMEBASE 13000 //1us at 13MHz
-#define ADC_NUMBER_SAMPLES 750
+//#define TEMP_HI 35 
+//#define TEMP_LO 15 
+#define TEMP_HI 31 
+#define TEMP_LO 29 
+#define ADC_NUMBER_SAMPLES 1000
+//#define ADC_PRESCALE 52 // (53 - 1)  20000 samples/3us aquisition/12 bits, 13 clocks
+#define ADC_PRESCALE 24 // (25 - 1)  40000 samples/3us aquisition/12 bits, 14 clocks
 
 extern uint16_t adc_sample_buffer[ADC_NUMBER_SAMPLES];
 

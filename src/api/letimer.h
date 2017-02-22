@@ -10,7 +10,7 @@ extern uint16_t ulfrco_ticks;
 
 //#define LE_DIVIDER 2        //Needed for periods 2 seconds and over
 #define LE_DIVIDER 4        //Needed for periods 4 seconds and over
-#define LE_PERIOD_SECONDS (5.5)
+#define LE_PERIOD_SECONDS (4.25)
 #define LE_ON_SECONDS (.004)
 
 /* Setup LETIMER0 depending on energy mode. Timer

@@ -54,7 +54,7 @@ b=tsl2651_read_register(TSL2651_ADDR_INT);
 
 uint8_t light_sensor_is_active() {
 
-return ( GPIO_PortInGet(LIGHT_SENSOR_INT_PORT) & (1 << LIGHT_SENSOR_INT_PORT_NUM) == 0);
+return ( (GPIO_PortInGet(LIGHT_SENSOR_INT_PORT) & (1 << LIGHT_SENSOR_INT_PORT_NUM)) == 0);
 
 }
 
