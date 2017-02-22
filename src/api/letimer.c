@@ -12,9 +12,16 @@
     #include "em_dma.h"
 #endif
 #include "periph.h"
-#include "acmp.h"
+
+#ifdef INTERNAL_LIGHT_SENSOR
+    #include "acmp.h"
+#else
+    #include "light_sensor_ext.h"
+#endif
 
 #include "debug.h"
+
+uint8_t letimer_frame=0;
 
 void LETIMER0_setup(e_emode e) {
 
@@ -92,6 +99,11 @@ void LETIMER0_setup(e_emode e) {
     LETIMER_Init(LETIMER0, &letimerInit);
     LETIMER0->CNT=0;
 
+#ifndef INTERNAL_LIGHT_SENSOR
+    //External light sensor will run in 3 frames (periods) in a row
+    letimer_frame=0;
+#endif
+
     // Setup LETIMER interrupts
     CORE_CriticalDisableIrq();
     LETIMER0->IFC   = LETIMER_IFC_COMP0;
@@ -112,6 +124,7 @@ CORE_CriticalDisableIrq();
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP0);
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP1);
 
+    // First part of sequence
     if (intFlags & LETIMER_IFS_COMP0) {
 
         /* Temperature section */
@@ -131,14 +144,23 @@ CORE_CriticalDisableIrq();
         CMU_ClockEnable(cmuClock_GPIO, true);
         GPIO_PinOutSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
         if (is_led0_on()) {
-           ACMP_fire_up(VDD_LIGHTNESS);
+            ACMP_fire_up(VDD_LIGHTNESS);
         } else {
             ACMP_fire_up(VDD_DARKNESS);
         }
         while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
+#else // External Light Sensor
+        letimer_frame++;
+
+        switch (letimer_frame) {
+            case 1:
+                light_sensor_power_on();
+            break;
+        }
 #endif
     }
 
+    // Second part of sequence
     if (intFlags & LETIMER_IFS_COMP1) {
 #ifdef INTERNAL_LIGHT_SENSOR
         if (is_led0_on()) {
@@ -153,6 +175,17 @@ CORE_CriticalDisableIrq();
         ACMP_Disable(ACMP0);
         GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
         CMU_ClockEnable(cmuClock_GPIO, false);
+#else // External Light Sensor
+
+        switch (letimer_frame) {
+            case 1:
+                light_sensor_program();
+            break;
+            case 3:
+                light_sensor_power_off();
+                letimer_frame=0;
+            break;
+        }
 #endif
     }
 

@@ -93,13 +93,22 @@ float average=0;
     PRINTSWO_UINT(tempC);
 
     if ( tempC < TEMP_HI && tempC > TEMP_LO ) {
+#ifdef INTERNAL_LIGHT_SENSOR
         CMU_ClockEnable(cmuClock_GPIO, true);
+#endif
          led1_off();
+#ifdef INTERNAL_LIGHT_SENSOR
         CMU_ClockEnable(cmuClock_GPIO, false);
+#endif
+         led1_off();
     } else {
+#ifdef INTERNAL_LIGHT_SENSOR
         CMU_ClockEnable(cmuClock_GPIO, true);
+#endif
          led1_on();
+#ifdef INTERNAL_LIGHT_SENSOR
         CMU_ClockEnable(cmuClock_GPIO, false);
+#endif
     }
 }    
 
