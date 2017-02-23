@@ -83,8 +83,9 @@ NVIC_DisableIRQ(GPIO_ODD_IRQn);
 tsl2651_on(0); //Soft power off first, before we yank the cord
 tsl2651_close();
 
+//Disable external interrupt line
 GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
-    gpioModeInputPull, 1);
+    gpioModeDisabled, 0);
 
 //Disable power
 GPIO_PinModeSet(LIGHT_SENSOR_POWER_PORT, LIGHT_SENSOR_POWER_PORT_NUM,

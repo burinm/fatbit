@@ -52,7 +52,6 @@ void LETIMER0_setup(e_emode e) {
 
     blockSleepMode(e);
 
-
     if (e < EM3) {
         CMU_OscillatorEnable(cmuOsc_LFXO,true,false);
         CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
@@ -144,8 +143,8 @@ CORE_CriticalDisableIrq();
 #endif
 
 
-#ifdef INTERNAL_LIGHT_SENSOR
         /* Light indicator section */
+#ifdef INTERNAL_LIGHT_SENSOR
         CMU_ClockEnable(cmuClock_GPIO, true);
         GPIO_PinOutSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
         if (is_led0_on()) {
