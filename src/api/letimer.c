@@ -156,12 +156,13 @@ CORE_CriticalDisableIrq();
         while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
 #else // External Light Sensor
 
+        //There is a weird bug where this doesn't happen until the 3rd LETIMER pop
+        // after a cold boot. Somehow 2 timers expire before we enter here...
         switch (letimer_frame) {
             case 1:
                 light_sensor_power_on();
             break;
         }
-
 #endif
     }
 
@@ -192,7 +193,6 @@ CORE_CriticalDisableIrq();
                 CMU_ClockEnable(cmuClock_GPIO, false);
             break;
         }
-
 #endif
     }
 

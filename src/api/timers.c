@@ -71,9 +71,9 @@ uint16_t calibrate_ULFRCO_ticks() {
     uint32_t reference_lo = TIMER_CounterGet(TIMER0);
     uint32_t reference_hi = TIMER_CounterGet(TIMER1);
     double reference_time = (65536 * reference_hi) + reference_lo;
-    PRINTSWO_UINT(reference_lo);
-    PRINTSWO_UINT(reference_hi);
-    //PRINTSWO_UINT(reference_time);
+    //PRINTSWO_UINT(reference_lo);
+    //PRINTSWO_UINT(reference_hi);
+    PRINTSWO_UINT(reference_time);
 
     //Now measure ULFRCO
     CMU_OscillatorEnable(cmuOsc_ULFRCO,true,false);
@@ -94,9 +94,9 @@ uint16_t calibrate_ULFRCO_ticks() {
     double ulfrco_time = (65536 * ulfrco_hi) + ulfrco_lo;
 
 
-    PRINTSWO_UINT(ulfrco_lo);
-    PRINTSWO_UINT(ulfrco_hi);
-    //PRINTSWO_UINT(ulfrco_time);
+    //PRINTSWO_UINT(ulfrco_lo);
+    //PRINTSWO_UINT(ulfrco_hi);
+    PRINTSWO_UINT(ulfrco_time);
 
     double clock_ratio = reference_time / ulfrco_time;
     clock_ratio *= 1000;

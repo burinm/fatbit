@@ -5,8 +5,6 @@
 #include "em_core.h"
 #include "periph.h"
 
-        #include "debug.h"
-
 void light_sensor_power_on() {
 
 //Turn power on
@@ -17,9 +15,6 @@ GPIO_DriveModeSet(LIGHT_SENSOR_POWER_PORT,gpioDriveModeLow);
 
 //Wait for power up
 // LETIMER takes care of this
-
-
-
 }
 
 //Must be called when interrupts are disabled
@@ -51,12 +46,11 @@ GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
     gpioModeInputPull, 1);
 
 //Falling edge
-GPIO_ExtIntConfig(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM, LIGHT_SENSOR_INT_PORT_NUM, false, true, true);
+GPIO_ExtIntConfig(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM, LIGHT_SENSOR_INT_PORT_NUM,
+    false, true, true);
 
 // GPIO interrupts on
-//CORE_CriticalDisableIrq();
-    NVIC_EnableIRQ(GPIO_ODD_IRQn);
-//CORE_CriticalEnableIrq();
+NVIC_EnableIRQ(GPIO_ODD_IRQn);
 
 // Persistance level 4, level interrupts on
 tsl2651_write_register(TSL2651_ADDR_INT, TSL2651_INT_PERSIST_4 | TSL2651_INT_CTRL_LEVEL);
@@ -76,18 +70,14 @@ b=tsl2651_read_register(TSL2651_ADDR_INT);
 }
 
 uint8_t light_sensor_is_active() {
-
 return ( (GPIO_PortInGet(LIGHT_SENSOR_INT_PORT) & (1 << LIGHT_SENSOR_INT_PORT_NUM)) == 0);
-
 }
 
 //Must be called when interrupts are disabled
 void light_sensor_power_off() {
 
 //Disable interrupts
-//CORE_CriticalDisableIrq();
-    NVIC_DisableIRQ(GPIO_ODD_IRQn);
-//CORE_CriticalEnableIrq();
+NVIC_DisableIRQ(GPIO_ODD_IRQn);
 
 //Disable GPIO PINS - I2C pins, interrupt pin
 tsl2651_on(0); //Soft power off first, before we yank the cord

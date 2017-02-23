@@ -13,9 +13,6 @@
 #include "light_sensor_ext.h"
 #include "debug.h"
 
-    //debug
-    #include "em_gpio.h"
-
 //#include "bsp_trace.h"
 
 // This will be calibrated if CALIBRATE_LE_ULFRCO is true
@@ -25,7 +22,6 @@ int main(void)
 {
   /* Chip errata */
   CHIP_Init();
-
 
 // Note: this also turns on GPIO clock 
 //BSP_Init();
