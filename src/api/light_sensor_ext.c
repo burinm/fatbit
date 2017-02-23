@@ -22,6 +22,7 @@ GPIO_DriveModeSet(LIGHT_SENSOR_POWER_PORT,gpioDriveModeLow);
 
 }
 
+//Must be called when interrupts are disabled
 void light_sensor_program() {
 
 //Initialize GPIO PINS/I2C reset
@@ -53,9 +54,9 @@ GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
 GPIO_ExtIntConfig(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM, LIGHT_SENSOR_INT_PORT_NUM, false, true, true);
 
 // GPIO interrupts on
-CORE_CriticalDisableIrq();
+//CORE_CriticalDisableIrq();
     NVIC_EnableIRQ(GPIO_ODD_IRQn);
-CORE_CriticalEnableIrq();
+//CORE_CriticalEnableIrq();
 
 // Persistance level 4, level interrupts on
 tsl2651_write_register(TSL2651_ADDR_INT, TSL2651_INT_PERSIST_4 | TSL2651_INT_CTRL_LEVEL);
@@ -80,12 +81,13 @@ return ( (GPIO_PortInGet(LIGHT_SENSOR_INT_PORT) & (1 << LIGHT_SENSOR_INT_PORT_NU
 
 }
 
+//Must be called when interrupts are disabled
 void light_sensor_power_off() {
 
 //Disable interrupts
-CORE_CriticalDisableIrq();
+//CORE_CriticalDisableIrq();
     NVIC_DisableIRQ(GPIO_ODD_IRQn);
-CORE_CriticalEnableIrq();
+//CORE_CriticalEnableIrq();
 
 //Disable GPIO PINS - I2C pins, interrupt pin
 tsl2651_on(0); //Soft power off first, before we yank the cord
@@ -109,11 +111,9 @@ CORE_CriticalDisableIrq();
     GPIO_IntClear(1<<LIGHT_SENSOR_INT_PORT_NUM);
 
     if ( intFlags & (1<<LIGHT_SENSOR_INT_PORT_NUM) ) {
-        tsl2651_int_clear();
         light=tsl2651_read_register(TSL2651_ADDR_DATA0_HIGHB);
         light<<=8;
         light+=tsl2651_read_register(TSL2651_ADDR_DATA0_LOWB);
-
 
         if ( is_led0_on() ) { //Dark state
             if (light >= LIGHT_SENSOR_THRESH_HIGH) {
@@ -124,6 +124,8 @@ CORE_CriticalDisableIrq();
                 led0_on();
             }
         }
+
+        tsl2651_int_clear();
     }
 
 CORE_CriticalEnableIrq();

@@ -67,7 +67,7 @@ clock_defaults();
     //GPIOs will keep thier state, so we only need to toggle clock
     CMU_ClockEnable(cmuClock_GPIO, false);
 
-#else
+#else // External Light Sensor
     CMU_ClockEnable(cmuClock_GPIO, true);
 #endif
 
@@ -78,8 +78,6 @@ clock_defaults();
 #ifdef USING_DMA_FOR_TEMP
     DMA_Setup();
 #endif
-
-
 
   /* Infinite loop */
   while (1) {

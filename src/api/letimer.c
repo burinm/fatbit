@@ -127,6 +127,11 @@ CORE_CriticalDisableIrq();
     // First part of sequence
     if (intFlags & LETIMER_IFS_COMP0) {
 
+#ifndef INTERNAL_LIGHT_SENSOR
+        letimer_frame++;
+        if (letimer_frame == 1 ) { CMU_ClockEnable(cmuClock_GPIO, true); }
+#endif
+
         /* Temperature section */
 
         //ADC on
@@ -150,8 +155,6 @@ CORE_CriticalDisableIrq();
         }
         while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
 #else // External Light Sensor
-
-        letimer_frame++;
 
         switch (letimer_frame) {
             case 1:
@@ -186,6 +189,7 @@ CORE_CriticalDisableIrq();
             case 3:
                 light_sensor_power_off();
                 letimer_frame=0;
+                CMU_ClockEnable(cmuClock_GPIO, false);
             break;
         }
 
