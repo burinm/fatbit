@@ -133,15 +133,13 @@ CORE_CriticalDisableIrq();
 
         /* Temperature section */
 
-        //ADC on
-        blockSleepMode(EM1);
-        ADC0->CMD = ADC_CMD_SINGLESTART;
-
-        /* DMA go */
+        // DMA setup
 #ifdef USING_DMA_FOR_TEMP
         DMA_ActivateBasic(DMA_CHANNEL_FOR_ADC, true, false, &adc_sample_buffer,(void*)&(ADC0->SINGLEDATA), ADC_NUMBER_SAMPLES-1);
 #endif
-
+        // ADC on
+        blockSleepMode(EM1);
+        ADC0->CMD = ADC_CMD_SINGLESTART;
 
         /* Light indicator section */
 #ifdef INTERNAL_LIGHT_SENSOR
