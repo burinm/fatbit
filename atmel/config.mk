@@ -53,7 +53,8 @@ PART = samb11g18a
 
 # Application target name. Given with suffix .a for library and .elf for a
 # standalone application.
-TARGET_FLASH = thermometer_flash.elf
+TARGET_NAME = thermometer_flash
+TARGET_FLASH = $(TARGET_NAME).elf
 TARGET_SRAM = thermometer_sram.elf
 
 # List of C source files.
@@ -186,5 +187,5 @@ CPPFLAGS = \
 LDFLAGS = \
 
 # Pre- and post-build commands
-PREBUILD_CMD = 
-POSTBUILD_CMD = 
+PREBUILD_CMD =
+POSTBUILD_CMD =
