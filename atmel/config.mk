@@ -41,7 +41,8 @@
 #PRJ_PATH = ../../../../../../..
 #PRJ_PATH = ../../xdk-asf-3.32.0
 #This is relative to ecen5023 in my Dropbox, not from the symbolic link
-PRJ_PATH = ../../../xdk-asf-3.32.0
+ASF_DIR = xdk-asf-3.32.0
+PRJ_PATH = ../../..
 
 
 # Target CPU architecture: cortex-m3, cortex-m4
@@ -57,77 +58,76 @@ TARGET_SRAM = thermometer_sram.elf
 
 # List of C source files.
 CSRCS = \
-common2/components/memory/eeprom/at30tse75x/at30tse75x.c \
-sam0/drivers/i2c/i2c_master.c \
-sam0/drivers/i2c/i2c_master_interrupt.c \
-common/utils/interrupt/interrupt_sam_nvic.c \
-sam0/boards/samb11_xplained_pro/board_init.c \
-sam0/drivers/dualtimer/dualtimer.c \
-sam0/drivers/gpio/gpio.c \
-sam0/drivers/system/system_sam_b.c \
-sam0/drivers/timer/timer.c \
-sam0/drivers/uart/uart.c \
-sam0/utils/cmsis/samb11/source/gcc/startup_samb11.c \
-sam0/utils/cmsis/samb11/source/system_samb11.c \
-sam0/utils/stdio/read.c \
-sam0/utils/stdio/write.c \
-sam0/utils/syscalls/gcc/syscalls.c \
-thirdparty/wireless/ble_smart_sdk/ble_services/ble_mgr/ble_manager.c \
-thirdparty/wireless/ble_smart_sdk/services/dualtimer/timer_hw.c \
-thirdparty/wireless/ble_smart_sdk/services/gpio/button.c \
-thirdparty/wireless/ble_smart_sdk/services/gpio/led.c \
-thirdparty/wireless/ble_smart_sdk/services/uart/console_serial.c \
-thirdparty/wireless/ble_smart_sdk/src/event_handler.c \
-thirdparty/wireless/ble_smart_sdk/src/platform_drv.c \
-thirdparty/wireless/ble_smart_sdk/src/port_from_sdk.c \
-src/startup_template_app.c
+$(ASF_DIR)/common2/components/memory/eeprom/at30tse75x/at30tse75x.c \
+$(ASF_DIR)/sam0/drivers/i2c/i2c_master.c \
+$(ASF_DIR)/sam0/drivers/i2c/i2c_master_interrupt.c \
+$(ASF_DIR)/common/utils/interrupt/interrupt_sam_nvic.c \
+$(ASF_DIR)/sam0/boards/samb11_xplained_pro/board_init.c \
+$(ASF_DIR)/sam0/drivers/dualtimer/dualtimer.c \
+$(ASF_DIR)/sam0/drivers/gpio/gpio.c \
+$(ASF_DIR)/sam0/drivers/system/system_sam_b.c \
+$(ASF_DIR)/sam0/drivers/timer/timer.c \
+$(ASF_DIR)/sam0/drivers/uart/uart.c \
+$(ASF_DIR)/sam0/utils/cmsis/samb11/source/gcc/startup_samb11.c \
+$(ASF_DIR)/sam0/utils/cmsis/samb11/source/system_samb11.c \
+$(ASF_DIR)/sam0/utils/stdio/read.c \
+$(ASF_DIR)/sam0/utils/stdio/write.c \
+$(ASF_DIR)/sam0/utils/syscalls/gcc/syscalls.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/ble_mgr/ble_manager.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/dualtimer/timer_hw.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/gpio/button.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/gpio/led.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/uart/console_serial.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/src/event_handler.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/src/platform_drv.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/src/port_from_sdk.c \
+ecen5023/atmel/src/startup_template_app.c
 
 # List of assembler source files.
 ASSRCS = 
 
 # List of include paths.
 INC_PATH = \
-../ecen5023/atmel/src \
-../ecen5023/atmel/inc \
-../src/config \
-thirdparty/wireless/ble_smart_sdk/ble_services/ble_mgr \
-thirdparty/wireless/ble_smart_sdk/inc \
-thirdparty/wireless/ble_smart_sdk/services/dualtimer \
-sam0/drivers/dualtimer \
-sam0/utils \
-sam0/utils/header_files \
-sam0/utils/preprocessor \
-thirdparty/CMSIS/Include \
-thirdparty/CMSIS/Lib/GCC \
-common/utils \
-sam0/utils/cmsis/samb11/include \
-sam0/utils/cmsis/samb11/source \
-sam0/drivers/system \
-sam0/drivers/timer \
-thirdparty/wireless/ble_smart_sdk/services/gpio \
-sam0/drivers/gpio \
-thirdparty/wireless/ble_smart_sdk/services/uart \
-sam0/utils/stdio/stdio_serial \
-common/services/serial \
-sam0/drivers/uart \
-thirdparty/wireless/ble_smart_sdk/utils \
-sam0/boards/samb11_xplained_pro \
-sam0/boards \
-common/boards \
-common2/components/memory/eeprom/at30tse75x \
-sam0/drivers/i2c
+ecen5023/atmel\src \
+ecen5023/atmel/inc \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/ble_mgr \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/inc \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/dualtimer \
+$(ASF_DIR)/sam0/drivers/dualtimer \
+$(ASF_DIR)/sam0/utils \
+$(ASF_DIR)/sam0/utils/header_files \
+$(ASF_DIR)/sam0/utils/preprocessor \
+$(ASF_DIR)/thirdparty/CMSIS/Include \
+$(ASF_DIR)/thirdparty/CMSIS/Lib/GCC \
+$(ASF_DIR)/common/utils \
+$(ASF_DIR)/sam0/utils/cmsis/samb11/include \
+$(ASF_DIR)/sam0/utils/cmsis/samb11/source \
+$(ASF_DIR)/sam0/drivers/system \
+$(ASF_DIR)/sam0/drivers/timer \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/gpio \
+$(ASF_DIR)/sam0/drivers/gpio \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/uart \
+$(ASF_DIR)/sam0/utils/stdio/stdio_serial \
+$(ASF_DIR)/common/services/serial \
+$(ASF_DIR)/sam0/drivers/uart \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/utils \
+$(ASF_DIR)/sam0/boards/samb11_xplained_pro \
+$(ASF_DIR)/sam0/boards \
+$(ASF_DIR)/common/boards \
+$(ASF_DIR)/common2/components/memory/eeprom/at30tse75x \
+$(ASF_DIR)/sam0/drivers/i2c
 
 INC_PATH += \
-common2/components/memory/eeprom/at30tse75x/module_config \
-sam0/boards/samb11_xplained_pro/board_config \
-common/components/memory/eeprom/at30tse75x \
-thirdparty/wireless/ble_smart_sdk/services/dualtimer/module_config \
-thirdparty/wireless/ble_smart_sdk/services/uart/module_config \
+$(ASF_DIR)/common2/components/memory/eeprom/at30tse75x/module_config \
+$(ASF_DIR)/sam0/boards/samb11_xplained_pro/board_config \
+$(ASF_DIR)/common/components/memory/eeprom/at30tse75x \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/dualtimer/module_config \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/uart/module_config \
 
 # Additional search paths for libraries.
 LIB_PATH =  \
-       thirdparty/CMSIS/Lib/GCC                           \
-       thirdparty/wireless/ble_smart_sdk/lib/cm0/gcc     
+       $(ASF_DIR)/thirdparty/CMSIS/Lib/GCC                           \
+       $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/lib/cm0/gcc     
 
 # List of libraries to use during linking.
 LIBS =  \
@@ -135,12 +135,12 @@ LIBS =  \
 #       arm_cortexM0l_math                                 \
 
 # Path relative to top level directory pointing to a linker script.
-LINKER_SCRIPT_FLASH = sam0/utils/linker_scripts/samb11/gcc/samb11g18a_sram.ld
-LINKER_SCRIPT_SRAM  = sam0/utils/linker_scripts/samb11/gcc/samb11g18a_sram.ld
+LINKER_SCRIPT_FLASH = $(ASF_DIR)/sam0/utils/linker_scripts/samb11/gcc/samb11g18a_sram.ld
+LINKER_SCRIPT_SRAM  = $(ASF_DIR)/sam0/utils/linker_scripts/samb11/gcc/samb11g18a_sram.ld
 
 # Path relative to top level directory pointing to a linker script.
 DEBUG_SCRIPT_FLASH = 
-DEBUG_SCRIPT_SRAM  = sam0/boards/samb11_xplained_pro/debug_scripts/gcc/samb11_xplained_pro_sram.gdb
+DEBUG_SCRIPT_SRAM  = $(ASF_DIR)/sam0/boards/samb11_xplained_pro/debug_scripts/gcc/samb11_xplained_pro_sram.gdb
 
 # Project type parameter: all, sram or flash
 PROJECT_TYPE        = flash
