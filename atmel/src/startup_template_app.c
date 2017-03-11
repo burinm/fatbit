@@ -6,6 +6,7 @@
 #include "ble_manager.h"
 #include "ble_utils.h"
 #include "button.h"
+#include "uart_samb11.h"
 
 #include "at30tse75x.h"
 
@@ -101,6 +102,9 @@ int main (void)
     
     /* Start Advertising process */
     ble_advertise();
+
+    /* UART with DMA */
+    dma_start_transfer_job(&uart_dma_resource_rx);
 
 
     

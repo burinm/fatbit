@@ -82,7 +82,9 @@ $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/uart/console_serial.c \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/src/event_handler.c \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/src/platform_drv.c \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/src/port_from_sdk.c \
-ecen5023/atmel/src/startup_template_app.c
+$(ASF_DIR)/sam0/drivers/dma/dma_sam_b.c \
+ecen5023/atmel/src/startup_template_app.c \
+ecen5023/atmel/src/uart_samb11.c
 
 # List of assembler source files.
 ASSRCS = 
@@ -116,7 +118,8 @@ $(ASF_DIR)/sam0/boards/samb11_xplained_pro \
 $(ASF_DIR)/sam0/boards \
 $(ASF_DIR)/common/boards \
 $(ASF_DIR)/common2/components/memory/eeprom/at30tse75x \
-$(ASF_DIR)/sam0/drivers/i2c
+$(ASF_DIR)/sam0/drivers/i2c \
+$(ASF_DIR)/sam0/drivers/dma
 
 INC_PATH += \
 $(ASF_DIR)/common2/components/memory/eeprom/at30tse75x/module_config \
@@ -184,7 +187,9 @@ CPPFLAGS = \
 -D __SAMB11G18A__
 
 # Extra flags to use when linking
+# For: uses 2-byte wchar_t yet the output is to use 4-byte wchar_t; use of wchar_t values across objects may fail
 LDFLAGS = \
+-Wl,--no-wchar-size-warning
 
 # Pre- and post-build commands
 PREBUILD_CMD =
