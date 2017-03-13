@@ -86,4 +86,7 @@
 // DMA
 #include <dma_sam_b.h>
 
+// UART 
+#include <uart.h>
+
 #endif // ASF_H

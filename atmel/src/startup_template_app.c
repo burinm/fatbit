@@ -73,6 +73,8 @@ static const ble_event_callback_t app_gap_cb[] = {
 
 int main (void)
 {
+
+#if 0
     platform_driver_init();
     acquire_sleep_lock();
     /* Initialize serial console */
@@ -102,11 +104,26 @@ int main (void)
     
     /* Start Advertising process */
     ble_advertise();
+#endif
 
     /* UART with DMA */
-    dma_start_transfer_job(&uart_dma_resource_rx);
+    system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_26_MHZ);
+    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+    uart_setup();
+    //uart_write_wait(&my_uart_instance, 'a');
+    const char *hello_string="Initialized UART1\r\n";
+    uart_write_buffer_wait(&my_uart_instance,hello_string,strlen(hello_string));
+    //dma_start_transfer_job(&uart_dma_resource_rx);
 
+    uint8_t c;
+    while(1) {
 
+        if (uart_read_wait(&my_uart_instance, &c) == STATUS_OK) {
+            while (uart_write_wait(&my_uart_instance, c) != STATUS_OK) {
+            }
+        }
+
+    }
     
     while(true) {
         ble_event_task(655);
@@ -114,6 +131,7 @@ int main (void)
         {
             htp_temperature_send();
         }
+
 
     }
 }

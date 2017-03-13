@@ -105,21 +105,21 @@ $(ASF_DIR)/thirdparty/CMSIS/Lib/GCC \
 $(ASF_DIR)/common/utils \
 $(ASF_DIR)/sam0/utils/cmsis/samb11/include \
 $(ASF_DIR)/sam0/utils/cmsis/samb11/source \
-$(ASF_DIR)/sam0/drivers/system \
-$(ASF_DIR)/sam0/drivers/timer \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/gpio \
-$(ASF_DIR)/sam0/drivers/gpio \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/uart \
 $(ASF_DIR)/sam0/utils/stdio/stdio_serial \
 $(ASF_DIR)/common/services/serial \
-$(ASF_DIR)/sam0/drivers/uart \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/utils \
 $(ASF_DIR)/sam0/boards/samb11_xplained_pro \
 $(ASF_DIR)/sam0/boards \
 $(ASF_DIR)/common/boards \
 $(ASF_DIR)/common2/components/memory/eeprom/at30tse75x \
+$(ASF_DIR)/sam0/drivers/system \
+$(ASF_DIR)/sam0/drivers/timer \
+$(ASF_DIR)/sam0/drivers/gpio \
 $(ASF_DIR)/sam0/drivers/i2c \
-$(ASF_DIR)/sam0/drivers/dma
+$(ASF_DIR)/sam0/drivers/dma \
+$(ASF_DIR)/sam0/drivers/uart
 
 INC_PATH += \
 $(ASF_DIR)/common2/components/memory/eeprom/at30tse75x/module_config \

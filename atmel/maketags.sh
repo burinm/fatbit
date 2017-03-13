@@ -17,6 +17,7 @@ find ${ATMEL_ASF_SDK}/sam0/utils/cmsis/samb11/source -iname "*.h" -or -iname "*.
 find ${ATMEL_ASF_SDK}/sam0/utils/stdio -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile >> cscope.files
 find ${ATMEL_ASF_SDK}/sam0/utils/syscalls/gcc -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile >> cscope.files
 find ${ATMEL_ASF_SDK}/thirdparty/wireless/ble_smart_sdk -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile >> cscope.files
+find ${ATMEL_ASF_SDK}/sam0/drivers/dma/ -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile >> cscope.files
 
 cscope -b
 ctags -L ./cscope.files
