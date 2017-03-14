@@ -7,6 +7,7 @@
 #include "ble_utils.h"
 #include "button.h"
 #include "uart_samb11.h"
+#include "samb11_xplained_pro.h"
 
 #include "at30tse75x.h"
 
@@ -70,11 +71,12 @@ static const ble_event_callback_t app_gap_cb[] = {
 };
 
 
+void configure_gpio(void);
 
 int main (void)
 {
 
-#if 0
+#if 1
     platform_driver_init();
     acquire_sleep_lock();
     /* Initialize serial console */
@@ -106,24 +108,32 @@ int main (void)
     ble_advertise();
 #endif
 
+    configure_gpio();
+    LED_Off(LED0);
+    LED_On(LED0);
+
+
     /* UART with DMA */
     system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_26_MHZ);
-    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+    //SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
     uart_setup();
     //uart_write_wait(&my_uart_instance, 'a');
-    const char *hello_string="Initialized UART1\r\n";
+    const char *hello_string="\r\nInitialized UART1\r\n";
     uart_write_buffer_wait(&my_uart_instance,hello_string,strlen(hello_string));
-    //dma_start_transfer_job(&uart_dma_resource_rx);
+    dma_start_transfer_job(&uart_dma_resource_rx);
 
+#if 0
     uint8_t c;
     while(1) {
 
+        //Does not work - buffering issue?
         if (uart_read_wait(&my_uart_instance, &c) == STATUS_OK) {
             while (uart_write_wait(&my_uart_instance, c) != STATUS_OK) {
             }
         }
 
     }
+#endif
     
     while(true) {
         ble_event_task(655);
@@ -298,4 +308,17 @@ static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params)
         Temp_Notification_Flag = false;
     }
     return AT_BLE_SUCCESS;
+}
+
+
+void configure_gpio(void) { 
+    struct gpio_config config_gpio;
+    gpio_get_config_defaults(&config_gpio);
+    config_gpio.direction  = GPIO_PIN_DIR_OUTPUT;
+    config_gpio.input_pull = GPIO_PIN_PULL_NONE;
+    gpio_pin_set_config(LED0_GPIO, &config_gpio);
+
+    //#define LED0_PINMUX PINMUX_LP_GPIO_22_GPIO this throws overfflow warning
+    #define LED0_PINMUX MUX_LP_GPIO_22_GPIO
+    gpio_pinmux_cofiguration(LED0_GPIO,LED0_PINMUX);
 }
