@@ -6,7 +6,7 @@ char PRINTF_BUF[PRINTF_BUF_SIZE] = {0};
 
 void printswo_uint(unsigned int n) {
     uint8_t i=0;
-        sprintf(PRINTF_BUF,"%u\n",n);
+        snprintf(PRINTF_BUF,PRINTF_BUF_SIZE,"%u\n",n);
         while(PRINTF_BUF[i]) {
             ITM_SendChar(PRINTF_BUF[i]);
                 i++;

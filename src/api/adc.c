@@ -26,7 +26,6 @@ void ADC0_Setup() {
         .tailgate = false                         /* Do not use tailgate. */
     };
         
-
     ADC_Init(ADC0, &ADC_init);
 
      const ADC_InitSingle_TypeDef ADC_singleinit = {
@@ -62,8 +61,6 @@ void ADC0_Setup() {
         ADC_IntClear(ADC0, ADC_IFC_SINGLE);
 
        if (intFlags & ADC_IF_SINGLE) {
-
-
             adc_sample_buffer[adc_sample_count] = ADC0->SINGLEDATA;
             adc_sample_count++;
             if (adc_sample_count > ADC_NUMBER_SAMPLES) {
@@ -77,6 +74,7 @@ void ADC0_Setup() {
 #endif
 
 void temperature_tally() {
+//uint32_t average=0;
 float average=0;
 
     //ADC off
@@ -88,7 +86,10 @@ float average=0;
         //if (i % 10 == 0) { PRINTSWO_UINT( adc_sample_buffer[i] ); }
     }
 
+PRINTSWO_UINT(average);
+
     average = average / ADC_NUMBER_SAMPLES;
+PRINTSWO_UINT(average);
     uint8_t tempC = ((uint32_t)convertToCelsius(average));
     PRINTSWO_UINT(tempC);
 
