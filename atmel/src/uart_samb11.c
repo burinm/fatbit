@@ -39,7 +39,6 @@ static void transfer_done_rx(struct dma_resource* const resource )
 {
     s_message m;
     memcpy(&m.message,&source_memory,SOURCE_MESSAGE_LENGTH);
-// LED_Off(LED0);
     s_enqueue(m);
     dma_start_transfer_job(&uart_dma_resource_tx);
 }

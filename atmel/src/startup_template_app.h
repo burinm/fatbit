@@ -55,6 +55,8 @@
 /** @brief APP_ADV_TIMEOUT Advertising time-out between 0x0001 and 0x028F in seconds, 0x0000 disables time-out.*/
 #define APP_ADV_TIMEOUT                     (655)
 
+#define GECKO_TEMPERATURE_READ
+
 
 
 #endif /* __STARTUP_TEMPLATE_H__ */

@@ -14,8 +14,12 @@
 #include "startup_template_app.h"
 #include "s_queue.h"
 
+#ifdef GECKO_TEMPERATURE_READ
+#endif
+
+
 volatile bool Temp_Notification_Flag = false;
-static void htp_temperature_send(void);
+static void htp_temperature_send(float);
 
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params);
 static const ble_event_callback_t app_htpt_handle[] = {
@@ -37,8 +41,7 @@ static void timer_callback_handler(void);
 
 volatile at_ble_status_t status;
 
-
-static void htp_temperature_read(void);
+static void htp_temperature_print(float);
 static void ble_advertise (void);
 
 at_ble_handle_t htpt_conn_handle;
@@ -98,7 +101,7 @@ int main (void)
     /* configure the temperature sensor ADC */
     at30tse_write_config_register(AT30TSE_CONFIG_RES(AT30TSE_CONFIG_RES_12_bit));
     /* read the temperature from the sensor */
-    htp_temperature_read();
+    htp_temperature_print(at30tse_read_temperature());
     /* Initialize the htp service */
     htp_init();
     /* Register Bluetooth events Callbacks */
@@ -140,7 +143,7 @@ int main (void)
         ble_event_task(655);
         if (Timer_Flag & Temp_Notification_Flag)
         {
-            htp_temperature_send();
+            //htp_temperature_send(at30tse_read_temperature());
         }
 
         if (S_Q.index > 0) {
@@ -153,16 +156,17 @@ int main (void)
            if (s_get_message_type(message) == S_LED_OFF) {
                 LED_Off(LED0);
            }
+
+           if (s_get_message_type(message) == S_TEMP) {
+                htp_temperature_send(s_message_get_value(message));
+           }
         }
 
     }
 }
 
-static void htp_temperature_read(void)
+static void htp_temperature_print(float temperature)
 {
-    float temperature;
-    /* Read Temperature Value from IO1 Xplained Pro */
-    temperature = at30tse_read_temperature();
     /* Display temperature on com port */
     #ifdef HTPT_FAHRENHEIT
     printf("\nTemperature: %d Fahrenheit", (uint16_t)temperature);
@@ -270,12 +274,9 @@ static void timer_callback_handler(void)
 }
 
 /* Sending the temperature value after reading it from IO1 Xplained Pro */
-static void htp_temperature_send(void)
+static void htp_temperature_send(float temperature)
 {
     at_ble_prf_date_time_t timestamp;
-    float temperature;
-    /* Read Temperature Value from IO1 Xplained Pro */
-    temperature = at30tse_read_temperature();
     #ifdef HTPT_FAHRENHEIT
     temperature = (((temperature * 9.0)/5.0) + 32.0);
     #endif
