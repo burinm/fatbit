@@ -84,7 +84,8 @@ $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/src/platform_drv.c \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/src/port_from_sdk.c \
 $(ASF_DIR)/sam0/drivers/dma/dma_sam_b.c \
 ecen5023/atmel/src/startup_template_app.c \
-ecen5023/atmel/src/uart_samb11.c
+ecen5023/atmel/src/uart_samb11.c \
+ecen5023/atmel/src/s_queue.c
 
 # List of assembler source files.
 ASSRCS = 

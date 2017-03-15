@@ -12,6 +12,7 @@
 #include "at30tse75x.h"
 
 #include "startup_template_app.h"
+#include "s_queue.h"
 
 volatile bool Temp_Notification_Flag = false;
 static void htp_temperature_send(void);
@@ -142,6 +143,17 @@ int main (void)
             htp_temperature_send();
         }
 
+        if (S_Q.index > 0) {
+           s_message message;
+           message=s_dequeue(); 
+           if (s_get_message_type(message) == S_LED_ON) {
+                LED_On(LED0);
+           }
+
+           if (s_get_message_type(message) == S_LED_OFF) {
+                LED_Off(LED0);
+           }
+        }
 
     }
 }
@@ -318,7 +330,7 @@ void configure_gpio(void) {
     config_gpio.input_pull = GPIO_PIN_PULL_NONE;
     gpio_pin_set_config(LED0_GPIO, &config_gpio);
 
-    //#define LED0_PINMUX PINMUX_LP_GPIO_22_GPIO this throws overfflow warning
+    //#define LED0_PINMUX PINMUX_LP_GPIO_22_GPIO this throws overflow warning
     #define LED0_PINMUX MUX_LP_GPIO_22_GPIO
     gpio_pinmux_cofiguration(LED0_GPIO,LED0_PINMUX);
 }

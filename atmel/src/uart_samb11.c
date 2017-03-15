@@ -1,5 +1,7 @@
 #include "uart_samb11.h"
 #include <asf.h>
+#include <string.h>
+#include "s_queue.h"
 
 /* 3/10/2017 burin -  Modified from:
     Atmel online examples
@@ -8,8 +10,7 @@
 
 */
 
-#define SOURCE_BUFFER_LEN (8)
-static uint8_t source_memory[SOURCE_BUFFER_LEN];
+static uint8_t source_memory[SOURCE_MESSAGE_LENGTH];
 
 static struct dma_descriptor example_descriptor_tx;
 static struct dma_descriptor example_descriptor_rx;
@@ -36,7 +37,10 @@ static void transfer_done_tx(struct dma_resource* const resource )
 
 static void transfer_done_rx(struct dma_resource* const resource )
 {
- LED_Off(LED0);
+    s_message m;
+    memcpy(&m.message,&source_memory,SOURCE_MESSAGE_LENGTH);
+// LED_Off(LED0);
+    s_enqueue(m);
     dma_start_transfer_job(&uart_dma_resource_tx);
 }
 
@@ -57,7 +61,7 @@ static void configure_dma_resource_tx(struct dma_resource *resource)
 static void setup_transfer_descriptor_tx(struct dma_descriptor *descriptor)
 {
     dma_descriptor_get_config_defaults(descriptor);
-    descriptor->buffer_size = SOURCE_BUFFER_LEN;
+    descriptor->buffer_size = SOURCE_MESSAGE_LENGTH;
     descriptor->read_start_addr = (uint32_t)&source_memory[0];
     descriptor->write_start_addr = 
             (uint32_t)(&my_uart_instance.hw->TRANSMIT_DATA.reg);
@@ -81,7 +85,7 @@ static void configure_dma_resource_rx(struct dma_resource *resource)
 static void setup_transfer_descriptor_rx(struct dma_descriptor *descriptor)
 {
     dma_descriptor_get_config_defaults(descriptor);
-    descriptor->buffer_size = SOURCE_BUFFER_LEN;
+    descriptor->buffer_size = SOURCE_MESSAGE_LENGTH;
     descriptor->read_start_addr =
             (uint32_t)(&my_uart_instance.hw->RECEIVE_DATA.reg);
     descriptor->write_start_addr = (uint32_t)&source_memory[0];
