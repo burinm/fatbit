@@ -12,10 +12,15 @@
 #include "at30tse75x.h"
 
 #include "startup_template_app.h"
-#include "s_queue.h"
+//#include "s_queue.h"
+#include "s_message.h"
+#include "circbuf_tiny.h"
 
 #ifdef GECKO_TEMPERATURE_READ
 #endif
+
+//incoming message queue, circular buffer
+circbuf_tiny_t M_Q;
 
 
 volatile bool Temp_Notification_Flag = false;
@@ -118,6 +123,7 @@ int main (void)
 
 
     /* UART with DMA */
+    circbuf_tiny_init(&M_Q);
     system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_26_MHZ);
     //SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
     uart_setup();
@@ -146,20 +152,28 @@ int main (void)
             //htp_temperature_send(at30tse_read_temperature());
         }
 
-        if (S_Q.index > 0) {
-           s_message message;
-           message=s_dequeue(); 
-           if (s_get_message_type(message) == S_LED_ON) {
-                LED_On(LED0);
-           }
+        //if (S_Q.index > 0) {
+        s_message *message=NULL;
+        if (circbuf_tiny_read(&M_Q,(uint32_t**)&message)) {
+printf("message pulled off queue\n");
+            if (message) {
+printf("non null message pulled off queue\n");
+                if (s_get_message_type(message) == S_LED_ON) {
+                    LED_On(LED0);
+                }
 
-           if (s_get_message_type(message) == S_LED_OFF) {
-                LED_Off(LED0);
-           }
+                if (s_get_message_type(message) == S_LED_OFF) {
+                    LED_Off(LED0);
+                }
 
-           if (s_get_message_type(message) == S_TEMP) {
-                htp_temperature_send(s_message_get_value(message));
-           }
+                if (s_get_message_type(message) == S_TEMP) {
+                    htp_temperature_send(s_message_get_value(message));
+                }
+
+                //Note, the pointers in the circular buffer still exist
+                // potential for double free
+                free(message);
+            }
         }
 
     }

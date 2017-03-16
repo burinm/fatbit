@@ -1,7 +1,8 @@
 #include "uart_samb11.h"
 #include <asf.h>
 #include <string.h>
-#include "s_queue.h"
+//#include "s_queue.h"
+#include "s_message.h"
 
 /* 3/10/2017 burin -  Modified from:
     Atmel online examples
@@ -54,13 +55,15 @@ printf("#command start\n");
 
     if (rx_command_buffer_count == SOURCE_MESSAGE_LENGTH) {
         if (rx_command_buffer[0] == '#') {
-            s_message m;
-            memcpy(&m.message,rx_command_buffer,SOURCE_MESSAGE_LENGTH);
-            s_enqueue(m);
+            s_message *m = (s_message *)malloc(sizeof(s_message));
+            memcpy(m->message,rx_command_buffer,SOURCE_MESSAGE_LENGTH);
+            //s_enqueue(m);
+printf("new message %p\n",(uint32_t*)m);
+            circbuf_tiny_write(&M_Q, (uint32_t*)m);
             rx_command_buffer_count = 0;
 printf("command [%s]\n",rx_command_buffer);
         } else {
-printf("command invalid, ignore\n",rx_command_buffer);
+printf("command invalid, ignore [%s]\n",rx_command_buffer);
             rx_command_buffer_count = 0;
         }
     }
