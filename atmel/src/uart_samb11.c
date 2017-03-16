@@ -10,10 +10,15 @@
 
 */
 
-static uint8_t source_memory[SOURCE_MESSAGE_LENGTH];
+static uint8_t source_memory[DMA_RX_COUNT];
 
 static struct dma_descriptor example_descriptor_tx;
 static struct dma_descriptor example_descriptor_rx;
+
+/* These need to be protected - critical */
+static uint8_t rx_command_buffer_count=0;
+static char rx_command_buffer[SOURCE_MESSAGE_BUF_LENGTH];
+
 
 
 
@@ -37,9 +42,29 @@ static void transfer_done_tx(struct dma_resource* const resource )
 
 static void transfer_done_rx(struct dma_resource* const resource )
 {
-    s_message m;
-    memcpy(&m.message,&source_memory,SOURCE_MESSAGE_LENGTH);
-    s_enqueue(m);
+
+    if (source_memory[0] == '#') {
+        rx_command_buffer_count = 0;
+        memset(rx_command_buffer,0,SOURCE_MESSAGE_BUF_LENGTH);
+printf("#command start\n");
+    }
+
+    rx_command_buffer[rx_command_buffer_count] = source_memory[0];
+    rx_command_buffer_count++;
+
+    if (rx_command_buffer_count == SOURCE_MESSAGE_LENGTH) {
+        if (rx_command_buffer[0] == '#') {
+            s_message m;
+            memcpy(&m.message,rx_command_buffer,SOURCE_MESSAGE_LENGTH);
+            s_enqueue(m);
+            rx_command_buffer_count = 0;
+printf("command [%s]\n",rx_command_buffer);
+        } else {
+printf("command invalid, ignore\n",rx_command_buffer);
+            rx_command_buffer_count = 0;
+        }
+    }
+    //echo input back to terminal
     dma_start_transfer_job(&uart_dma_resource_tx);
 }
 
@@ -60,7 +85,7 @@ static void configure_dma_resource_tx(struct dma_resource *resource)
 static void setup_transfer_descriptor_tx(struct dma_descriptor *descriptor)
 {
     dma_descriptor_get_config_defaults(descriptor);
-    descriptor->buffer_size = SOURCE_MESSAGE_LENGTH;
+    descriptor->buffer_size = DMA_RX_COUNT;
     descriptor->read_start_addr = (uint32_t)&source_memory[0];
     descriptor->write_start_addr = 
             (uint32_t)(&my_uart_instance.hw->TRANSMIT_DATA.reg);
@@ -84,7 +109,7 @@ static void configure_dma_resource_rx(struct dma_resource *resource)
 static void setup_transfer_descriptor_rx(struct dma_descriptor *descriptor)
 {
     dma_descriptor_get_config_defaults(descriptor);
-    descriptor->buffer_size = SOURCE_MESSAGE_LENGTH;
+    descriptor->buffer_size = DMA_RX_COUNT;
     descriptor->read_start_addr =
             (uint32_t)(&my_uart_instance.hw->RECEIVE_DATA.reg);
     descriptor->write_start_addr = (uint32_t)&source_memory[0];

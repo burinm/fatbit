@@ -8,12 +8,13 @@
 typedef enum { S_NONE=0, S_LED_ON, S_LED_OFF, S_TEMP } e_sm_type; 
 
 #define QUEUE_LENGTH    25
-#define SOURCE_MESSAGE_LENGTH   (8) 
+#define SOURCE_MESSAGE_LENGTH   (8)
+#define SOURCE_MESSAGE_BUF_LENGTH   (SOURCE_MESSAGE_LENGTH + 1)
 #define S_QUEUE_VALUE_OFFSET_START    2
-#define S_QUEUE_VALUE_OFFSET_END    4
+#define S_QUEUE_VALUE_OFFSET_END      4
 
 typedef struct {
-    uint8_t message[SOURCE_MESSAGE_LENGTH];
+    uint8_t message[SOURCE_MESSAGE_BUF_LENGTH];
 } s_message;
 
 typedef struct {

@@ -1,6 +1,6 @@
 #include "s_queue.h"
 
-/* prototype - Currently LIFO, need FIFO.... */
+/* prototype - Currently stack, need FIFO.... */
 
 s_queue S_Q;
 
@@ -29,10 +29,12 @@ return (s_message){0};
 }
 
 e_sm_type s_get_message_type(s_message m) {
+    // Messages must start with '#"
     if (m.message[0] != '#') {
         return S_NONE;
     }
 
+    // Messages type t, is stored in "#Tnnnxxx" 
     switch (m.message[1]) {
         case    'A':
             return S_LED_ON;
@@ -52,6 +54,7 @@ e_sm_type s_get_message_type(s_message m) {
 uint8_t s_message_get_value(s_message m) {
 uint8_t v=0;
 uint8_t power_10=1;
+    // Message value is an ascii number 0-255 , nnn, stored in "#Tnnnxxx"
     for (int i=S_QUEUE_VALUE_OFFSET_END;i>=S_QUEUE_VALUE_OFFSET_START;i--) {
         v+= power_10 * s_atoi(m.message[i]);
         power_10 *= 10;

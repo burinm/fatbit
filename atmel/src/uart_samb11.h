@@ -7,4 +7,6 @@ extern struct dma_resource uart_dma_resource_rx;
 
 void uart_setup(void);
 
+#define DMA_RX_COUNT    1
+
 #endif
