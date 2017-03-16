@@ -38,8 +38,10 @@ uint8_t circbuf_tiny_init(circbuf_tiny_t *c);
 uint8_t circbuf_tiny_destroy(circbuf_tiny_t *c);
 
 // Write one byte to buffer. Returns 1 on success, 0 on full
+//  Caller allocates memory to pointer
 uint8_t circbuf_tiny_write(circbuf_tiny_t *c, uint32_t *);
 // Read one byte from buffer. Returns 1 on success, 0 on empty
+//  Caller frees memory to returned pointer
 uint8_t circbuf_tiny_read(circbuf_tiny_t *c, uint32_t **);
 
 #endif

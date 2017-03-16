@@ -106,6 +106,7 @@ $(ASF_DIR)/sam0/utils/preprocessor \
 $(ASF_DIR)/thirdparty/CMSIS/Include \
 $(ASF_DIR)/thirdparty/CMSIS/Lib/GCC \
 $(ASF_DIR)/common/utils \
+$(ASF_DIR)/common/utils/interrupt \
 $(ASF_DIR)/sam0/utils/cmsis/samb11/include \
 $(ASF_DIR)/sam0/utils/cmsis/samb11/source \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/gpio \

@@ -1,4 +1,5 @@
 #include <asf.h>
+#include "interrupt_sam_nvic.h"
 #include "platform.h"
 #include "at_ble_api.h"
 #include "console_serial.h"
@@ -20,6 +21,7 @@
 #endif
 
 //incoming message queue, circular buffer
+//Needs critical protection
 circbuf_tiny_t M_Q;
 
 
@@ -154,7 +156,11 @@ int main (void)
 
         //if (S_Q.index > 0) {
         s_message *message=NULL;
-        if (circbuf_tiny_read(&M_Q,(uint32_t**)&message)) {
+        uint8_t is_entry;
+cpu_irq_enter_critical();
+        is_entry = circbuf_tiny_read(&M_Q,(uint32_t**)&message);
+cpu_irq_leave_critical();
+        if (is_entry) {
 printf("message pulled off queue\n");
             if (message) {
 printf("non null message pulled off queue\n");

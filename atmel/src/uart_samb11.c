@@ -1,6 +1,7 @@
 #include "uart_samb11.h"
 #include <asf.h>
 #include <string.h>
+#include "interrupt_sam_nvic.h"
 //#include "s_queue.h"
 #include "s_message.h"
 
@@ -19,9 +20,6 @@ static struct dma_descriptor example_descriptor_rx;
 /* These need to be protected - critical */
 static uint8_t rx_command_buffer_count=0;
 static char rx_command_buffer[SOURCE_MESSAGE_BUF_LENGTH];
-
-
-
 
 //external
 struct uart_module my_uart_instance;
@@ -43,7 +41,6 @@ static void transfer_done_tx(struct dma_resource* const resource )
 
 static void transfer_done_rx(struct dma_resource* const resource )
 {
-
     if (source_memory[0] == '#') {
         rx_command_buffer_count = 0;
         memset(rx_command_buffer,0,SOURCE_MESSAGE_BUF_LENGTH);
@@ -58,8 +55,12 @@ printf("#command start\n");
             s_message *m = (s_message *)malloc(sizeof(s_message));
             memcpy(m->message,rx_command_buffer,SOURCE_MESSAGE_LENGTH);
             //s_enqueue(m);
+
 printf("new message %p\n",(uint32_t*)m);
+cpu_irq_enter_critical();
             circbuf_tiny_write(&M_Q, (uint32_t*)m);
+cpu_irq_leave_critical();
+
             rx_command_buffer_count = 0;
 printf("command [%s]\n",rx_command_buffer);
         } else {

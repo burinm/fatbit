@@ -25,13 +25,6 @@ uint8_t i=0;
 
     if (c) {
         if (c->data) {
-            for (i=0;i<CIRCBUF_TINY_MAX;i++) {
-                // This cleans up externally allocaed memory
-                //  consider removing 
-                if ( *((c->data) + i) ) {
-                    free( (uint32_t*)*((c->data) + i) );
-                }
-            }
             free (c->data);
         }
     }
@@ -50,6 +43,8 @@ return 0;
 uint8_t circbuf_tiny_read(circbuf_tiny_t *c, uint32_t **p) {
     if ( CIRCBUF_TINY_SIZE(c) > 0 ) {
         *p = (uint32_t*)*((c->data) + c->read_i);
+        // Not circbuf's responsibility
+        *((c->data) + c->read_i)=NULL;
         c->read_i++;
         return 1;
     }
