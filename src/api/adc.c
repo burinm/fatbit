@@ -97,7 +97,7 @@ PRINTSWO_UINT(average);
     uint8_t tempC = ((uint32_t)convertToCelsius(average));
     PRINTSWO_UINT(tempC);
 
-//Allocated memory
+//TODO: ENQUEUE Allocated memory
 s_message *m = s_message_new(S_TEMP);
 s_message_set_value(m,tempC);
 leuart0_tx_string(m->message);

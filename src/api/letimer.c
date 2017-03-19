@@ -169,10 +169,21 @@ CORE_CriticalDisableIrq();
         if (is_led0_on()) {
             if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
                 led0_off();
+
+                //TODO: ENQUEUE Allocated memory
+                s_message *m = s_message_new(S_LED_OFF);
+                leuart0_tx_string(m->message);
+                free(m);
+
             }
         } else {
             if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
                 led0_on();
+
+                //TODO: ENQUEUE Allocated memory
+                s_message *m = s_message_new(S_LED_ON);
+                leuart0_tx_string(m->message);
+                free(m);
             }
         }
         ACMP_Disable(ACMP0);
