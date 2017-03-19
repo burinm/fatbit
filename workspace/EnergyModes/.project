@@ -221,9 +221,19 @@
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/acmp.c</locationURI>
 		</link>
 		<link>
+			<name>src/acmp.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/acmp.h</locationURI>
+		</link>
+		<link>
 			<name>src/adc.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/adc.c</locationURI>
+		</link>
+		<link>
+			<name>src/adc.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/adc.h</locationURI>
 		</link>
 		<link>
 			<name>src/debug.c</name>
@@ -231,9 +241,19 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/debug.c</locationURI>
 		</link>
 		<link>
+			<name>src/debug.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/debug.h</locationURI>
+		</link>
+		<link>
 			<name>src/dma.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/dma.c</locationURI>
+		</link>
+		<link>
+			<name>src/dma.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/dma.h</locationURI>
 		</link>
 		<link>
 			<name>src/gecko_i2c.c</name>
@@ -269,6 +289,16 @@
 			<name>src/letimer.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/letimer.h</locationURI>
+		</link>
+		<link>
+			<name>src/leuart.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/leuart.c</locationURI>
+		</link>
+		<link>
+			<name>src/leuart.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/leuart.h</locationURI>
 		</link>
 		<link>
 			<name>src/light_sensor_ext.c</name>
@@ -314,6 +344,11 @@
 			<name>src/timers.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/timers.c</locationURI>
+		</link>
+		<link>
+			<name>src/timers.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/timers.h</locationURI>
 		</link>
 		<link>
 			<name>src/tsl2651.c</name>

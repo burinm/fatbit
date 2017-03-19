@@ -11,6 +11,7 @@
 #include "letimer.h"
 #include "adc.h"
 #include "light_sensor_ext.h"
+#include "leuart.h"
 #include "debug.h"
 
 //#include "bsp_trace.h"
@@ -48,6 +49,12 @@ clock_defaults();
    led0_on();
 
    LETIMER0_setup(LOWEST_POWER_MODE);
+
+    //Need to adjust power settings now...
+    LEUART0_setup();
+    for(int i=0;i<10;i++)leuart0_txbyte('a');
+    leuart0_tx_string("Hello World.\r\n");
+
 
 #ifdef INTERNAL_LIGHT_SENSOR
     //setup all GPIO before entering sleep

@@ -3,7 +3,7 @@
 
 //#define DEBUG_ON
 
-#define LOWEST_POWER_MODE           EM3
+#define LOWEST_POWER_MODE           EM0
 #define CALIBRATE_LE_ULFRCO         true
 #define USING_DMA_FOR_TEMP
 //#define INTERNAL_LIGHT_SENSOR

@@ -4,10 +4,22 @@
 #include <stdint.h>
 
 #define LEUART_9600_BAUD_DIV    616
+#define LEUART_SEND_STRING_MAX  255
+
+/* Corresponds to
+        TX  PD4 /  external pin 12
+        RX  PD5 /  external pin 14 
+*/
+#define LEUART_TX_PORT      gpioPortD
+#define LEUART_TX_PORT_NUM  4
+#define LEUART_RX_PORT      gpioPortD
+#define LEUART_RX_PORT_NUM  5
 
 void LEUART0_setup();
 
 void leuart0_txbyte(uint8_t);
+void leuart0_tx_string(char*);
+
 uint8_t leuart0_getbyte();
 
 void leuart0_setup_for_start(uint8_t key);
