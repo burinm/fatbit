@@ -14,6 +14,10 @@
 #include "leuart.h"
 #include "debug.h"
 
+    #include "../../atmel/src/s_message.h"
+    #include <stdio.h> //free
+    #include <stdlib.h> //malloc
+
 //#include "bsp_trace.h"
 
 // This will be calibrated if CALIBRATE_LE_ULFRCO is true
@@ -45,7 +49,9 @@ clock_defaults();
     led1_off(); //start off for debugging
 
     LED0_setup();
-    //LED0 is both the state and the indicator for dark mode
+    /* Initial state is darkness/LED on
+        LED0 is both the state and the indicator for dark mode
+    */
     led0_on();
 
     LETIMER0_setup(LOWEST_POWER_MODE);
@@ -54,6 +60,12 @@ clock_defaults();
     LEUART0_setup();
     for(int i=0;i<10;i++)leuart0_txbyte('a');
     leuart0_tx_string("Hello World.\r\n");
+
+    //TODO: ENQUEUE Allocated memory
+    // Inital state is darkness/LED on message
+    s_message *m = s_message_new(S_LED_ON);
+    leuart0_tx_string(m->message);
+    free(m);
 
 
 #ifdef INTERNAL_LIGHT_SENSOR

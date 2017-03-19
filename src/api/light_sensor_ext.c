@@ -13,7 +13,6 @@ void light_sensor_power_on() {
 //Turn power on
 GPIO_PinModeSet(LIGHT_SENSOR_POWER_PORT, LIGHT_SENSOR_POWER_PORT_NUM,
     gpioModePushPullDrive, 1);
-//GPIO_DriveStrengthSet(LIGHT_SENSOR_POWER_PORT,gpioDriveStrengthWeakAlternateWeak);
 GPIO_DriveModeSet(LIGHT_SENSOR_POWER_PORT,gpioDriveModeLow);
 
 //Wait for power up
@@ -58,17 +57,6 @@ NVIC_EnableIRQ(GPIO_ODD_IRQn);
 // Persistance level 4, level interrupts on
 tsl2651_write_register(TSL2651_ADDR_INT, TSL2651_INT_PERSIST_4 | TSL2651_INT_CTRL_LEVEL);
 tsl2651_int_clear();
-
-
-#if 0
-uint8_t b;
-b=tsl2651_read_register(TSL2651_ADDR_THRESHLOW_LOWB);
-b=tsl2651_read_register(TSL2651_ADDR_THRESHLOW_HIGHB);
-b=tsl2651_read_register(TSL2651_ADDR_THRESHHIGH_LOWB);
-b=tsl2651_read_register(TSL2651_ADDR_THRESHHIGH_HIGHB);
-b=tsl2651_read_register(TSL2651_ADDR_TIMING);
-b=tsl2651_read_register(TSL2651_ADDR_INT);
-#endif
 
 }
 
