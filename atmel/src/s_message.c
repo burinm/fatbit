@@ -1,15 +1,18 @@
 #include "s_message.h"
+#include <stdlib.h>
+#include <string.h>
 
 static uint8_t s_atoi(char c);
+static char s_itoa(uint8_t i);
 
 e_sm_type s_get_message_type(s_message *m) {
     // Messages must start with '#"
-    if (m->message[0] != '#') {
+    if (m->message[S_MESSAGE_START_OFFSET] != '#') {
         return S_NONE;
     }
 
     // Messages type t, is stored in "#Tnnnxxx" 
-    switch (m->message[1]) {
+    switch (m->message[S_MESSAGE_TYPE_OFFSET]) {
         case    'A':
             return S_LED_ON;
             break;
@@ -25,6 +28,32 @@ e_sm_type s_get_message_type(s_message *m) {
 
 }
 
+s_message * s_message_new(e_sm_type t) {
+
+    s_message *m = (s_message *)malloc(sizeof(s_message));
+    /* initialize new message string
+        "#0000000(NULL)"
+    */
+    m->message[SOURCE_MESSAGE_LENGTH] = 0;
+    memset(m->message,'0',SOURCE_MESSAGE_LENGTH);
+    m->message[S_MESSAGE_START_OFFSET] = '#';
+
+    switch (t) {
+        case    S_LED_ON:
+            m->message[S_MESSAGE_TYPE_OFFSET] = 'A';
+            break;
+        case    S_LED_OFF:
+            m->message[S_MESSAGE_TYPE_OFFSET] = 'B';
+            break;
+        case    S_TEMP:
+            m->message[S_MESSAGE_TYPE_OFFSET] = 'T';
+            break;
+        default:
+            m->message[S_MESSAGE_TYPE_OFFSET] = '0';
+    }
+return m;
+}
+
 uint8_t s_message_get_value(s_message *m) {
 uint8_t v=0;
 uint8_t power_10=1;
@@ -37,9 +66,28 @@ uint8_t power_10=1;
 return v;
 }
 
+uint8_t s_message_set_value(s_message *m, uint8_t v) {
+uint8_t tmp=0;
+uint8_t power_10=100;
+    // Message value is an ascii number 0-255 , nnn, stored in "#Tnnnxxx"
+    for (int i=S_MESSAGE_VALUE_OFFSET_START;i<=S_MESSAGE_VALUE_OFFSET_END;i++) {
+        tmp=v/power_10;
+        m->message[i]=s_itoa(tmp);
+        v=v-(tmp*power_10);
+        power_10 /=10;
+    }
+
+return v;
+}
+
 #define ASCII_9_VALUE   '9'
 #define ASCII_0_VALUE   '0'
 static uint8_t s_atoi(char c) {
     if ( c > ASCII_9_VALUE || c < ASCII_0_VALUE) { return 0; }
     return (c - ASCII_0_VALUE);
+}
+
+static char s_itoa(uint8_t i) {
+    if ( i> 9 ) { return ASCII_0_VALUE;}
+    return (ASCII_0_VALUE + i);
 }

@@ -2,7 +2,6 @@
 #include <asf.h>
 #include <string.h>
 #include "interrupt_sam_nvic.h"
-//#include "s_queue.h"
 #include "s_message.h"
 
 /* 3/10/2017 burin -  Modified from:
@@ -54,7 +53,6 @@ printf("#command start\n");
         if (rx_command_buffer[0] == '#') {
             s_message *m = (s_message *)malloc(sizeof(s_message));
             memcpy(m->message,rx_command_buffer,SOURCE_MESSAGE_LENGTH);
-            //s_enqueue(m);
 
 printf("new message %p\n",(uint32_t*)m);
 cpu_irq_enter_critical();
@@ -138,7 +136,12 @@ static void configure_uart1(void)
     config_uart.stop_bits = UART_1_STOP_BIT;
     config_uart.parity = UART_NO_PARITY;
     config_uart.flow_control = false;
-         
+
+    /* Corresponds to:
+        EXT3-13 RX
+        EXT3-14 TX
+        EXT3-2  GND
+    */
     config_uart.pin_number_pad[0] = PIN_LP_GPIO_6;
     config_uart.pin_number_pad[1] = PIN_LP_GPIO_7;
     //config_uart.pin_number_pad[2] = PIN_LP_GPIO_14_MUX2_UART1_CTS;

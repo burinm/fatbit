@@ -41,14 +41,14 @@ clock_defaults();
 //    PRINTSWO_UINT(ulfrco_ticks);
 //    PRINTSWO_UINT(12345678);
 
-   LED1_setup();
-   led1_off(); //start off for debugging
+    LED1_setup();
+    led1_off(); //start off for debugging
 
-   LED0_setup();
-   //LED0 is both the state and the indicator for dark mode
-   led0_on();
+    LED0_setup();
+    //LED0 is both the state and the indicator for dark mode
+    led0_on();
 
-   LETIMER0_setup(LOWEST_POWER_MODE);
+    LETIMER0_setup(LOWEST_POWER_MODE);
 
     //Need to adjust power settings now...
     LEUART0_setup();
