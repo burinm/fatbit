@@ -6,6 +6,7 @@
 
 void LEUART0_setup() {
 
+    CMU_ClockEnable(cmuClock_HFLE, true);
     CMU_ClockEnable(cmuClock_LFB, true);
     CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
     CMU_ClockEnable(cmuClock_LEUART0, true);
@@ -38,24 +39,6 @@ void LEUART0_setup() {
     LEUART_Init(LEUART0, &leuartInit);
 }
 
-void LEUART0_disable() {
-LEUART_FreezeEnable(LEUART0,true);
-/*
-    CORE_CriticalDisableIrq();
-        LEUART0->IFC   = LEUART_IFC_STARTF;
-        NVIC_DisableIRQ(LEUART0_IRQn);
-    CORE_CriticalEnableIrq();
-
-*/
-    LEUART_Enable(LEUART0,leuartDisable);
-    //This will have to go if another peripheral used clock tree B
-    /*
-    CMU_ClockEnable(cmuClock_LFB, false);
-    CMU_ClockEnable(cmuClock_LEUART0, false);
-    */
-    //GPIO_PinModeSet(LEUART_TX_PORT, LEUART_TX_PORT_NUM, gpioModeDisabled, 0);
-    //GPIO_PinModeSet(LEUART_RX_PORT, LEUART_RX_PORT_NUM, gpioModeDisabled, 0);
-}
 
 void LEUART0_enable() {
     /*
@@ -67,16 +50,39 @@ void LEUART0_enable() {
 
     //GPIO_PinModeSet(LEUART_TX_PORT, LEUART_TX_PORT_NUM, gpioModePushPull, 1);
     //GPIO_PinModeSet(LEUART_RX_PORT, LEUART_RX_PORT_NUM, gpioModeDisabled, 0);
+
+    //LEUART_FreezeEnable(LEUART0,false);
+    //LEUART_Enable(LEUART0,leuartEnable);
+
 /*
     CORE_CriticalDisableIrq();
         LEUART0->IFC   = LEUART_IFC_STARTF;
         LEUART0->IEN   |= LEUART_IEN_STARTF;
         NVIC_EnableIRQ(LEUART0_IRQn);
     CORE_CriticalEnableIrq();
-
 */
-    LEUART_FreezeEnable(LEUART0,false);
-    LEUART_Enable(LEUART0,leuartEnable);
+}
+
+void LEUART0_disable() {
+  /* Check that transmit buffer is empty */
+  while (!(LEUART0->STATUS & LEUART_STATUS_TXBL));
+
+/*
+    CORE_CriticalDisableIrq();
+        LEUART0->IFC   = LEUART_IFC_STARTF;
+        NVIC_DisableIRQ(LEUART0_IRQn);
+    CORE_CriticalEnableIrq();
+*/
+
+    //LEUART_FreezeEnable(LEUART0,true);
+    //LEUART_Enable(LEUART0,leuartDisable);
+    //This will have to go if another peripheral used clock tree B
+    /*
+    CMU_ClockEnable(cmuClock_LFB, false);
+    CMU_ClockEnable(cmuClock_LEUART0, false);
+    */
+    //GPIO_PinModeSet(LEUART_TX_PORT, LEUART_TX_PORT_NUM, gpioModeDisabled, 0);
+    //GPIO_PinModeSet(LEUART_RX_PORT, LEUART_RX_PORT_NUM, gpioModeDisabled, 0);
 }
 
 void leuart0_setup_for_start(uint8_t key) {

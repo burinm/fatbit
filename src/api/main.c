@@ -73,8 +73,10 @@ clock_defaults();
 #ifdef SEND_EXTERNAL_NOTIFICATIONS
     //Need to adjust power settings now...
     LEUART0_setup();
-    leuart0_tx_string("########");
+    //leuart0_tx_string("Hello World.");
+    LEUART0_disable();
 #endif
+
 
 #ifdef SEND_EXTERNAL_NOTIFICATIONS
     // Initial state is darkness/LED on message
@@ -97,7 +99,7 @@ clock_defaults();
     CMU_ClockEnable(cmuClock_GPIO, false);
 
 #else // External Light Sensor
-    CMU_ClockEnable(cmuClock_GPIO, true);
+    //CMU_ClockEnable(cmuClock_GPIO, true);
 #endif
 
     // Setup for temperature measurement    

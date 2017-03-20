@@ -4,7 +4,7 @@
 // If defined, "printf"-like logs go to the console
 //#define DEBUG_ON
 
-#define LOWEST_POWER_MODE           EM2
+#define LOWEST_POWER_MODE           EM3
 #define CALIBRATE_LE_ULFRCO         true
 
 // If defined, you DMA to read internal temp, else poll

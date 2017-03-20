@@ -226,10 +226,10 @@ CORE_CriticalDisableIrq();
             while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
                 if (m) {
                     //CMU_ClockEnable(cmuClock_GPIO, true);
-                    //LEUART0_enable();
+                    LEUART0_enable();
                     //Takes over 1 second to come up due to LXFO
                     leuart0_tx_string(m->message);
-                    //LEUART0_disable();
+                    LEUART0_disable();
                     //CMU_ClockEnable(cmuClock_GPIO, false);
 
                     free(m);
