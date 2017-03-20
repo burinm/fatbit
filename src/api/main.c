@@ -17,8 +17,6 @@
 #include "debug.h"
 
     #include "../../atmel/src/s_message.h"
-    //#include <stdio.h> //free
-    //#include <stdlib.h> //malloc
     #include <string.h> //memset
 
 //outgoing message queue, circular buffer
@@ -70,7 +68,7 @@ clock_defaults();
 
     //Need to adjust power settings now...
     LEUART0_setup();
-    leuart0_tx_string("Hello World.\r\n");
+    leuart0_tx_string("########");
 #if 0
     LEUART0_enable();
     LEUART0_disable();
@@ -105,7 +103,6 @@ clock_defaults();
 #ifdef USING_DMA_FOR_TEMP
     DMA_Setup();
 #endif
-
 
   //This needs to happen last because it is the main driver
   LETIMER0_setup(LOWEST_POWER_MODE);

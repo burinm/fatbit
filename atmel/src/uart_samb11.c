@@ -41,35 +41,32 @@ static void transfer_done_tx(struct dma_resource* const resource )
 static void transfer_done_rx(struct dma_resource* const resource )
 {
     if (source_memory[0] == '#') {
+        //Reset buffer, ready for next command
         rx_command_buffer_count = 0;
         memset(rx_command_buffer,0,SOURCE_MESSAGE_BUF_LENGTH);
-printf("#command start\n");
     }
 
     rx_command_buffer[rx_command_buffer_count] = source_memory[0];
     rx_command_buffer_count++;
 
     if (rx_command_buffer_count == SOURCE_MESSAGE_LENGTH) {
-        if (rx_command_buffer[0] == '#') {
-            s_message *m = (s_message *)malloc(sizeof(s_message));
+        //Received complete command
+        if (rx_command_buffer[0] == '#') { //Sanity check
+            s_message *m = s_message_new(S_NONE);
             memcpy(m->message,rx_command_buffer,SOURCE_MESSAGE_LENGTH);
 
-//printf("new message %p\n",(uint32_t*)m);
-cpu_irq_enter_critical();
-            circbuf_tiny_write(&M_Q, (uint32_t*)m);
-cpu_irq_leave_critical();
+            //enqueue new message
+            cpu_irq_enter_critical();
+                circbuf_tiny_write(&M_Q, (uint32_t*)m);
+            cpu_irq_leave_critical();
 
             rx_command_buffer_count = 0;
-printf("command [%s]\n",rx_command_buffer);
         } else {
-printf("command invalid, ignore [%s]\n",rx_command_buffer);
+            //command invalid, ignoring
             rx_command_buffer_count = 0;
         }
     }
-//TODO: - get rid of echo - only one DMA...
-    //echo input back to terminal
-    //dma_start_transfer_job(&uart_dma_resource_tx);
-//Not working for 2 quick conseutive messages...?
+
     dma_start_transfer_job(&uart_dma_resource_rx);
 }
 

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define S_GLOBAL_IDS
+
 typedef enum { S_NONE=0, S_LED_ON, S_LED_OFF, S_TEMP } e_sm_type; 
 
 #define QUEUE_LENGTH    25
@@ -12,6 +14,8 @@ typedef enum { S_NONE=0, S_LED_ON, S_LED_OFF, S_TEMP } e_sm_type;
 #define S_MESSAGE_TYPE_OFFSET           1
 #define S_MESSAGE_VALUE_OFFSET_START    2
 #define S_MESSAGE_VALUE_OFFSET_END      4
+#define S_MESSAGE_ID_OFFSET_START       5
+#define S_MESSAGE_ID_OFFSET_END         7
 
 typedef struct {
     uint8_t message[SOURCE_MESSAGE_BUF_LENGTH];

@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef S_GLOBAL_IDS
+    static uint8_t s_m_global_id=0;
+    static void s_message_set_id(s_message *m);
+#endif
+
 static uint8_t s_atoi(char c);
 static char s_itoa(uint8_t i);
 
@@ -51,6 +56,9 @@ s_message * s_message_new(e_sm_type t) {
         default:
             m->message[S_MESSAGE_TYPE_OFFSET] = '0';
     }
+#ifdef S_GLOBAL_IDS
+    s_message_set_id(m);
+#endif
 return m;
 }
 
@@ -79,6 +87,23 @@ uint8_t power_10=100;
 
 return v;
 }
+
+#ifdef S_GLOBAL_IDS
+    static void s_message_set_id(s_message *m) {
+    uint8_t tmp=0;
+    uint8_t power_10=100;
+    uint8_t v=s_m_global_id;
+        // Id value is an ascii number 0-255 , nnn, stored in "#Txxxiii"
+        for (int i=S_MESSAGE_ID_OFFSET_START;i<=S_MESSAGE_ID_OFFSET_END;i++) {
+            tmp=v/power_10;
+            m->message[i]=s_itoa(tmp);
+            v=v-(tmp*power_10);
+            power_10 /=10;
+        }
+
+        s_m_global_id++;
+    }
+#endif
 
 #define ASCII_9_VALUE   '9'
 #define ASCII_0_VALUE   '0'

@@ -269,22 +269,37 @@ cpu_irq_enter_critical();
 cpu_irq_leave_critical();
         if (is_entry) {
             if (message) {
-printf("message pulled off queue\n");
-                if (s_get_message_type(message) == S_LED_ON) {
+printf("message pulled off queue [%s], ",message->message);
+
+                switch(s_get_message_type(message)) {
+                case S_LED_ON:
+                    printf("[Turn on LED]\n");
                     LED_On(LED0);
-                }
+                break;
 
-                if (s_get_message_type(message) == S_LED_OFF) {
+                case S_LED_OFF:
+                    printf("[Turn off LED]\n");
                     LED_Off(LED0);
-                }
+                break;
 
-                if (s_get_message_type(message) == S_TEMP) {
+                case S_TEMP:
+                    printf("[Set temp]\n");
                     htp_temperature_send(s_message_get_value(message));
-                }
+                break;
 
-                //Note, the pointers in the circular buffer still exist
-                // potential for double free
-                free(message);
+                case S_NONE:
+                    printf("[S_NONE]\n");
+                break;
+    
+                default:
+                    printf("[UNKOWN!!]\n");
+
+            }
+
+            //Note, the pointers in the circular buffer still exist
+            // do not double free
+            free(message);
+
             } else {
                 printf("NULL message pulled off queue!!\n");
             }
@@ -323,9 +338,9 @@ static void htp_temperature_send(float temperature)
     ) == AT_BLE_SUCCESS)
     {
         #ifdef HTPT_FAHRENHEIT
-        printf("\nTemperature: %d Fahrenheit\r\n", (uint16_t)temperature);
+        printf("\n(sending) Temperature: %d Fahrenheit\r\n", (uint16_t)temperature);
         #else
-        printf("\nTemperature: %d Deg Celsius\r\n", (uint16_t)temperature);
+        printf("\n(sending) Temperature: %d Deg Celsius\r\n", (uint16_t)temperature);
         #endif
     }
 }
