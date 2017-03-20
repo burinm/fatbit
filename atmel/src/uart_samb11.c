@@ -54,7 +54,7 @@ printf("#command start\n");
             s_message *m = (s_message *)malloc(sizeof(s_message));
             memcpy(m->message,rx_command_buffer,SOURCE_MESSAGE_LENGTH);
 
-printf("new message %p\n",(uint32_t*)m);
+//printf("new message %p\n",(uint32_t*)m);
 cpu_irq_enter_critical();
             circbuf_tiny_write(&M_Q, (uint32_t*)m);
 cpu_irq_leave_critical();
@@ -69,6 +69,7 @@ printf("command invalid, ignore [%s]\n",rx_command_buffer);
 //TODO: - get rid of echo - only one DMA...
     //echo input back to terminal
     //dma_start_transfer_job(&uart_dma_resource_tx);
+//Not working for 2 quick conseutive messages...?
     dma_start_transfer_job(&uart_dma_resource_rx);
 }
 

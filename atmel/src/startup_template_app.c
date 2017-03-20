@@ -154,33 +154,6 @@ int main (void)
             //htp_temperature_send(at30tse_read_temperature());
         }
 
-        //if (S_Q.index > 0) {
-        s_message *message=NULL;
-        uint8_t is_entry;
-cpu_irq_enter_critical();
-        is_entry = circbuf_tiny_read(&M_Q,(uint32_t**)&message);
-cpu_irq_leave_critical();
-        if (is_entry) {
-printf("message pulled off queue\n");
-            if (message) {
-printf("non null message pulled off queue\n");
-                if (s_get_message_type(message) == S_LED_ON) {
-                    LED_On(LED0);
-                }
-
-                if (s_get_message_type(message) == S_LED_OFF) {
-                    LED_Off(LED0);
-                }
-
-                if (s_get_message_type(message) == S_TEMP) {
-                    htp_temperature_send(s_message_get_value(message));
-                }
-
-                //Note, the pointers in the circular buffer still exist
-                // potential for double free
-                free(message);
-            }
-        }
 
     }
 }
@@ -189,9 +162,9 @@ static void htp_temperature_print(float temperature)
 {
     /* Display temperature on com port */
     #ifdef HTPT_FAHRENHEIT
-    printf("\nTemperature: %d Fahrenheit", (uint16_t)temperature);
+    printf("\nTemperature: %d Fahrenheit\r\n", (uint16_t)temperature);
     #else
-    printf("\nTemperature: %d Deg Celsius", (uint16_t)temperature);
+    printf("\nTemperature: %d Deg Celsius\r\n", (uint16_t)temperature);
     #endif
 }
 
@@ -287,10 +260,40 @@ static void timer_callback_handler(void)
 {
     /* Stop timer */
     hw_timer_stop();
+
+        //Check for incoming messages
+        s_message *message=NULL;
+        uint8_t is_entry;
+cpu_irq_enter_critical();
+        is_entry = circbuf_tiny_read(&M_Q,(uint32_t**)&message);
+cpu_irq_leave_critical();
+        if (is_entry) {
+            if (message) {
+printf("message pulled off queue\n");
+                if (s_get_message_type(message) == S_LED_ON) {
+                    LED_On(LED0);
+                }
+
+                if (s_get_message_type(message) == S_LED_OFF) {
+                    LED_Off(LED0);
+                }
+
+                if (s_get_message_type(message) == S_TEMP) {
+                    htp_temperature_send(s_message_get_value(message));
+                }
+
+                //Note, the pointers in the circular buffer still exist
+                // potential for double free
+                free(message);
+            } else {
+                printf("NULL message pulled off queue!!\n");
+            }
+        }
+
     /* Set timer Alarm flag */
     Timer_Flag = true;
     /* Restart Timer */
-    hw_timer_start(10);
+    hw_timer_start(1);
 }
 
 /* Sending the temperature value after reading it from IO1 Xplained Pro */
@@ -320,9 +323,9 @@ static void htp_temperature_send(float temperature)
     ) == AT_BLE_SUCCESS)
     {
         #ifdef HTPT_FAHRENHEIT
-        printf("\nTemperature: %d Fahrenheit", (uint16_t)temperature);
+        printf("\nTemperature: %d Fahrenheit\r\n", (uint16_t)temperature);
         #else
-        printf("\nTemperature: %d Deg Celsius", (uint16_t)temperature);
+        printf("\nTemperature: %d Deg Celsius\r\n", (uint16_t)temperature);
         #endif
     }
 }

@@ -209,25 +209,25 @@ CORE_CriticalDisableIrq();
                 letimer_frame=0;
                 CMU_ClockEnable(cmuClock_GPIO, false);
 
-                // Process outgoing message Q, already in critical section
-                // One for now, maybee do two at a time?
-                uint8_t is_entry;
-                is_entry = circbuf_tiny_read(&O_Q,(uint32_t**)&m);
-                if (is_entry) {
-                    if (m) {
-                        //CMU_ClockEnable(cmuClock_GPIO, true);
-                        //LEUART0_enable();
-                        //Takes over 1 second to come up due to LXFO
-                        leuart0_tx_string(m->message);
-                        //LEUART0_disable();
-                        //CMU_ClockEnable(cmuClock_GPIO, false);
 
-                        free(m);
-                    }
-                }
             break;
         }
 #endif
+
+        // Process all pending outgoing message Q, already in critical section
+        uint8_t is_entry;
+        while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
+            if (m) {
+                //CMU_ClockEnable(cmuClock_GPIO, true);
+                //LEUART0_enable();
+                //Takes over 1 second to come up due to LXFO
+                leuart0_tx_string(m->message);
+                //LEUART0_disable();
+                //CMU_ClockEnable(cmuClock_GPIO, false);
+
+                free(m);
+            }
+        }
 
     }
 
