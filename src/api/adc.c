@@ -94,7 +94,6 @@ void ADC0_Setup() {
 
 uint8_t temperature_tally() {
 uint32_t average=0;
-//float average=0;
 
     for (int i=0; i<ADC_NUMBER_SAMPLES; i++) {
         average+=adc_sample_buffer[i];

@@ -12,13 +12,17 @@
 //#define TEMP_LO 23 
 
 //#define ADC_NUMBER_SAMPLES 750
-#define ADC_NUMBER_SAMPLES 1000
+//#define ADC_NUMBER_SAMPLES 1000
+#define ADC_NUMBER_SAMPLES 500
 
 //#define ADC_PRESCALE 52 // (53 - 1)  20000 samples/3us aquisition/12 bits, 13 clocks
 //#define ADC_PRESCALE 24 // (25 - 1)  40000 samples/3us aquisition/12 bits, 14 clocks
 
-//This one measures 25ms, even though the formula does not predict this - should be 27mS...
-#define ADC_PRESCALE 26 // (27 - 1)  40000 samples/3us aquisition/12 bits, 14 clocks
+//This one measures 25ms, should be 27mS... - 1000 samples
+//#define ADC_PRESCALE 26 // (27 - 1)  40000 samples/3us aquisition/12 bits, 14 clocks
+
+//Measures 6.75ms, calculated 5.7ms - 500 samples
+#define ADC_PRESCALE 9 // (10 - 1)  87500 samples/3us aquisition/12 bits, 16 clocks
 
 extern uint16_t adc_sample_buffer[ADC_NUMBER_SAMPLES];
 
