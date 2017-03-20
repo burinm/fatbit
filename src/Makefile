@@ -35,7 +35,7 @@ vpath %.c $(SIMPLICITY_SDK)/hardware/kit/common/bsp
 vpath %.c $(SIMPLICITY_SDK)/platform/Device/SiliconLabs/EFM32LG/Source 
 vpath %.S $(SIMPLICITY_SDK)/platform/Device/SiliconLabs/EFM32LG/Source/GCC
 vpath %.c $(SIMPLICITY_SDK)/hardware/kit/common/drivers
-vpath %.c /home/burin/drivers/src/driver 
+vpath %.c /home/burin/drivers/src/driver
 vpath %.c ./api
 vpath %.c ../atmel/src
 
@@ -51,7 +51,7 @@ SOURCES += dmactrl.c em_dma.c
 SOURCES += gecko_i2c.c i2c_emf32.c tsl2651.c em_i2c.c
 SOURCES += main.c sleep.c periph.c dma.c adc.c acmp.c letimer.c leuart.c timers.c debug.c s_message.c
 SOURCES += debug.c
-SOURCES += light_sensor_ext.c
+SOURCES += light_sensor_ext.c circbuf_tiny.c
 #SOURCES += retargetio.c
 OBJS :=$(SOURCES:%.c=%.o)
 OBJS += startup_efm32lg.o

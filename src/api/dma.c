@@ -4,6 +4,12 @@
 #include "dmactrl.h"
 #include "adc.h"
 
+//Maybee combine functionality?
+#include "main.h"
+#include "leuart.h"
+#include "../../atmel/src/s_message.h"
+#include "circbuf_tiny.h"
+
 DMA_CB_TypeDef ADC_cb;
 
 
@@ -56,5 +62,13 @@ CORE_CriticalEnableIrq();
 
 // DMA IRQ routine is set by SDK, callback
 void ADCdmaTransferDone(unsigned int channel, bool primary, void *user) {
-    temperature_tally();
+uint8_t tempC;
+
+    tempC = temperature_tally();
+    CORE_CriticalDisableIrq();
+        //enqueue temperature message, we are already in critial section
+        s_message *m = s_message_new(S_TEMP);
+        s_message_set_value(m,tempC);
+        circbuf_tiny_write(&O_Q, (uint32_t*)m);
+    CORE_CriticalEnableIrq();
 }

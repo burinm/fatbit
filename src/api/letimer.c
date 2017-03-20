@@ -19,6 +19,12 @@
     #include "light_sensor_ext.h"
 #endif
 
+//Maybee combine functionality?
+#include "main.h"
+#include "leuart.h"
+#include "../../atmel/src/s_message.h"
+#include "circbuf_tiny.h"
+
 #include "debug.h"
 
 uint8_t letimer_frame=0;
@@ -118,6 +124,10 @@ void LETIMER0_setup(e_emode e) {
 void LETIMER0_IRQHandler() {
 int intFlags;
 
+// outgoing queue handle
+s_message *m=NULL;
+
+
 CORE_CriticalDisableIrq();
     intFlags = LETIMER_IntGet(LETIMER0);
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP0);
@@ -170,20 +180,18 @@ CORE_CriticalDisableIrq();
             if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
                 led0_off();
 
-                //TODO: ENQUEUE Allocated memory
-                s_message *m = s_message_new(S_LED_OFF);
-                leuart0_tx_string(m->message);
-                free(m);
+                // enqueue led off message
+                m = s_message_new(S_LED_OFF);
+                circbuf_tiny_write(&O_Q, (uint32_t*)m);
 
             }
         } else {
             if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
                 led0_on();
 
-                //TODO: ENQUEUE Allocated memory
-                s_message *m = s_message_new(S_LED_ON);
-                leuart0_tx_string(m->message);
-                free(m);
+                // enqueue led on message
+                m = s_message_new(S_LED_ON);
+                circbuf_tiny_write(&O_Q, (uint32_t*)m);
             }
         }
         ACMP_Disable(ACMP0);
@@ -202,6 +210,17 @@ CORE_CriticalDisableIrq();
             break;
         }
 #endif
+        // Process outgoing message Q, already in critical section
+        // One for now, maybee do two at a time?
+        uint8_t is_entry;
+        is_entry = circbuf_tiny_read(&O_Q,(uint32_t**)&m);
+        if (is_entry) {
+            if (m) {
+                leuart0_tx_string(m->message);
+                free(m);
+            }
+        }
+
     }
 
 CORE_CriticalEnableIrq();

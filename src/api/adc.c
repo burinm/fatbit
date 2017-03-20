@@ -6,13 +6,15 @@
 #include "em_core.h"
 
 //Maybee combine functionality?
+#include "main.h"
 #include "leuart.h"
 #include "../../atmel/src/s_message.h"
+#include "circbuf_tiny.h"
 
     #include "debug.h"
 
 uint16_t adc_sample_count=0;
-uint16_t  adc_sample_buffer[ADC_NUMBER_SAMPLES] = {0};
+uint16_t adc_sample_buffer[ADC_NUMBER_SAMPLES] = {0};
 
 void ADC0_Setup() {
 
@@ -59,6 +61,7 @@ void ADC0_Setup() {
 #ifndef USING_DMA_FOR_TEMP
     void ADC0_IRQHandler() {
     int intFlags;
+    uint8_t tempC;
 
     CORE_CriticalDisableIrq();
         intFlags = ADC_IntGet(ADC0);
@@ -69,7 +72,12 @@ void ADC0_Setup() {
             adc_sample_count++;
             if (adc_sample_count > ADC_NUMBER_SAMPLES) {
                 adc_sample_count = 0;
-                temperature_tally();
+                tempC = temperature_tally();
+
+                //enqueue temperature message, we are already in critial section
+                s_message *m = s_message_new(S_TEMP);
+                s_message_set_value(m,tempC);
+                circbuf_tiny_write(&O_Q, (uint32_t*)m);
             }
         }
 
@@ -77,9 +85,9 @@ void ADC0_Setup() {
     }
 #endif
 
-void temperature_tally() {
-//uint32_t average=0;
-float average=0;
+uint8_t temperature_tally() {
+uint32_t average=0;
+//float average=0;
 
     //ADC off
     ADC0->CMD = ADC_CMD_SINGLESTOP;
@@ -97,11 +105,6 @@ PRINTSWO_UINT(average);
     uint8_t tempC = ((uint32_t)convertToCelsius(average));
     PRINTSWO_UINT(tempC);
 
-//TODO: ENQUEUE Allocated memory
-s_message *m = s_message_new(S_TEMP);
-s_message_set_value(m,tempC);
-leuart0_tx_string(m->message);
-free(m);
 
     if ( tempC < TEMP_HI && tempC > TEMP_LO ) {
 #ifdef INTERNAL_LIGHT_SENSOR
@@ -121,6 +124,7 @@ free(m);
         CMU_ClockEnable(cmuClock_GPIO, false);
 #endif
     }
+return tempC;
 }    
 
 float convertToCelsius(int32_t adcSample)

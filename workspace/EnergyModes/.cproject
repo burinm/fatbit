@@ -45,6 +45,7 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/Device/SiliconLabs/EFM32LG/Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/EFM32LG_STK3600/config&quot;"/>
+									<listOptionValue builtIn="false" value="/home/burin/Dropbox/ecen5023/atmel/src"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.1092381491" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -177,5 +178,12 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="GNU ARM v4.9.3 - Debug">
+			<resource resourceType="PROJECT" workspacePath="/EnergyModes"/>
+		</configuration>
+		<configuration configurationName="GNU ARM v4.9.3 - Release">
+			<resource resourceType="PROJECT" workspacePath="/EnergyModes"/>
+		</configuration>
+	</storageModule>
 </cproject>

@@ -8,4 +8,10 @@
 #define USING_DMA_FOR_TEMP
 //#define INTERNAL_LIGHT_SENSOR
 
+
+#include "circbuf_tiny.h"
+
+//outgoing message queue, circular buffer
+extern circbuf_tiny_t O_Q;
+
 #endif

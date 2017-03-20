@@ -33,8 +33,8 @@ void ADC0_Setup();
     void ADC0_IRQHandler();
 #endif
 
-/* Tally up average */
-void temperature_tally();
+/* Tally up average, return tempurature */
+uint8_t temperature_tally();
 
 /* convertToCelsius
     Silicon Labs (c) 2017 - from class notes ecen5023 - IOT

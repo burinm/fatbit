@@ -18,6 +18,9 @@
     #include <stdio.h> //free
     #include <stdlib.h> //malloc
 
+//outgoing message queue, circular buffer
+circbuf_tiny_t O_Q;
+
 //#include "bsp_trace.h"
 
 // This will be calibrated if CALIBRATE_LE_ULFRCO is true
@@ -25,6 +28,10 @@ uint16_t ulfrco_ticks = LETIMER_ULFRCO_TICK_S;
 
 int main(void)
 {
+
+  //Setup outgoing message Q
+  circbuf_tiny_init(&O_Q); 
+
   /* Chip errata */
   CHIP_Init();
 
@@ -61,12 +68,9 @@ clock_defaults();
     for(int i=0;i<10;i++)leuart0_txbyte('a');
     leuart0_tx_string("Hello World.\r\n");
 
-    //TODO: ENQUEUE Allocated memory
-    // Inital state is darkness/LED on message
+    // Initial state is darkness/LED on message
     s_message *m = s_message_new(S_LED_ON);
-    leuart0_tx_string(m->message);
-    free(m);
-
+    circbuf_tiny_write(&O_Q, (uint32_t*)m);
 
 #ifdef INTERNAL_LIGHT_SENSOR
     //setup all GPIO before entering sleep

@@ -5,8 +5,10 @@
 #include "em_core.h"
 #include "periph.h"
 
+#include "main.h"
 #include "leuart.h"
 #include "../../atmel/src/s_message.h"
+#include "circbuf_tiny.h"
 
 void light_sensor_power_on() {
 
@@ -100,18 +102,16 @@ CORE_CriticalDisableIrq();
         if ( is_led0_on() ) { //Dark state
             if (light >= LIGHT_SENSOR_THRESH_HIGH) {
                 led0_off();
-                //TODO: ENQUEUE Allocated memory
+                // enqueue led off message
                 s_message *m = s_message_new(S_LED_OFF);
-                leuart0_tx_string(m->message);
-                free(m);
+                circbuf_tiny_write(&O_Q, (uint32_t*)m);
             }
         } else { //Light state 
             if (light <= LIGHT_SENSOR_THRESH_LOW) {
                 led0_on();
-                 //TODO: ENQUEUE Allocated memory
+                // enqueue led on message
                 s_message *m = s_message_new(S_LED_ON);
-                leuart0_tx_string(m->message);
-                free(m);
+                circbuf_tiny_write(&O_Q, (uint32_t*)m);
             }
         }
 
