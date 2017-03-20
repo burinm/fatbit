@@ -24,6 +24,7 @@
 #include "leuart.h"
 #include "../../atmel/src/s_message.h"
 #include "circbuf_tiny.h"
+#include "em_leuart.h"
 
 #include "debug.h"
 
@@ -207,19 +208,26 @@ CORE_CriticalDisableIrq();
                 light_sensor_power_off();
                 letimer_frame=0;
                 CMU_ClockEnable(cmuClock_GPIO, false);
+
+                // Process outgoing message Q, already in critical section
+                // One for now, maybee do two at a time?
+                uint8_t is_entry;
+                is_entry = circbuf_tiny_read(&O_Q,(uint32_t**)&m);
+                if (is_entry) {
+                    if (m) {
+                        //CMU_ClockEnable(cmuClock_GPIO, true);
+                        //LEUART0_enable();
+                        //Takes over 1 second to come up due to LXFO
+                        leuart0_tx_string(m->message);
+                        //LEUART0_disable();
+                        //CMU_ClockEnable(cmuClock_GPIO, false);
+
+                        free(m);
+                    }
+                }
             break;
         }
 #endif
-        // Process outgoing message Q, already in critical section
-        // One for now, maybee do two at a time?
-        uint8_t is_entry;
-        is_entry = circbuf_tiny_read(&O_Q,(uint32_t**)&m);
-        if (is_entry) {
-            if (m) {
-                leuart0_tx_string(m->message);
-                free(m);
-            }
-        }
 
     }
 

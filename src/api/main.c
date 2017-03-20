@@ -12,11 +12,14 @@
 #include "adc.h"
 #include "light_sensor_ext.h"
 #include "leuart.h"
+
+    #include "em_leuart.h"
 #include "debug.h"
 
     #include "../../atmel/src/s_message.h"
-    #include <stdio.h> //free
-    #include <stdlib.h> //malloc
+    //#include <stdio.h> //free
+    //#include <stdlib.h> //malloc
+    #include <string.h> //memset
 
 //outgoing message queue, circular buffer
 circbuf_tiny_t O_Q;
@@ -31,6 +34,9 @@ int main(void)
 
   //Setup outgoing message Q
   circbuf_tiny_init(&O_Q); 
+
+  //Clear out sleep_block_counter
+  memset(sleep_block_counter,EM0,EM_MAX-1);
 
   /* Chip errata */
   CHIP_Init();
@@ -61,12 +67,14 @@ clock_defaults();
     */
     led0_on();
 
-    LETIMER0_setup(LOWEST_POWER_MODE);
 
     //Need to adjust power settings now...
     LEUART0_setup();
-    for(int i=0;i<10;i++)leuart0_txbyte('a');
     leuart0_tx_string("Hello World.\r\n");
+#if 0
+    LEUART0_enable();
+    LEUART0_disable();
+#endif
 
     // Initial state is darkness/LED on message
     s_message *m = s_message_new(S_LED_ON);
@@ -97,6 +105,10 @@ clock_defaults();
 #ifdef USING_DMA_FOR_TEMP
     DMA_Setup();
 #endif
+
+
+  //This needs to happen last because it is the main driver
+  LETIMER0_setup(LOWEST_POWER_MODE);
 
   /* Infinite loop */
   while (1) {

@@ -72,6 +72,11 @@ void ADC0_Setup() {
             adc_sample_count++;
             if (adc_sample_count > ADC_NUMBER_SAMPLES) {
                 adc_sample_count = 0;
+
+                //ADC off
+                ADC0->CMD = ADC_CMD_SINGLESTOP;
+                unblockSleepMode(EM1);
+
                 tempC = temperature_tally();
 
                 //enqueue temperature message, we are already in critial section
@@ -88,10 +93,6 @@ void ADC0_Setup() {
 uint8_t temperature_tally() {
 uint32_t average=0;
 //float average=0;
-
-    //ADC off
-    ADC0->CMD = ADC_CMD_SINGLESTOP;
-    unblockSleepMode(EM1);
 
     for (int i=0; i<ADC_NUMBER_SAMPLES; i++) {
         average+=adc_sample_buffer[i];

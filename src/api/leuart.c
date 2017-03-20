@@ -16,6 +16,7 @@ void LEUART0_setup() {
 
     // 8N1 by default, DATABITS=0, PARITY=0, STOPBITS=0, LEUART0->CTRL
     const LEUART_Init_TypeDef leuartInit = {
+        //.enable = leuartDisable,
         .enable = leuartEnable,
         .refFreq = 0,
         .baudrate = 9600,
@@ -37,6 +38,47 @@ void LEUART0_setup() {
     LEUART_Init(LEUART0, &leuartInit);
 }
 
+void LEUART0_disable() {
+LEUART_FreezeEnable(LEUART0,true);
+/*
+    CORE_CriticalDisableIrq();
+        LEUART0->IFC   = LEUART_IFC_STARTF;
+        NVIC_DisableIRQ(LEUART0_IRQn);
+    CORE_CriticalEnableIrq();
+
+*/
+    LEUART_Enable(LEUART0,leuartDisable);
+    //This will have to go if another peripheral used clock tree B
+    /*
+    CMU_ClockEnable(cmuClock_LFB, false);
+    CMU_ClockEnable(cmuClock_LEUART0, false);
+    */
+    //GPIO_PinModeSet(LEUART_TX_PORT, LEUART_TX_PORT_NUM, gpioModeDisabled, 0);
+    //GPIO_PinModeSet(LEUART_RX_PORT, LEUART_RX_PORT_NUM, gpioModeDisabled, 0);
+}
+
+void LEUART0_enable() {
+    /*
+    CMU_ClockEnable(cmuClock_LFB, true);
+    CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
+    CMU_ClockEnable(cmuClock_LEUART0, true);
+    CMU_ClockDivSet(cmuClock_LEUART0, cmuClkDiv_1);
+    */
+
+    //GPIO_PinModeSet(LEUART_TX_PORT, LEUART_TX_PORT_NUM, gpioModePushPull, 1);
+    //GPIO_PinModeSet(LEUART_RX_PORT, LEUART_RX_PORT_NUM, gpioModeDisabled, 0);
+/*
+    CORE_CriticalDisableIrq();
+        LEUART0->IFC   = LEUART_IFC_STARTF;
+        LEUART0->IEN   |= LEUART_IEN_STARTF;
+        NVIC_EnableIRQ(LEUART0_IRQn);
+    CORE_CriticalEnableIrq();
+
+*/
+    LEUART_FreezeEnable(LEUART0,false);
+    LEUART_Enable(LEUART0,leuartEnable);
+}
+
 void leuart0_setup_for_start(uint8_t key) {
 
 // Block RX until special start Frame
@@ -49,14 +91,19 @@ while (LEUART0->STATUS & LEUART_STATUS_RXBLOCK);
 
 }
 
+#if 0
 void leuart0_txbyte(uint8_t b) {
     // Wait for transmitter idle
     // TODO: Add code for buffer also
-    while ((LEUART0->IF & LEUART_IF_TXBL) == 0);  
+//    while ((LEUART0->IF & LEUART_IF_TXBL) == 0);  
+
+
+    while (!(LEUART0->STATUS & LEUART_STATUS_TXBL));
 
     // Writing clears interrupt
     LEUART0->TXDATA=b;
 }
+#endif
 
 void leuart0_tx_string(char* s) {
 uint8_t i;

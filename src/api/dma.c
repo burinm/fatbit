@@ -3,6 +3,7 @@
 #include "em_core.h"
 #include "dmactrl.h"
 #include "adc.h"
+#include "sleep.h"
 
 //Maybee combine functionality?
 #include "main.h"
@@ -63,6 +64,10 @@ CORE_CriticalEnableIrq();
 // DMA IRQ routine is set by SDK, callback
 void ADCdmaTransferDone(unsigned int channel, bool primary, void *user) {
 uint8_t tempC;
+
+     //ADC off
+    ADC0->CMD = ADC_CMD_SINGLESTOP;
+    unblockSleepMode(EM1);
 
     tempC = temperature_tally();
     CORE_CriticalDisableIrq();

@@ -66,8 +66,10 @@ printf("command invalid, ignore [%s]\n",rx_command_buffer);
             rx_command_buffer_count = 0;
         }
     }
+//TODO: - get rid of echo - only one DMA...
     //echo input back to terminal
-    dma_start_transfer_job(&uart_dma_resource_tx);
+    //dma_start_transfer_job(&uart_dma_resource_tx);
+    dma_start_transfer_job(&uart_dma_resource_rx);
 }
 
 static void configure_dma_resource_tx(struct dma_resource *resource)

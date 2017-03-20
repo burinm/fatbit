@@ -16,8 +16,12 @@
 #define LEUART_RX_PORT_NUM  5
 
 void LEUART0_setup();
+void LEUART0_enable();
+void LEUART0_disable();
+void LEUART0_tx_on_only();
 
-void leuart0_txbyte(uint8_t);
+//void leuart0_txbyte(uint8_t);
+#define leuart0_txbyte(x) LEUART_Tx(LEUART0,x)
 void leuart0_tx_string(char*);
 
 uint8_t leuart0_getbyte();
