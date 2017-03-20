@@ -19,8 +19,10 @@
     #include "../../atmel/src/s_message.h"
     #include <string.h> //memset
 
-//outgoing message queue, circular buffer
-circbuf_tiny_t O_Q;
+#ifdef SEND_EXTERNAL_NOTIFICATIONS
+    //outgoing message queue, circular buffer
+    circbuf_tiny_t O_Q;
+#endif
 
 //#include "bsp_trace.h"
 
@@ -30,8 +32,10 @@ uint16_t ulfrco_ticks = LETIMER_ULFRCO_TICK_S;
 int main(void)
 {
 
+#ifdef SEND_EXTERNAL_NOTIFICATIONS
   //Setup outgoing message Q
   circbuf_tiny_init(&O_Q); 
+#endif
 
   //Clear out sleep_block_counter
   memset(sleep_block_counter,EM0,EM_MAX-1);
@@ -66,17 +70,17 @@ clock_defaults();
     led0_on();
 
 
+#ifdef SEND_EXTERNAL_NOTIFICATIONS
     //Need to adjust power settings now...
     LEUART0_setup();
     leuart0_tx_string("########");
-#if 0
-    LEUART0_enable();
-    LEUART0_disable();
 #endif
 
+#ifdef SEND_EXTERNAL_NOTIFICATIONS
     // Initial state is darkness/LED on message
     s_message *m = s_message_new(S_LED_ON);
     circbuf_tiny_write(&O_Q, (uint32_t*)m);
+#endif
 
 #ifdef INTERNAL_LIGHT_SENSOR
     //setup all GPIO before entering sleep

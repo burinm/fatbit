@@ -53,13 +53,12 @@ GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
 GPIO_ExtIntConfig(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM, LIGHT_SENSOR_INT_PORT_NUM,
     false, true, true);
 
-// GPIO interrupts on
-NVIC_EnableIRQ(GPIO_ODD_IRQn);
-
 // Persistance level 4, level interrupts on
 tsl2651_write_register(TSL2651_ADDR_INT, TSL2651_INT_PERSIST_4 | TSL2651_INT_CTRL_LEVEL);
 tsl2651_int_clear();
 
+// GPIO interrupts on
+NVIC_EnableIRQ(GPIO_ODD_IRQn);
 }
 
 uint8_t light_sensor_is_active() {
@@ -81,8 +80,7 @@ GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
     gpioModeDisabled, 0);
 
 //Disable power
-GPIO_PinModeSet(LIGHT_SENSOR_POWER_PORT, LIGHT_SENSOR_POWER_PORT_NUM,
-    gpioModeDisabled, 0);
+GPIO_PinOutClear(LIGHT_SENSOR_POWER_PORT, LIGHT_SENSOR_POWER_PORT_NUM);
 
 }
 
@@ -102,16 +100,20 @@ CORE_CriticalDisableIrq();
         if ( is_led0_on() ) { //Dark state
             if (light >= LIGHT_SENSOR_THRESH_HIGH) {
                 led0_off();
-                // enqueue led off message
-                s_message *m = s_message_new(S_LED_OFF);
-                circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                    // enqueue led off message
+                    s_message *m = s_message_new(S_LED_OFF);
+                    circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                #endif
             }
         } else { //Light state 
             if (light <= LIGHT_SENSOR_THRESH_LOW) {
                 led0_on();
-                // enqueue led on message
-                s_message *m = s_message_new(S_LED_ON);
-                circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                    // enqueue led on message
+                    s_message *m = s_message_new(S_LED_ON);
+                    circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                #endif
             }
         }
 

@@ -125,8 +125,10 @@ void LETIMER0_setup(e_emode e) {
 void LETIMER0_IRQHandler() {
 int intFlags;
 
-// outgoing queue handle
-s_message *m=NULL;
+#ifdef SEND_EXTERNAL_NOTIFICATIONS
+    // outgoing queue handle
+    s_message *m=NULL;
+#endif
 
 
 CORE_CriticalDisableIrq();
@@ -181,18 +183,22 @@ CORE_CriticalDisableIrq();
             if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
                 led0_off();
 
-                // enqueue led off message
-                m = s_message_new(S_LED_OFF);
-                circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                    // enqueue led off message
+                    m = s_message_new(S_LED_OFF);
+                    circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                #endif
 
             }
         } else {
             if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
                 led0_on();
 
-                // enqueue led on message
-                m = s_message_new(S_LED_ON);
-                circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                    // enqueue led on message
+                    m = s_message_new(S_LED_ON);
+                    circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                #endif
             }
         }
         ACMP_Disable(ACMP0);
@@ -214,20 +220,22 @@ CORE_CriticalDisableIrq();
         }
 #endif
 
-        // Process all pending outgoing message Q, already in critical section
-        uint8_t is_entry;
-        while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
-            if (m) {
-                //CMU_ClockEnable(cmuClock_GPIO, true);
-                //LEUART0_enable();
-                //Takes over 1 second to come up due to LXFO
-                leuart0_tx_string(m->message);
-                //LEUART0_disable();
-                //CMU_ClockEnable(cmuClock_GPIO, false);
+        #ifdef SEND_EXTERNAL_NOTIFICATIONS
+            // Process all pending outgoing message Q, already in critical section
+            uint8_t is_entry;
+            while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
+                if (m) {
+                    //CMU_ClockEnable(cmuClock_GPIO, true);
+                    //LEUART0_enable();
+                    //Takes over 1 second to come up due to LXFO
+                    leuart0_tx_string(m->message);
+                    //LEUART0_disable();
+                    //CMU_ClockEnable(cmuClock_GPIO, false);
 
-                free(m);
+                    free(m);
+                }
             }
-        }
+        #endif
 
     }
 
