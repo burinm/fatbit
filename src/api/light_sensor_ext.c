@@ -122,6 +122,5 @@ CORE_CriticalDisableIrq();
 
         tsl2651_int_clear();
     }
-end:
 CORE_CriticalEnableIrq();
 }

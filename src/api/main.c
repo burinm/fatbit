@@ -111,7 +111,11 @@ clock_defaults();
 #endif
 
   //This needs to happen last because it is the main driver
-  LETIMER0_setup(LOWEST_POWER_MODE);
+  uint16_t le_comp0;
+  uint16_t le_comp1;
+  LETIMER0_calc_le_ticks(LOWEST_POWER_MODE,
+                LE_PERIOD_SECONDS, LE_ON_SECONDS, &le_comp0, &le_comp1);
+  LETIMER0_setup(LOWEST_POWER_MODE, le_comp0, le_comp1);
 
   /* Infinite loop */
   while (1) {

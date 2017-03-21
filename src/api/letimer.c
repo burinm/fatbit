@@ -25,6 +25,7 @@
 #include "../../atmel/src/s_message.h"
 #include "circbuf_tiny.h"
 #include "em_leuart.h"
+#include <stdlib.h> //free
 
 #include "debug.h"
 
@@ -32,11 +33,12 @@
     static uint8_t letimer_frame=0;
 #endif
 
-void LETIMER0_setup(e_emode e) {
 
+void LETIMER0_calc_le_ticks(e_emode e, double le_period_seconds, double le_on_seconds,
+                            uint16_t *le_comp0, uint16_t *le_comp1) {
     // Ticks calculations
-    double le_period_seconds = LE_PERIOD_SECONDS;
-    double le_on_seconds = LE_ON_SECONDS;
+    //double le_period_seconds = le_0_in;
+    //double le_on_seconds = le_1_in;
 
     // LXFO Timings
     uint16_t le_lfxo_ticks_second = LETIMER_LFXO_TICK_S / (LE_DIVIDER ? LE_DIVIDER:1); //Divider on/off
@@ -56,6 +58,18 @@ void LETIMER0_setup(e_emode e) {
 
     //End ticks calc
 
+    // LETIMER COMP0 will be used for period, COMP1 for duration
+    if (e < EM3) {
+        *le_comp0 = le_comp0_em2;
+        *le_comp1 = le_comp1_em2;
+    } else {
+        *le_comp0 = le_comp0_em3;
+        *le_comp1 = le_comp1_em3;
+    }
+}
+
+void LETIMER0_setup(e_emode e, uint16_t le_comp0, uint16_t le_comp1) {
+
     // LETIMER jams up after use in ULFRCO and one-shot mode, hard reset
     LETIMER_Reset(LETIMER0);
 
@@ -72,10 +86,10 @@ void LETIMER0_setup(e_emode e) {
     CMU_ClockEnable(cmuClock_HFLE, true);
     CMU_ClockEnable(cmuClock_LETIMER0, true);
 
-    // LETIMER COMP0 will be used for period, COMP1 for duration
+    LETIMER_CompareSet(LETIMER0, 0, le_comp0);
+    LETIMER_CompareSet(LETIMER0, 1, le_comp1);
+
     if (e < EM3) {
-        LETIMER_CompareSet(LETIMER0, 0, le_comp0_em2);
-        LETIMER_CompareSet(LETIMER0, 1, le_comp1_em2);
         if (LE_DIVIDER == 2) { // Scaling needed for periods 2 seconds or greater
             CMU->LFAPRESC0 |=
           ((_CMU_LFAPRESC0_LETIMER0_DIV2 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
@@ -84,9 +98,6 @@ void LETIMER0_setup(e_emode e) {
             CMU->LFAPRESC0 |=
           ((_CMU_LFAPRESC0_LETIMER0_DIV4 << _CMU_LFAPRESC0_LETIMER0_SHIFT) & _CMU_LFAPRESC0_MASK);
         }
-    } else {
-        LETIMER_CompareSet(LETIMER0, 0, le_comp0_em3);
-        LETIMER_CompareSet(LETIMER0, 1, le_comp1_em3);
     }
 
     // Defaults modified from Silicon AN0026SW examples
@@ -231,7 +242,6 @@ CORE_CriticalDisableIrq();
             }
 
             // Process all pending outgoing message Q, already in critical section
-            uint8_t is_entry;
             while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
                 if (m) {
                     //CMU_ClockEnable(cmuClock_GPIO, true);
