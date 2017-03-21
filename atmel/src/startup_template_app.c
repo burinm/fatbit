@@ -260,6 +260,7 @@ static void timer_callback_handler(void)
 {
     /* Stop timer */
     hw_timer_stop();
+printf("(?)");
 
         //Check for incoming messages
         s_message *message=NULL;

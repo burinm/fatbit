@@ -28,7 +28,9 @@
 
 #include "debug.h"
 
-uint8_t letimer_frame=0;
+#ifndef INTERNAL_LIGHT_SENSOR
+    static uint8_t letimer_frame=0;
+#endif
 
 void LETIMER0_setup(e_emode e) {
 
@@ -203,7 +205,7 @@ CORE_CriticalDisableIrq();
         }
         ACMP_Disable(ACMP0);
         GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
-        CMU_ClockEnable(cmuClock_GPIO, false);
+        //CMU_ClockEnable(cmuClock_GPIO, false);
 #else // External Light Sensor
 
         switch (letimer_frame) {
@@ -213,7 +215,7 @@ CORE_CriticalDisableIrq();
             case 3:
                 light_sensor_power_off();
                 letimer_frame=0;
-                CMU_ClockEnable(cmuClock_GPIO, false);
+                //CMU_ClockEnable(cmuClock_GPIO, false);
 
 
             break;
@@ -226,22 +228,33 @@ CORE_CriticalDisableIrq();
                     1 second, and we are only .004 seconds in at this point
                 */ 
                 while((CMU->STATUS & CMU_STATUS_LFXORDY) == 0);
+            }
 
-                // Process all pending outgoing message Q, already in critical section
-                uint8_t is_entry;
-                while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
-                    if (m) {
-                        //CMU_ClockEnable(cmuClock_GPIO, true);
-                        LEUART0_enable();
-                        leuart0_tx_string(m->message);
-                        LEUART0_disable();
-                        //CMU_ClockEnable(cmuClock_GPIO, false);
+            // Process all pending outgoing message Q, already in critical section
+            uint8_t is_entry;
+            while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
+                if (m) {
+                    //CMU_ClockEnable(cmuClock_GPIO, true);
+                    LEUART0_enable();
+                    leuart0_tx_string(m->message);
+                    LEUART0_disable();
+                    //CMU_ClockEnable(cmuClock_GPIO, false);
 
-                        free(m);
-                    }
+                    free(m);
                 }
             }
         #endif
+
+#ifdef INTERNAL_LIGHT_SENSOR
+        CMU_ClockEnable(cmuClock_GPIO, false);
+#else // External Light Sensor
+
+        switch (letimer_frame) {
+            case 3:
+                CMU_ClockEnable(cmuClock_GPIO, false);
+            break;
+        }
+#endif
 
     }
 
