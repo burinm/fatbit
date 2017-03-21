@@ -4,6 +4,8 @@
 #include "sleep.h"
 
 extern uint16_t ulfrco_ticks;
+extern uint16_t le_send_message_ticks;
+extern uint16_t le_regular_on_ticks;
 
 #define LETIMER_ULFRCO_TICK_S  1000 
 #define LETIMER_LFXO_TICK_S   32768

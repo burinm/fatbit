@@ -29,6 +29,10 @@
 
 #include "debug.h"
 
+uint16_t le_send_message_ticks;
+uint16_t le_regular_on_ticks;
+static uint8_t le_is_message_send_interrupt=0;
+
 #ifndef INTERNAL_LIGHT_SENSOR
     static uint8_t letimer_frame=0;
 #endif
@@ -37,8 +41,6 @@
 void LETIMER0_calc_le_ticks(e_emode e, double le_period_seconds, double le_on_seconds,
                             uint16_t *le_comp0, uint16_t *le_comp1) {
     // Ticks calculations
-    //double le_period_seconds = le_0_in;
-    //double le_on_seconds = le_1_in;
 
     // LXFO Timings
     uint16_t le_lfxo_ticks_second = LETIMER_LFXO_TICK_S / (LE_DIVIDER ? LE_DIVIDER:1); //Divider on/off
@@ -191,81 +193,94 @@ CORE_CriticalDisableIrq();
 
     // Second part of sequence
     if (intFlags & LETIMER_IFS_COMP1) {
+        if (le_is_message_send_interrupt == 0) {
+
+
 #ifdef INTERNAL_LIGHT_SENSOR
-        if (is_led0_on()) {
-            if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
-                led0_off();
+            if (is_led0_on()) {
+                if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
+                    led0_off();
 
-                #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                    // enqueue led off message
-                    m = s_message_new(S_LED_OFF);
-                    circbuf_tiny_write(&O_Q, (uint32_t*)m);
-                #endif
+                    #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                        // enqueue led off message
+                        m = s_message_new(S_LED_OFF);
+                        circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                    #endif
 
-            }
-        } else {
-            if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
-                led0_on();
+                }
+            } else {
+                if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
+                    led0_on();
 
-                #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                    // enqueue led on message
-                    m = s_message_new(S_LED_ON);
-                    circbuf_tiny_write(&O_Q, (uint32_t*)m);
-                #endif
-            }
-        }
-        ACMP_Disable(ACMP0);
-        GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
-        //CMU_ClockEnable(cmuClock_GPIO, false);
-#else // External Light Sensor
-
-        switch (letimer_frame) {
-            case 1:
-                light_sensor_program();
-            break;
-            case 3:
-                light_sensor_power_off();
-                letimer_frame=0;
-                //CMU_ClockEnable(cmuClock_GPIO, false);
-
-
-            break;
-        }
-#endif
-
-        #ifdef SEND_EXTERNAL_NOTIFICATIONS
-            if (sleep_block_counter[EM3] > 0) {
-                /* Wait for LFXO to warm up after EM3 wakeup. This takes around
-                    1 second, and we are only .004 seconds in at this point
-                */ 
-                while((CMU->STATUS & CMU_STATUS_LFXORDY) == 0);
-            }
-
-            // Process all pending outgoing message Q, already in critical section
-            while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
-                if (m) {
-                    //CMU_ClockEnable(cmuClock_GPIO, true);
-                    LEUART0_enable();
-                    leuart0_tx_string(m->message);
-                    LEUART0_disable();
-                    //CMU_ClockEnable(cmuClock_GPIO, false);
-
-                    free(m);
+                    #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                        // enqueue led on message
+                        m = s_message_new(S_LED_ON);
+                        circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                    #endif
                 }
             }
-        #endif
-
-#ifdef INTERNAL_LIGHT_SENSOR
-        CMU_ClockEnable(cmuClock_GPIO, false);
+            ACMP_Disable(ACMP0);
+            GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
+            //CMU_ClockEnable(cmuClock_GPIO, false);
 #else // External Light Sensor
 
-        switch (letimer_frame) {
-            case 3:
-                CMU_ClockEnable(cmuClock_GPIO, false);
-            break;
-        }
+            switch (letimer_frame) {
+                case 1:
+                    light_sensor_program();
+                break;
+                case 3:
+                    light_sensor_power_off();
+                    letimer_frame=0;
+                    //CMU_ClockEnable(cmuClock_GPIO, false);
+
+
+                break;
+            }
 #endif
 
+#ifdef INTERNAL_LIGHT_SENSOR
+            CMU_ClockEnable(cmuClock_GPIO, false);
+#else // External Light Sensor
+
+            switch (letimer_frame) {
+                case 3:
+                    CMU_ClockEnable(cmuClock_GPIO, false);
+                break;
+            }
+#endif
+
+            LETIMER_CompareSet(LETIMER0, 1, le_send_message_ticks);
+            le_is_message_send_interrupt = 1;
+            blockSleepMode(EM2);
+
+        } else {
+            #ifdef SEND_EXTERNAL_NOTIFICATIONS
+
+                if (sleep_block_counter[EM3] > 0) {
+                    /* Wait for LFXO to warm up after EM3 wakeup. This takes around
+                        1 second, and we are only .004 seconds in at this point
+                    */ 
+                    //while((CMU->STATUS & CMU_STATUS_LFXORDY) == 0);
+                }
+                
+                // Process all pending outgoing message Q, already in critical section
+                while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
+                    if (m) {
+                        //CMU_ClockEnable(cmuClock_GPIO, true);
+                        LEUART0_enable();
+                        leuart0_tx_string(m->message);
+                        LEUART0_disable();
+                        //CMU_ClockEnable(cmuClock_GPIO, false);
+
+                        free(m);
+                    }
+                }
+
+                LETIMER_CompareSet(LETIMER0, 1, le_regular_on_ticks);
+                le_is_message_send_interrupt = 0;
+                unblockSleepMode(EM2);
+            #endif
+        }
     }
 
 CORE_CriticalEnableIrq();

@@ -112,10 +112,14 @@ clock_defaults();
 
   //This needs to happen last because it is the main driver
   uint16_t le_comp0;
-  uint16_t le_comp1;
+
+  // Calulate ticks needed to wait to send messages (LFXO warmup)
+  LETIMER0_calc_le_ticks(EM3,
+                LE_PERIOD_SECONDS, LE_WAIT_TO_SEND_MESSAGE, &le_comp0, &le_send_message_ticks);
+
   LETIMER0_calc_le_ticks(LOWEST_POWER_MODE,
-                LE_PERIOD_SECONDS, LE_ON_SECONDS, &le_comp0, &le_comp1);
-  LETIMER0_setup(LOWEST_POWER_MODE, le_comp0, le_comp1);
+                LE_PERIOD_SECONDS, LE_ON_SECONDS, &le_comp0, &le_regular_on_ticks);
+  LETIMER0_setup(LOWEST_POWER_MODE, le_comp0, le_regular_on_ticks);
 
   /* Infinite loop */
   while (1) {
