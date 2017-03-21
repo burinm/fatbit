@@ -221,18 +221,24 @@ CORE_CriticalDisableIrq();
 #endif
 
         #ifdef SEND_EXTERNAL_NOTIFICATIONS
-            // Process all pending outgoing message Q, already in critical section
-            uint8_t is_entry;
-            while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
-                if (m) {
-                    //CMU_ClockEnable(cmuClock_GPIO, true);
-                    LEUART0_enable();
-                    //Takes over 1 second to come up due to LXFO
-                    leuart0_tx_string(m->message);
-                    LEUART0_disable();
-                    //CMU_ClockEnable(cmuClock_GPIO, false);
+            if (sleep_block_counter[EM3] > 0) {
+                /* Wait for LFXO to warm up after EM3 wakeup. This takes around
+                    1 second, and we are only .004 seconds in at this point
+                */ 
+                while((CMU->STATUS & CMU_STATUS_LFXORDY) == 0);
 
-                    free(m);
+                // Process all pending outgoing message Q, already in critical section
+                uint8_t is_entry;
+                while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
+                    if (m) {
+                        //CMU_ClockEnable(cmuClock_GPIO, true);
+                        LEUART0_enable();
+                        leuart0_tx_string(m->message);
+                        LEUART0_disable();
+                        //CMU_ClockEnable(cmuClock_GPIO, false);
+
+                        free(m);
+                    }
                 }
             }
         #endif
