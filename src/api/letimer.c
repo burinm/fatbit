@@ -238,6 +238,28 @@ CORE_CriticalDisableIrq();
             }
 #endif
 
+            #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                // If we are in EM3, setup another timer pop
+                if (sleep_block_counter[EM3] > 0 ) {
+                    LETIMER_CompareSet(LETIMER0, 1, le_send_message_ticks);
+                    le_is_message_send_interrupt = 1;
+                    blockSleepMode(EM2);
+                } else {
+                    // Process all pending outgoing message Q
+                    while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
+                        if (m) {
+                            //CMU_ClockEnable(cmuClock_GPIO, true);
+                            LEUART0_enable();
+                            leuart0_tx_string(m->message);
+                            LEUART0_disable();
+                            //CMU_ClockEnable(cmuClock_GPIO, false);
+
+                            free(m);
+                        }
+                    }
+                }
+            #endif
+
 #ifdef INTERNAL_LIGHT_SENSOR
             CMU_ClockEnable(cmuClock_GPIO, false);
 #else // External Light Sensor
@@ -249,29 +271,18 @@ CORE_CriticalDisableIrq();
             }
 #endif
 
-            LETIMER_CompareSet(LETIMER0, 1, le_send_message_ticks);
-            le_is_message_send_interrupt = 1;
-            blockSleepMode(EM2);
-
         } else {
+            // Third timer pop for message sending in EM3
             #ifdef SEND_EXTERNAL_NOTIFICATIONS
-
-                if (sleep_block_counter[EM3] > 0) {
-                    /* Wait for LFXO to warm up after EM3 wakeup. This takes around
-                        1 second, and we are only .004 seconds in at this point
-                    */ 
-                    //while((CMU->STATUS & CMU_STATUS_LFXORDY) == 0);
-                }
-                
                 // Process all pending outgoing message Q, already in critical section
                 while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
                     if (m) {
+                //TODO: gpio is not on here - need to refactor state machine
                         //CMU_ClockEnable(cmuClock_GPIO, true);
                         LEUART0_enable();
                         leuart0_tx_string(m->message);
                         LEUART0_disable();
                         //CMU_ClockEnable(cmuClock_GPIO, false);
-
                         free(m);
                     }
                 }
