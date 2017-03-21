@@ -73,7 +73,7 @@ clock_defaults();
 #ifdef SEND_EXTERNAL_NOTIFICATIONS
     //Need to adjust power settings now...
     LEUART0_setup();
-    //leuart0_tx_string("Hello World.");
+    leuart0_tx_string("Hello World.");
     LEUART0_disable();
 #endif
 

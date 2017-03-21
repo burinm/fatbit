@@ -65,7 +65,7 @@ void LEUART0_enable() {
 
 void LEUART0_disable() {
   /* Check that transmit buffer is empty */
-  while (!(LEUART0->STATUS & LEUART_STATUS_TXBL));
+  while (!(LEUART0->STATUS & LEUART_STATUS_TXC));
 
 /*
     CORE_CriticalDisableIrq();
