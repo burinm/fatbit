@@ -29,6 +29,8 @@
 
 #include "debug.h"
 
+uint8_t gpio_global_enabled=0;
+
 uint16_t le_send_message_ticks;
 uint16_t le_regular_on_ticks;
 static uint8_t le_is_message_send_interrupt=0;
@@ -156,7 +158,9 @@ CORE_CriticalDisableIrq();
 
 #ifndef INTERNAL_LIGHT_SENSOR
         letimer_frame++;
-        if (letimer_frame == 1 ) { CMU_ClockEnable(cmuClock_GPIO, true); }
+        if (letimer_frame == 1 ) {
+            CMU_ClockEnable(cmuClock_GPIO, true); gpio_global_enabled = GPIO_ON;
+        }
 #endif
 
         /* Temperature section */
@@ -171,7 +175,7 @@ CORE_CriticalDisableIrq();
 
         /* Light indicator section */
 #ifdef INTERNAL_LIGHT_SENSOR
-        CMU_ClockEnable(cmuClock_GPIO, true);
+        CMU_ClockEnable(cmuClock_GPIO, true); gpio_global_enabled = GPIO_ON;
         GPIO_PinOutSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
         if (is_led0_on()) {
             ACMP_fire_up(VDD_LIGHTNESS);
@@ -186,7 +190,7 @@ CORE_CriticalDisableIrq();
         switch (letimer_frame) {
             case 1:
                 light_sensor_power_on();
-            break;
+                break;
         }
 #endif
     }
@@ -221,19 +225,15 @@ CORE_CriticalDisableIrq();
             }
             ACMP_Disable(ACMP0);
             GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
-            //CMU_ClockEnable(cmuClock_GPIO, false);
 #else // External Light Sensor
 
             switch (letimer_frame) {
                 case 1:
                     light_sensor_program();
-                break;
+                    break;
                 case 3:
                     light_sensor_power_off();
-                    //CMU_ClockEnable(cmuClock_GPIO, false);
-
-
-                break;
+                    break;
             }
 #endif
         }
@@ -247,12 +247,19 @@ CORE_CriticalDisableIrq();
                     // Process all pending outgoing message Q
                     while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
                         if (m) {
-                            //TODO: GPIO will be off in EM3 - need to fix
-                         CMU_ClockEnable(cmuClock_GPIO, true);
+
+                            //Since this is a complicated state machine,
+                            // keep track of gpio enabled, and temporarily
+                            // trun on/off if they are currently off
+                            if (gpio_global_enabled == GPIO_OFF) {
+                                CMU_ClockEnable(cmuClock_GPIO, true);
+                            }
                             LEUART0_enable();
                             leuart0_tx_string(m->message);
                             LEUART0_disable();
-                         CMU_ClockEnable(cmuClock_GPIO, false);
+                            if (gpio_global_enabled == GPIO_OFF) {
+                                CMU_ClockEnable(cmuClock_GPIO, false);
+                            }
 
                             free(m);
                         }
@@ -275,12 +282,12 @@ CORE_CriticalDisableIrq();
 
         if (le_is_message_send_interrupt == 0) {
 #ifdef INTERNAL_LIGHT_SENSOR
-            CMU_ClockEnable(cmuClock_GPIO, false);
+            CMU_ClockEnable(cmuClock_GPIO, false); gpio_global_enabled = GPIO_OFF;
 #else // External Light Sensor
 
             switch (letimer_frame) {
                 case 3:
-                    CMU_ClockEnable(cmuClock_GPIO, false);
+                    CMU_ClockEnable(cmuClock_GPIO, false); gpio_global_enabled = GPIO_OFF;
                     letimer_frame=0;
                 break;
             }

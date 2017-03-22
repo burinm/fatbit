@@ -4,6 +4,7 @@
 #include "em_cmu.h"
 #include "em_adc.h"
 #include "em_core.h"
+#include "letimer.h"
 
 //Maybee combine functionality?
 #include "main.h"
@@ -92,6 +93,7 @@ void ADC0_Setup() {
     }
 #endif
 
+// Critical section - LED0 state and gpio_global_enabled
 uint8_t temperature_tally() {
 uint32_t average=0;
 
@@ -114,7 +116,7 @@ PRINTSWO_UINT(average);
 #endif
          led1_off();
 #ifdef INTERNAL_LIGHT_SENSOR
-        CMU_ClockEnable(cmuClock_GPIO, false);
+        CMU_ClockEnable(cmuClock_GPIO, false); gpio_global_enabled = GPIO_OFF;
 #endif
          led1_off();
     } else {
@@ -123,7 +125,7 @@ PRINTSWO_UINT(average);
 #endif
          led1_on();
 #ifdef INTERNAL_LIGHT_SENSOR
-        CMU_ClockEnable(cmuClock_GPIO, false);
+        CMU_ClockEnable(cmuClock_GPIO, false); gpio_global_enabled = GPIO_OFF;
 #endif
     }
 return tempC;

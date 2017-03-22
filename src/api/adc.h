@@ -37,7 +37,14 @@ void ADC0_Setup();
     void ADC0_IRQHandler();
 #endif
 
-/* Tally up average, return tempurature */
+/* Tally up average, return temperature
+    **Critical, protect **
+
+    Globals:  LED0 state and gpio_global_enabled
+
+    Return: Temperature in Celscius
+
+ */
 uint8_t temperature_tally();
 
 /* convertToCelsius

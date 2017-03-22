@@ -97,6 +97,7 @@ clock_defaults();
 
     //GPIOs will keep thier state, so we only need to toggle clock
     CMU_ClockEnable(cmuClock_GPIO, false);
+    gpio_global_enabled = GPIO_OFF;
 
 #else // External Light Sensor
     //CMU_ClockEnable(cmuClock_GPIO, true);
