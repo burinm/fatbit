@@ -230,36 +230,50 @@ CORE_CriticalDisableIrq();
                 break;
                 case 3:
                     light_sensor_power_off();
-                    letimer_frame=0;
                     //CMU_ClockEnable(cmuClock_GPIO, false);
 
 
                 break;
             }
 #endif
-
+        }
             #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                // If we are in EM3, setup another timer pop
-                if (sleep_block_counter[EM3] > 0 ) {
-                    LETIMER_CompareSet(LETIMER0, 1, le_send_message_ticks);
-                    le_is_message_send_interrupt = 1;
-                    blockSleepMode(EM2);
-                } else {
+
+               // If we are in EM2 or it is the extra timer pop,
+               //   which only gets setup in EM3, then
+               //   send message. 
+               if ((LOWEST_POWER_MODE == EM2) ||
+                    (le_is_message_send_interrupt == 1)) {
                     // Process all pending outgoing message Q
                     while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
                         if (m) {
-                            //CMU_ClockEnable(cmuClock_GPIO, true);
+                            //TODO: GPIO will be off in EM3 - need to fix
+                         CMU_ClockEnable(cmuClock_GPIO, true);
                             LEUART0_enable();
                             leuart0_tx_string(m->message);
                             LEUART0_disable();
-                            //CMU_ClockEnable(cmuClock_GPIO, false);
+                         CMU_ClockEnable(cmuClock_GPIO, false);
 
                             free(m);
                         }
                     }
                 }
+
+               if (LOWEST_POWER_MODE == EM3 ) {
+                   // If we are in EM3, setup another timer pop
+                   if (le_is_message_send_interrupt == 0) {
+                       LETIMER_CompareSet(LETIMER0, 1, le_send_message_ticks);
+                       le_is_message_send_interrupt = 1;
+                       blockSleepMode(EM2);
+                   } else { // Extra timer pop, restore COMP1 values
+                       LETIMER_CompareSet(LETIMER0, 1, le_regular_on_ticks);
+                       le_is_message_send_interrupt = 0;
+                       unblockSleepMode(EM2);
+                   }
+               }
             #endif
 
+        if (le_is_message_send_interrupt == 0) {
 #ifdef INTERNAL_LIGHT_SENSOR
             CMU_ClockEnable(cmuClock_GPIO, false);
 #else // External Light Sensor
@@ -267,31 +281,12 @@ CORE_CriticalDisableIrq();
             switch (letimer_frame) {
                 case 3:
                     CMU_ClockEnable(cmuClock_GPIO, false);
+                    letimer_frame=0;
                 break;
             }
 #endif
-
-        } else {
-            // Third timer pop for message sending in EM3
-            #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                // Process all pending outgoing message Q, already in critical section
-                while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
-                    if (m) {
-                //TODO: gpio is not on here - need to refactor state machine
-                        //CMU_ClockEnable(cmuClock_GPIO, true);
-                        LEUART0_enable();
-                        leuart0_tx_string(m->message);
-                        LEUART0_disable();
-                        //CMU_ClockEnable(cmuClock_GPIO, false);
-                        free(m);
-                    }
-                }
-
-                LETIMER_CompareSet(LETIMER0, 1, le_regular_on_ticks);
-                le_is_message_send_interrupt = 0;
-                unblockSleepMode(EM2);
-            #endif
         }
+
     }
 
 CORE_CriticalEnableIrq();
