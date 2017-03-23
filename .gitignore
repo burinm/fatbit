@@ -4,3 +4,4 @@
 *.out
 *.files
 tags
+workspace/EnergyModes/GNU\ ARM\ v4.9.3\ -\ Debug/*
