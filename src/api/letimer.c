@@ -120,7 +120,6 @@ void LETIMER0_setup(e_emode e, uint16_t le_comp0, uint16_t le_comp1) {
 
     // Initialize LETIMER0
     LETIMER_Init(LETIMER0, &letimerInit);
-    LETIMER0->CNT=0;
 
 #ifndef INTERNAL_LIGHT_SENSOR
     //External light sensor will run in 3 frames (periods) in a row
@@ -142,13 +141,13 @@ void LETIMER0_setup(e_emode e, uint16_t le_comp0, uint16_t le_comp1) {
 void LETIMER0_IRQHandler() {
 int intFlags;
 
-#ifdef SEND_EXTERNAL_NOTIFICATIONS
-    // outgoing queue handle
-    s_message *m=NULL;
-#endif
-
-
 CORE_CriticalDisableIrq();
+
+    #ifdef SEND_EXTERNAL_NOTIFICATIONS
+        // outgoing queue handle
+        s_message *m=NULL;
+    #endif
+
     intFlags = LETIMER_IntGet(LETIMER0);
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP0);
     LETIMER_IntClear(LETIMER0,LETIMER_IFS_COMP1);

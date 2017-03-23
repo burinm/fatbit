@@ -81,7 +81,7 @@ void ADC0_Setup() {
                 tempC = temperature_tally();
 
                 #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                    //enqueue temperature message, we are already in critial section
+                    //enqueue temperature message
                     s_message *m = s_message_new(S_TEMP);
                     s_message_set_value(m,tempC);
                     circbuf_tiny_write(&O_Q, (uint32_t*)m);

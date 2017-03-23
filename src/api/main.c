@@ -82,6 +82,15 @@ clock_defaults();
     // Initial state is darkness/LED on message
     s_message *m = s_message_new(S_LED_ON);
     circbuf_tiny_write(&O_Q, (uint32_t*)m);
+
+    #if 0
+    for (int test=0;test<10;test++) {
+        m = s_message_new(S_LED_ON);
+        circbuf_tiny_write(&O_Q, (uint32_t*)m);
+        m = s_message_new(S_LED_OFF);
+        circbuf_tiny_write(&O_Q, (uint32_t*)m);
+    }
+    #endif
 #endif
 
 #ifdef INTERNAL_LIGHT_SENSOR
