@@ -91,13 +91,12 @@ CORE_CriticalDisableIrq();
     intFlags = GPIO_IntGet();
     GPIO_IntClear(1<<LIGHT_SENSOR_INT_PORT_NUM);
 
-    //TODO: There is a bug, where if the tsl2651 is kept in darkness
-    //       It first reports light, then dark on startup
-    //       Regression?
     if ( intFlags & (1<<LIGHT_SENSOR_INT_PORT_NUM) ) {
-        light=tsl2651_read_register(TSL2651_ADDR_DATA0_HIGHB);
-        light<<=8;
-        light+=tsl2651_read_register(TSL2651_ADDR_DATA0_LOWB);
+        // These registers must be read low byte first. According to the data
+        //  sheet this causes the upper 8 bits to be strobed into a shadow
+        //  register allowing them to be read
+        light=tsl2651_read_register(TSL2651_ADDR_DATA0_LOWB);
+        light+=tsl2651_read_register(TSL2651_ADDR_DATA0_HIGHB) <<8;
 
         if ( is_led0_on() ) { //Dark state
             if (light >= LIGHT_SENSOR_THRESH_HIGH) {
