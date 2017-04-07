@@ -7,10 +7,6 @@ extern uint16_t ulfrco_ticks;
 extern uint16_t le_send_message_ticks;
 extern uint16_t le_regular_on_ticks;
 
-#define GPIO_ON      1
-#define GPIO_OFF     0
-extern uint8_t gpio_global_enabled;
-
 #define LETIMER_ULFRCO_TICK_S  1000 
 #define LETIMER_LFXO_TICK_S   32768
 

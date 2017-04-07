@@ -60,6 +60,8 @@ clock_defaults();
 //    PRINTSWO_UINT(ulfrco_ticks);
 //    PRINTSWO_UINT(12345678);
 
+    CMU_ClockEnable(cmuClock_GPIO, true);
+
     LED1_setup();
     led1_off(); //start off for debugging
 
@@ -93,9 +95,9 @@ clock_defaults();
     #endif
 #endif
 
+
 #ifdef INTERNAL_LIGHT_SENSOR
     //setup all GPIO before entering sleep
-    CMU_ClockEnable(cmuClock_GPIO, true);
     //LES_LIGHT_SENSE
     GPIO_PinModeSet(LES_LIGHT_SENSE_PORT, LES_LIGHT_SENSE_PORT_NUM,
                         gpioModeDisabled, 0);
@@ -103,13 +105,6 @@ clock_defaults();
     //Setup LES_LIGHT_EXCITE 
     GPIO_PinModeSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM,
                         gpioModePushPull, 0);
-
-    //GPIOs will keep thier state, so we only need to toggle clock
-    CMU_ClockEnable(cmuClock_GPIO, false);
-    gpio_global_enabled = GPIO_OFF;
-
-#else // External Light Sensor
-    //CMU_ClockEnable(cmuClock_GPIO, true);
 #endif
 
     // Setup for temperature measurement    

@@ -44,18 +44,17 @@ tsl2651_write_register(TSL2651_ADDR_THRESHHIGH_HIGHB,
 // Integration timing 101ms, Low gain
 tsl2651_write_register(TSL2651_ADDR_TIMING, TSL2651_TIMING_INTEG_101_MS);
 
+// Persistance level 4, level interrupts on
+tsl2651_write_register(TSL2651_ADDR_INT, TSL2651_INT_PERSIST_4 | TSL2651_INT_CTRL_LEVEL);
+tsl2651_int_clear();
+
 // Setup interrupt input on Gecko board
-//CMU_ClockEnable(cmuClock_GPIO, true);
 GPIO_PinModeSet(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM,
     gpioModeInputPull, 1);
 
 //Falling edge
 GPIO_ExtIntConfig(LIGHT_SENSOR_INT_PORT, LIGHT_SENSOR_INT_PORT_NUM, LIGHT_SENSOR_INT_PORT_NUM,
     false, true, true);
-
-// Persistance level 4, level interrupts on
-tsl2651_write_register(TSL2651_ADDR_INT, TSL2651_INT_PERSIST_4 | TSL2651_INT_CTRL_LEVEL);
-tsl2651_int_clear();
 
 // GPIO interrupts on
 NVIC_EnableIRQ(GPIO_ODD_IRQn);

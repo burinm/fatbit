@@ -93,7 +93,7 @@ void ADC0_Setup() {
     }
 #endif
 
-// Critical section - LED0 state and gpio_global_enabled
+// Critical section - LED0 state
 uint8_t temperature_tally() {
 uint32_t average=0;
 
@@ -111,22 +111,10 @@ PRINTSWO_UINT(average);
 
 
     if ( tempC < TEMP_HI && tempC > TEMP_LO ) {
-#ifdef INTERNAL_LIGHT_SENSOR
-        CMU_ClockEnable(cmuClock_GPIO, true);
-#endif
          led1_off();
-#ifdef INTERNAL_LIGHT_SENSOR
-        CMU_ClockEnable(cmuClock_GPIO, false); gpio_global_enabled = GPIO_OFF;
-#endif
          led1_off();
     } else {
-#ifdef INTERNAL_LIGHT_SENSOR
-        CMU_ClockEnable(cmuClock_GPIO, true);
-#endif
          led1_on();
-#ifdef INTERNAL_LIGHT_SENSOR
-        CMU_ClockEnable(cmuClock_GPIO, false); gpio_global_enabled = GPIO_OFF;
-#endif
     }
 return tempC;
 }    
