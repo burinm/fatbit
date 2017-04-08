@@ -71,7 +71,7 @@ void ADC0_Setup() {
        if (intFlags & ADC_IF_SINGLE) {
             adc_sample_buffer[adc_sample_count] = ADC0->SINGLEDATA;
             adc_sample_count++;
-            if (adc_sample_count > ADC_NUMBER_SAMPLES) {
+            if (adc_sample_count == ADC_NUMBER_SAMPLES) {
                 adc_sample_count = 0;
 
                 //ADC off

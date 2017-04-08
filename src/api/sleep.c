@@ -28,16 +28,12 @@ void sleep(void) {
 
 void blockSleepMode(e_emode minimumMode)
 {
-CORE_CriticalDisableIrq();
     sleep_block_counter[minimumMode]++;
-CORE_CriticalEnableIrq();
 }
 
 void unblockSleepMode(e_emode minimumMode)
 {
-CORE_CriticalDisableIrq();
     if(sleep_block_counter[minimumMode] > 0) {
         sleep_block_counter[minimumMode]--;
     }
-CORE_CriticalEnableIrq();
 }

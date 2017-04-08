@@ -11,72 +11,76 @@
 #include "../../atmel/src/s_message.h"
 #include "circbuf_tiny.h"
 
-DMA_CB_TypeDef ADC_cb;
+#ifdef USING_DMA_FOR_TEMP
+
+    DMA_CB_TypeDef ADC_cb;
 
 
-void DMA_Setup() {
+    void DMA_Setup() {
 
-//Callback setup
-ADC_cb.cbFunc = ADCdmaTransferDone;
-ADC_cb.userPtr = NULL;
-ADC_cb.primary = true;
-
-
-CMU_ClockEnable(cmuClock_DMA, true);
+    //Callback setup
+    ADC_cb.cbFunc = ADCdmaTransferDone;
+    ADC_cb.userPtr = NULL;
+    ADC_cb.primary = true;
 
 
-DMA_Init_TypeDef DMA_init = {
-    .hprot = 0,
-    .controlBlock = dmaControlBlock
-};
-
-DMA_Init(&DMA_init);
-
-DMA_CfgChannel_TypeDef DMA_cfg_channel = {
-    .highPri = false,
-    .enableInt = true,
-    .select = DMAREQ_ADC0_SINGLE,
-    .cb=&ADC_cb
-};
-
-DMA_CfgChannel(DMA_CHANNEL_FOR_ADC, &DMA_cfg_channel);
+    CMU_ClockEnable(cmuClock_DMA, true);
 
 
-DMA_CfgDescr_TypeDef DMA_cfg_desc = {
-    .dstInc = dmaDataInc2,
-    .srcInc = dmaDataIncNone,
-    .size = dmaDataSize2,
-    .arbRate = dmaArbitrate1,
-    .hprot = 0
-};
+    DMA_Init_TypeDef DMA_init = {
+        .hprot = 0,
+        .controlBlock = dmaControlBlock
+    };
 
-DMA_CfgDescr(DMA_CHANNEL_FOR_ADC, true, &DMA_cfg_desc);
+    DMA_Init(&DMA_init);
 
-CORE_CriticalDisableIrq();
-    DMA->IFC = DMA_IFC_CH0DONE;
-    DMA->IEN |= DMA_IEN_CH0DONE;
-    NVIC_EnableIRQ(DMA_IRQn);
-CORE_CriticalEnableIrq();
+    DMA_CfgChannel_TypeDef DMA_cfg_channel = {
+        .highPri = false,
+        .enableInt = true,
+        .select = DMAREQ_ADC0_SINGLE,
+        .cb=&ADC_cb
+    };
+
+    DMA_CfgChannel(DMA_CHANNEL_FOR_ADC, &DMA_cfg_channel);
 
 
-}
+    DMA_CfgDescr_TypeDef DMA_cfg_desc = {
+        .dstInc = dmaDataInc2,
+        .srcInc = dmaDataIncNone,
+        .size = dmaDataSize2,
+        .arbRate = dmaArbitrate1,
+        .hprot = 0
+    };
 
-// DMA IRQ routine is set by SDK, callback
-void ADCdmaTransferDone(unsigned int channel, bool primary, void *user) {
-uint8_t tempC;
-
-     //ADC off
-    ADC0->CMD = ADC_CMD_SINGLESTOP;
-    unblockSleepMode(EM1);
+    DMA_CfgDescr(DMA_CHANNEL_FOR_ADC, true, &DMA_cfg_desc);
 
     CORE_CriticalDisableIrq();
-        tempC = temperature_tally();
-
-#ifdef SEND_EXTERNAL_NOTIFICATIONS
-        //enqueue temperature message, we are already in critial section
-        s_message *m = s_message_new(S_TEMP);
-        s_message_set_value(m,tempC);
-        circbuf_tiny_write(&O_Q, (uint32_t*)m);
-#endif
+        DMA->IFC = DMA_IFC_CH0DONE;
+        DMA->IEN |= DMA_IEN_CH0DONE;
+        NVIC_EnableIRQ(DMA_IRQn);
     CORE_CriticalEnableIrq();
-}
+
+
+    }
+
+    // DMA IRQ routine is set by SDK, callback
+    void ADCdmaTransferDone(unsigned int channel, bool primary, void *user) {
+    uint8_t tempC;
+
+        CORE_CriticalDisableIrq();
+             //ADC off
+            ADC0->CMD = ADC_CMD_SINGLESTOP;
+            unblockSleepMode(EM1);
+
+            tempC = temperature_tally();
+
+    #ifdef SEND_EXTERNAL_NOTIFICATIONS
+            //enqueue temperature message, we are already in critial section
+            s_message *m = s_message_new(S_TEMP);
+            s_message_set_value(m,tempC);
+            circbuf_tiny_write(&O_Q, (uint32_t*)m);
+    #endif
+        CORE_CriticalEnableIrq();
+    }
+
+#endif
