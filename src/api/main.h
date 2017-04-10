@@ -4,11 +4,14 @@
 // If defined, "printf"-like logs go to the console
 //#define DEBUG_ON
 
-#define LOWEST_POWER_MODE           EM3
+#define LOWEST_POWER_MODE           EM2
 #define CALIBRATE_LE_ULFRCO         true
 
 // If defined, use DMA to read internal temp, else poll
 #define USING_DMA_FOR_TEMP
+
+// If defined, use DMA to send LEUART messages 
+#define USING_DMA_FOR_LEUART
 
 // If defined, use Gecko internal sensor, else use TSL2651
 //#define INTERNAL_LIGHT_SENSOR

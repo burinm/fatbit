@@ -6,11 +6,20 @@
 #include "em_letimer.h"
 #include "em_core.h"
 #include "em_acmp.h"
-#ifdef USING_DMA_FOR_TEMP
-    #include "adc.h"
+
+#if defined USING_DMA_FOR_TEMP || defined USING_DMA_FOR_LEUART
     #include "dma.h"
     #include "em_dma.h"
 #endif
+
+#ifdef USING_DMA_FOR_TEMP
+    #include "adc.h"
+#endif
+
+#ifdef USING_DMA_FOR_LEUART
+    #include <string.h>
+#endif
+
 #include "periph.h"
 
 #ifdef INTERNAL_LIGHT_SENSOR
@@ -18,6 +27,7 @@
 #else
     #include "light_sensor_ext.h"
 #endif
+
 
 //Maybee combine functionality?
 #include "main.h"
@@ -233,15 +243,42 @@ CORE_CriticalDisableIrq();
                //   send message. 
                if ((LOWEST_POWER_MODE == EM2) ||
                     (le_is_message_send_interrupt == 1)) {
-                    // Process all pending outgoing message Q
-                    while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
-                        if (m) {
-                            LEUART0_enable();
-                            leuart0_tx_string(m->message);
-                            LEUART0_disable();
-                            free(m);
+                    #ifdef USING_DMA_FOR_LEUART
+                        //If LEUART DMA channel is free, queue up a message
+                        //if ((DMA->CHREQSTATUS & DMA_CHANNEL_FOR_LEUART_WAIT_STATUS ) == 0) {
+                        if ((DMA->CHENS & DMA_CHENS_CH1ENS ) == 0) { //TODO: #define for this
+                            if (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
+                                if (m) {
+                                    memcpy(&leuart_message_buffer, m->message, SOURCE_MESSAGE_LENGTH);
+                                    free(m);
+
+                                    LEUART0_enable();
+
+                                    //Wakeup from EM2 when byte is ready
+                                    LEUART0->CTRL |= LEUART_CTRL_TXDMAWU;
+
+
+                                    DMA_ActivateBasic(DMA_CHANNEL_FOR_LEUART, true, false,
+                                    //DMA_ActivateAuto(DMA_CHANNEL_FOR_LEUART, true,
+                                    (void*)&(LEUART0->TXDATA),
+                                    &leuart_message_buffer,
+                                    SOURCE_MESSAGE_LENGTH-1);
+
+                                    //DMA->CHSWREQ |=DMA_CHSWREQ_CH1SWREQ;
+                                }
+                            } 
                         }
-                    }
+                    #else
+                        // Process all pending outgoing message Q
+                        while (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
+                            if (m) {
+                                LEUART0_enable();
+                                leuart0_tx_string(m->message);
+                                LEUART0_disable();
+                                free(m);
+                            }
+                        }
+                    #endif
                 }
 
                if (LOWEST_POWER_MODE == EM3 ) {

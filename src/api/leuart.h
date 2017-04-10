@@ -2,6 +2,7 @@
 #define __LEUART_H__
 
 #include <stdint.h>
+#include "s_message.h"
 
 #define LEUART_9600_BAUD_DIV    616
 #define LEUART_SEND_STRING_MAX  255

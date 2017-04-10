@@ -4,7 +4,7 @@
 #include "periph.h"
 #include "sleep.h"
 #include "main.h"
-#ifdef USING_DMA_FOR_TEMP
+#if defined USING_DMA_FOR_TEMP || defined USING_DMA_FOR_LEUART
     #include "dma.h" 
 #endif
 #include "timers.h"
@@ -85,7 +85,7 @@ clock_defaults();
     s_message *m = s_message_new(S_LED_ON);
     circbuf_tiny_write(&O_Q, (uint32_t*)m);
 
-    #if 0
+    #if 1
     for (int test=0;test<10;test++) {
         m = s_message_new(S_LED_ON);
         circbuf_tiny_write(&O_Q, (uint32_t*)m);
@@ -110,9 +110,17 @@ clock_defaults();
     // Setup for temperature measurement    
     ADC0_Setup();
 
+#if defined USING_DMA_FOR_TEMP || defined USING_DMA_FOR_LEUART
+     DMA_Setup();
+#endif
+
     // Setup DMA
 #ifdef USING_DMA_FOR_TEMP
-    DMA_Setup();
+    DMA_Setup_ADC();
+#endif
+
+#ifdef USING_DMA_FOR_LEUART
+    DMA_Setup_LEUART();
 #endif
 
   //This needs to happen last because it is the main driver
