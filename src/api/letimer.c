@@ -257,14 +257,11 @@ CORE_CriticalDisableIrq();
                                     //Wakeup from EM2 when byte is ready
                                     LEUART0->CTRL |= LEUART_CTRL_TXDMAWU;
 
-
+                                    //Let DMA transfer bytes to LEUART
                                     DMA_ActivateBasic(DMA_CHANNEL_FOR_LEUART, true, false,
-                                    //DMA_ActivateAuto(DMA_CHANNEL_FOR_LEUART, true,
                                     (void*)&(LEUART0->TXDATA),
                                     &leuart_message_buffer,
                                     SOURCE_MESSAGE_LENGTH-1);
-
-                                    //DMA->CHSWREQ |=DMA_CHSWREQ_CH1SWREQ;
                                 }
                             } 
                         }

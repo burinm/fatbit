@@ -108,9 +108,7 @@ void DMA_Setup() {
     DMA_CfgChannel_TypeDef DMA_cfg_channel = {
         .highPri = false,
         .enableInt = true,
-        .select = DMAREQ_LEUART0_TXBL, //TODO: Verify this...
-        //.select = DMAREQ_LEUART0_TXEMPTY, //TODO: Verify this...
-        //.select = 0, 
+        .select = DMAREQ_LEUART0_TXBL,
         .cb=&LEUART_cb
     };
 
@@ -121,7 +119,7 @@ void DMA_Setup() {
         .dstInc = dmaDataIncNone,
         .srcInc = dmaDataInc1,
         .size = dmaDataSize1,
-        .arbRate = dmaArbitrate1, //TODO: what is this useful for?
+        .arbRate = dmaArbitrate1,
         .hprot = 0
     };
 
@@ -153,12 +151,9 @@ void DMA_Setup() {
                 LEUART0->CTRL |= LEUART_CTRL_TXDMAWU;
 
                 DMA_ActivateBasic(DMA_CHANNEL_FOR_LEUART, true, false,
-                //DMA_ActivateAuto(DMA_CHANNEL_FOR_LEUART, true,
                                  (void*)&(LEUART0->TXDATA),
                                  &leuart_message_buffer,
                                  SOURCE_MESSAGE_LENGTH-1);
-    
-                //DMA->CHSWREQ |=DMA_CHSWREQ_CH1SWREQ;
             }
         }
 
