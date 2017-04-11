@@ -24,10 +24,7 @@
 
 #ifdef INTERNAL_LIGHT_SENSOR
     #include "acmp.h"
-#else
-    #include "light_sensor_ext.h"
 #endif
-
 
 //Maybee combine functionality?
 #include "main.h"
@@ -43,7 +40,7 @@ uint16_t le_send_message_ticks;
 uint16_t le_regular_on_ticks;
 static uint8_t le_is_message_send_interrupt=0;
 
-#ifndef INTERNAL_LIGHT_SENSOR
+#ifdef THREE_PART_TIMER
     static uint8_t letimer_frame=0;
 #endif
 
@@ -129,8 +126,12 @@ void LETIMER0_setup(e_emode e, uint16_t le_comp0, uint16_t le_comp1) {
     // Initialize LETIMER0
     LETIMER_Init(LETIMER0, &letimerInit);
 
-#ifndef INTERNAL_LIGHT_SENSOR
-    //External light sensor will run in 3 frames (periods) in a row
+#ifdef THREE_PART_TIMER
+    /* Accelerometer will run in 3 frames (periods) in a row
+        1) Power on, program
+        2,3) Detect motion
+        3) Power off
+    */ 
     letimer_frame=0;
 #endif
 
@@ -182,12 +183,13 @@ CORE_CriticalDisableIrq();
             ACMP_fire_up(VDD_DARKNESS);
         }
         while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
-#else // External Light Sensor
+#endif
 
+#ifdef THREE_PART_TIMER
         letimer_frame++;
         switch (letimer_frame) {
             case 1:
-                light_sensor_power_on();
+                //Power on peripheral 
                 break;
         }
 #endif
@@ -224,14 +226,15 @@ CORE_CriticalDisableIrq();
             ACMP_Disable(ACMP0);
             GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
 
-#else // External Light Sensor
+#endif
 
+#ifdef THREE_PART_TIMER
             switch (letimer_frame) {
                 case 1:
-                    light_sensor_program();
+                    //Program peripheral 
                     break;
                 case 3:
-                    light_sensor_power_off();
+                    //Power off peripheral 
                     break;
             }
 #endif
@@ -292,7 +295,7 @@ CORE_CriticalDisableIrq();
                }
             #endif
 
-#ifndef INTERNAL_LIGHT_SENSOR
+#ifdef THREE_PART_TIMER
         if (le_is_message_send_interrupt == 0) {
 
             switch (letimer_frame) {

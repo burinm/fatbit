@@ -50,6 +50,14 @@ int main(void)
 SETUPSWOFORPRINT();
 PRINTSWO_UINT(87654321);
 
+CMU_ClockEnable(cmuClock_GPIO, true);
+
+#ifdef ACCELEROMETER_SENSOR
+    //Power up I2C device here so it will be ready after
+    // clock calibration routine
+    accel_sensor_power_on();
+#endif
+
 clock_defaults();
 
     if (CALIBRATE_LE_ULFRCO) {
@@ -60,7 +68,6 @@ clock_defaults();
 //    PRINTSWO_UINT(ulfrco_ticks);
 //    PRINTSWO_UINT(12345678);
 
-    CMU_ClockEnable(cmuClock_GPIO, true);
 
     LED1_setup();
     led1_off(); //start off for debugging
@@ -122,6 +129,11 @@ clock_defaults();
 #ifdef USING_DMA_FOR_LEUART
     DMA_Setup_LEUART();
 #endif
+
+#ifdef ACCELEROMETER_SENSOR
+    accel_sensor_program();
+#endif
+
 
   //This needs to happen last because it is the main driver
   uint16_t le_comp0;

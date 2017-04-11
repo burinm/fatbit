@@ -14,7 +14,13 @@
 #define USING_DMA_FOR_LEUART
 
 // If defined, use Gecko internal sensor, else use TSL2651
-//#define INTERNAL_LIGHT_SENSOR
+#define INTERNAL_LIGHT_SENSOR
+
+// If defined, implement I2C accelerometer
+#define ACCELEROMETER_SENSOR
+
+// Code to split LETIMER period into three divisions
+//#define THREE_PART_TIMER
 
 // Enable/Disable sending serial messages about status
 #define SEND_EXTERNAL_NOTIFICATIONS
