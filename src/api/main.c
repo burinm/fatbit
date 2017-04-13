@@ -134,6 +134,12 @@ clock_defaults();
     accel_sensor_program();
 #endif
 
+#ifdef CAPSENSE_ENABLE
+    LESENSE_First();
+    LESENSE_Setup();
+    LESENSE_Calibrate();
+#endif
+
 
   //This needs to happen last because it is the main driver
   uint16_t le_comp0;

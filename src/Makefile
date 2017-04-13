@@ -52,6 +52,7 @@ SOURCES += gecko_i2c.c i2c_emf32.c mma8452q.c em_i2c.c
 SOURCES += main.c sleep.c periph.c dma.c adc.c acmp.c letimer.c leuart.c timers.c debug.c s_message.c
 SOURCES += debug.c
 SOURCES += accel_ext.c circbuf_tiny.c
+SOURCES += lesense.c em_lesense.c
 #SOURCES += retargetio.c
 OBJS :=$(SOURCES:%.c=%.o)
 OBJS += startup_efm32lg.o
