@@ -115,7 +115,7 @@ clock_defaults();
 #endif
 
     // Setup for temperature measurement    
-    ADC0_Setup();
+    //ADC0_Setup();
 
 #if defined USING_DMA_FOR_TEMP || defined USING_DMA_FOR_LEUART
      DMA_Setup();
@@ -150,8 +150,9 @@ clock_defaults();
 
   LETIMER0_calc_le_ticks(LOWEST_POWER_MODE,
                 LE_PERIOD_SECONDS, LE_ON_SECONDS, &le_comp0, &le_regular_on_ticks);
-  LETIMER0_setup(LOWEST_POWER_MODE, le_comp0, le_regular_on_ticks);
+  //LETIMER0_setup(LOWEST_POWER_MODE, le_comp0, le_regular_on_ticks);
 
+blockSleepMode(EM2);
   /* Infinite loop */
   while (1) {
     sleep();

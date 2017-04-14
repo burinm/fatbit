@@ -176,9 +176,14 @@ uint16_t capsenseCalibrateVal=0;
     capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT) -
                                         CAPLESENSE_SENSITIVITY_OFFS;
 
+#if 0
     LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
                             LESENSE_ACMP_VDD_SCALE,
                             capsenseCalibrateVal);
+#endif
+    LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
+                            LESENSE_ACMP_VDD_SCALE,
+                            2);
 }
 
 void capSenseScanComplete(void) {
@@ -187,7 +192,7 @@ void capSenseScanComplete(void) {
 
 void capSenseChTrigger(void)
 {
-    led1_toggle();  
+    //led1_toggle();  
 }
 
 void LESENSE_IRQHandler(void)
