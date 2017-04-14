@@ -16,14 +16,14 @@
  ******************************************************************************/
 
 
-#define CAPLESENSE_SLIDER_PORT0        gpioPortC
-#define CAPLESENSE_SLIDER0_PIN         8UL
+#define CAP_ACMP_EXTERNAL_PORT        gpioPortC
+#define CAP_ACMP_EXTERNAL_PIN         1
 
-#define LESENSE_ACMP_VDD_SCALE         0x37U
+#define LESENSE_ACMP_VDD_SCALE         0x25 //1.29 25/63, (61/63 prescale)
 #define CAPLESENSE_SENSITIVITY_OFFS    1U
 
-#define CAPLESENSE_CHANNEL_INT        LESENSE_IF_CH8
-
+#define CAPLESENSE_CHANNEL_INT        LESENSE_IF_CH1
+#define LESENSE_CHANNEL_INPUT         1
 
 #define LESENSE_DISABLED_CH_CONF \
   { \
@@ -65,16 +65,14 @@
     0x01U,                    /* Sample delay is set to 1(+1) sample clock cycles. */ \
     0x00U,                    /* Measure delay is set to 0 excitation clock cycles.*/ \
     LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */ \
-    lesenseSampleModeCounter, /* Counter will be used in comparison. */ \
+    lesenseSampleModeACMP, /* Counter will be used in comparison. */ \
     lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */ \
-    0x0EU,                    /* Counter threshold has been set to 0x0E. */ \
-    lesenseCompModeLess       /* Compare mode has been set to trigger interrupt on "less". */ \
+    0x0EU,                   /* Counter threshold has been set to 0x0E. */ \
+    lesenseCompModeGreaterOrEq       /* Compare mode has been set to trigger interrupt on "less". */ \
   }
-
 
 void LESENSE_First();
 void LESENSE_Setup();
 void LESENSE_Calibrate();
-
 
 #endif

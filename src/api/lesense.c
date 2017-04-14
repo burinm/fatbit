@@ -32,37 +32,36 @@ void LESENSE_First() {
     CMU_ClockEnable(cmuClock_LESENSE, true);
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
 
-    //Just using one of the touch slider pins
-    GPIO_DriveModeSet(CAPLESENSE_SLIDER_PORT0, gpioDriveModeStandard);
-    GPIO_PinModeSet(CAPLESENSE_SLIDER_PORT0, CAPLESENSE_SLIDER0_PIN, gpioModeDisabled, 0);
+    //Port C1, input
+    GPIO_PinModeSet(CAP_ACMP_EXTERNAL_PORT, CAP_ACMP_EXTERNAL_PIN, gpioModeInputPull, 0);
 
-    //Use ACMP1 for touch
-    CMU_ClockEnable(cmuClock_ACMP1, true);
+    //Use ACMP0 for external custom touch
+    CMU_ClockEnable(cmuClock_ACMP0, true);
+
+    //Disable ACMP out to a pin
+    ACMP_GPIOSetup(ACMP0, 0, false, false);
 
     /* ACMP capsense configuration constant table. */
-    static const ACMP_CapsenseInit_TypeDef initACMP =
+    //static const ACMP_CapsenseInit_TypeDef initACMP =
+    static const ACMP_Init_TypeDef initACMP =
     {
         .fullBias                 = false,
         .halfBias                 = false,
         .biasProg                 =                  0x7,
         .warmTime                 = acmpWarmTime512,
         .hysteresisLevel          = acmpHysteresisLevel7,
-        .resistor                 = acmpResistor0,
+        //.resistor                 = acmpResistor0,
         .lowPowerReferenceEnabled = false,
         .vddLevel                 =                 0x3D,
         .enable                   = false
     };
 
-    ACMP_GPIOSetup(ACMP1, 0, false, false);
-    ACMP_CapsenseInit(ACMP1, &initACMP);
+    //ACMP_CapsenseInit(ACMP1, &initACMP);
+    ACMP_Init(ACMP0, &initACMP);
 
-    //TODO: don't need this ACMP?
-
-    ACMP_GPIOSetup(ACMP0, 0, false, false);
-    ACMP_CapsenseInit(ACMP0, &initACMP);
-
-    
-    
+    //ACMP negSel
+    //I think since lesenseACMPModeMuxThres is set, +Sel is set by LESENSE
+    ACMP_ChannelSet(ACMP0, acmpChannelVDD, acmpChannel1);
 
     //Actual LESENSE set
     static const LESENSE_Init_TypeDef  initLESENSE =
@@ -90,16 +89,16 @@ void LESENSE_First() {
 
         .perCtrl          =
         { 
-            .dacCh0Data     = lesenseDACIfData,
+            .dacCh0Data     = lesenseACMPThres,      //Compare to x/63 * VDD
             .dacCh0ConvMode = lesenseDACConvModeDisable,
             .dacCh0OutMode  = lesenseDACOutModeDisable,
-            .dacCh1Data     = lesenseDACIfData,
+            .dacCh1Data     = lesenseACMPThres,
             .dacCh1ConvMode = lesenseDACConvModeDisable,
             .dacCh1OutMode  = lesenseDACOutModeDisable,
             .dacPresc       =                        0U,
             .dacRef         = lesenseDACRefBandGap,
-            .acmp0Mode      = lesenseACMPModeMuxThres,
-            .acmp1Mode      = lesenseACMPModeMuxThres,
+            .acmp0Mode      = lesenseACMPModeMuxThres, //Using ACMP0
+            .acmp1Mode      = lesenseACMPModeDisable,
             .warmupMode     = lesenseWarmupModeNormal
         },
 
@@ -132,21 +131,20 @@ void LESENSE_Setup() {
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
     LESENSE_ResultBufferClear();
     LESENSE_ScanFreqSet(0U, 64U);
-    LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_8);
+    LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_1);
 
-
-    //GPIO pins
+    //Scan pins, configure
     static const LESENSE_ChAll_TypeDef initChsSense = {
         {                                                    
           LESENSE_DISABLED_CH_CONF,        /* Channel 0. */  
-          LESENSE_DISABLED_CH_CONF,        /* Channel 1. */  
+          LESENSE_CAPSENSE_CH_CONF_SLEEP,  /* Channel 1.  PortC, 1*/  
           LESENSE_DISABLED_CH_CONF,        /* Channel 2. */  
           LESENSE_DISABLED_CH_CONF,        /* Channel 3. */  
           LESENSE_DISABLED_CH_CONF,        /* Channel 4. */  
           LESENSE_DISABLED_CH_CONF,        /* Channel 5. */  
           LESENSE_DISABLED_CH_CONF,        /* Channel 6. */  
           LESENSE_DISABLED_CH_CONF,        /* Channel 7. */  
-          LESENSE_CAPSENSE_CH_CONF_SLEEP,  /* Channel 8. ACMP1_CH0 */  
+          LESENSE_DISABLED_CH_CONF,        /* Channel 8. ACMP1_CH0 */
           LESENSE_DISABLED_CH_CONF,        /* Channel 9. */  
           LESENSE_DISABLED_CH_CONF,        /* Channel 10. */ 
           LESENSE_DISABLED_CH_CONF,        /* Channel 11. */ 
@@ -161,8 +159,6 @@ void LESENSE_Setup() {
     LESENSE_ChannelAllConfig(&initChsSense);
 #if 0
 CORE_CriticalDisableIrq();
-    LESENSE_IntClear(LESENSE_IEN_CH8_DEFAULT);
-    LESENSE_IntEnable(LESENSE_IEN_CH8_DEFAULT);
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
     LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
 CORE_CriticalEnableIrq();
@@ -177,10 +173,10 @@ uint16_t capsenseCalibrateVal=0;
 
     while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL)); 
 
-    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(8) -
+    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT) -
                                         CAPLESENSE_SENSITIVITY_OFFS;
 
-    LESENSE_ChannelThresSet(CAPLESENSE_SLIDER0_PIN,
+    LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
                             LESENSE_ACMP_VDD_SCALE,
                             capsenseCalibrateVal);
 }
@@ -192,9 +188,7 @@ void capSenseScanComplete(void) {
 void capSenseChTrigger(void)
 {
     led1_toggle();  
-    //LESENSE_Setup();
 }
-
 
 void LESENSE_IRQHandler(void)
 { 
@@ -231,4 +225,3 @@ CORE_CriticalDisableIrq();
     }
 CORE_CriticalEnableIrq();
 }
-
