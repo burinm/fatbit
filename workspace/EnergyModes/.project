@@ -401,6 +401,16 @@
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/timers.h</locationURI>
 		</link>
 		<link>
+			<name>src/tsl2651.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/tsl2651.c</locationURI>
+		</link>
+		<link>
+			<name>src/tsl2651.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/drivers/src/driver/tsl2651.h</locationURI>
+		</link>
+		<link>
 			<name>CMSIS/EFM32LG/startup_gcc_efm32lg.s</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/Device/SiliconLabs/EFM32LG/Source/GCC/startup_efm32lg.S</locationURI>

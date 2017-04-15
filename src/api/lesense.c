@@ -173,32 +173,30 @@ uint16_t capsenseCalibrateVal=0;
 
     while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL)); 
 
-    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT) -
-                                        CAPLESENSE_SENSITIVITY_OFFS;
+    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT);
+    //capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT) -
+    //                                  CAPLESENSE_SENSITIVITY_OFFS;
 
-#if 0
+#if 1
     LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
                             LESENSE_ACMP_VDD_SCALE,
                             capsenseCalibrateVal);
 #endif
-    LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
-                            LESENSE_ACMP_VDD_SCALE,
-                            2);
 }
 
 void capSenseScanComplete(void) {
-    led0_toggle();  
+    //led0_toggle();
 };
 
 void capSenseChTrigger(void)
 {
-    //led1_toggle();  
+    led1_toggle();
 }
 
 void LESENSE_IRQHandler(void)
 { 
 CORE_CriticalDisableIrq();
-    //uint32_t count;
+    uint32_t count;
 
     /* LESENSE scan complete interrupt. */
     if (LESENSE_IF_SCANCOMPLETE & LESENSE_IntGetEnabled())
@@ -207,7 +205,7 @@ CORE_CriticalDisableIrq();
 
 
         /* Read out value from LESENSE buffer */
-        //count = LESENSE_ScanResultDataGet();
+        count = LESENSE_ScanResultDataGet();
 
         /* Call callback function. */
         if (lesenseScanCb != 0x00000000)

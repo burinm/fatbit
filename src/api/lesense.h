@@ -62,13 +62,13 @@
     lesenseClkLF,             /* Use the LF clock for excitation timing. */ \
     lesenseClkLF,             /* Use the LF clock for sample timing. */ \
     0x00U,                    /* Excitation time is set to 0 excitation clock cycles. */ \
-    0x01U,                    /* Sample delay is set to 1(+1) sample clock cycles. */ \
+    127,                    /* Sample delay is set to 1(+1) sample clock cycles. */ \
     0x00U,                    /* Measure delay is set to 0 excitation clock cycles.*/ \
     LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */ \
     lesenseSampleModeCounter, /* Counter will be used in comparison. */ \
     lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */ \
     0x0EU,                   /* Counter threshold has been set to 0x0E. */ \
-    lesenseCompModeGreaterOrEq       /* Compare mode has been set to trigger interrupt on "less". */ \
+    lesenseCompModeLess       /* Compare mode has been set to trigger interrupt on "less". */ \
   }
 
 void LESENSE_First();
