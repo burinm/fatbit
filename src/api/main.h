@@ -17,10 +17,10 @@
 #define INTERNAL_LIGHT_SENSOR
 
 // If defined, implement I2C accelerometer
-//#define ACCELEROMETER_SENSOR
+#define ACCELEROMETER_SENSOR
 
 // If defined, turn on touch sensor routines
-#define CAPSENSE_ENABLE
+//#define CAPSENSE_ENABLE
 
 // Code to split LETIMER period into three divisions
 //#define THREE_PART_TIMER

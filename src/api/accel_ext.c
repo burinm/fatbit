@@ -30,13 +30,6 @@ if (mma8452q_on(1) > 0) {
     return;
 }
 
-/* Setup mma8452q power on mode */
-
-    //Set output data rate (ODR) 6.25Hz, sleep rate 6.25Hz, and set to Active
-    // 6.25Hz^-1 = 160ms, which should be snappy
-mma8452q_write_register(MMA8452Q_REG_CTRL_REG1,
-    (MMA8452Q_CTRL_REG1_DR_6_25 << MMA8452Q_CTRL_REG1_DR_SHIFT) |
-    (MMA8452Q_CTRL_REG1_ASLP_RATE_6_25 << MMA8452Q_CTRL_REG1_ASLP_RATE_SHIFT));
 
 /* Setup Motion detection */
 
@@ -58,7 +51,9 @@ mma8452q_write_register(MMA8452Q_REG_FF_MT_COUNT,
 
     //Active High interrupts, push/pull
 mma8452q_write_register(MMA8452Q_REG_CTRL_REG3,
-    MMA8452Q_CTRL_REG3_IPOL | MMA8452Q_CTRL_REG3_PP_OD);
+    //MMA8452Q_CTRL_REG3_IPOL | MMA8452Q_CTRL_REG3_PP_OD);
+    MMA8452Q_CTRL_REG3_IPOL | MMA8452Q_CTRL_REG3_WAKE_FF_MT); //Active high, push pull, Freefall/Motion can wake from sleep
+
     //Freefall/Motion interrupt on
 mma8452q_write_register(MMA8452Q_REG_CTRL_REG4,
     MMA8452Q_CTRL_REG4_INT_EN_FF_MT);
@@ -66,11 +61,27 @@ mma8452q_write_register(MMA8452Q_REG_CTRL_REG4,
 mma8452q_write_register(MMA8452Q_REG_CTRL_REG5,
     MMA8452Q_CTRL_REG5_INT_CFG_FF_MT);
 
+/* Setup mma8452q power on mode */
+
+//Need to power on active last?
+
+    //Set output data rate (ODR) 6.25Hz, sleep rate 6.25Hz, and set to Active
+    // 6.25Hz^-1 = 160ms, which should be snappy
+mma8452q_write_register(MMA8452Q_REG_CTRL_REG1,
+    (MMA8452Q_CTRL_REG1_DR_6_25 << MMA8452Q_CTRL_REG1_DR_SHIFT) |
+    (MMA8452Q_CTRL_REG1_ASLP_RATE_6_25 << MMA8452Q_CTRL_REG1_ASLP_RATE_SHIFT)
+    | MMA8452Q_CTRL_REG1_ACTIVE
+    );
+
+//Reading this should clear the interrupt
+mma8452q_read_register(MMA8452Q_REG_INT_SOURCE);
+mma8452q_read_register(MMA8452Q_REG_FF_MT_SRC);
+
 /* Setup interrupt input on Gecko board */
 GPIO_PinModeSet(ACCEL_SENSOR_INT_PORT, ACCEL_SENSOR_INT_PORT_NUM,
     gpioModeInputPull, 0);
 
-//Falling edge
+//Rising edge
 GPIO_ExtIntConfig(ACCEL_SENSOR_INT_PORT, ACCEL_SENSOR_INT_PORT_NUM, ACCEL_SENSOR_INT_PORT_NUM,
     true, false, true);
 
@@ -111,6 +122,7 @@ CORE_CriticalDisableIrq();
 
     intFlags = GPIO_IntGet();
     GPIO_IntClear(1<<ACCEL_SENSOR_INT_PORT_NUM);
+    led0_toggle();
 
     if ( intFlags & (1<<ACCEL_SENSOR_INT_PORT_NUM) ) {
         int_src = mma8452q_read_register(MMA8452Q_REG_INT_SOURCE);

@@ -10,11 +10,13 @@
 #define ACCEL_SENSOR_INT_PORT_NUM 1
 
 //Threshold .063g/bit * 16 = 1.008g
-#define ACCEL_SENSOR_G_THRESH       16
+//#define ACCEL_SENSOR_G_THRESH       16
+#define ACCEL_SENSOR_G_THRESH      16 
 
 //With ODR=6.25, Normal mode step = 20ms, 20ms * 10 = 200ms
 // Note, changing to low power mode, changes this...
-#define ACCEL_SENSOR_DEBOUNCE_CNT   10
+//#define ACCEL_SENSOR_DEBOUNCE_CNT  10 
+#define ACCEL_SENSOR_DEBOUNCE_CNT 5 
 
 /* Turn on external accelerometer power rail
  *
