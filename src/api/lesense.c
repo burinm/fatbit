@@ -131,7 +131,7 @@ void LESENSE_Setup() {
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
     LESENSE_ResultBufferClear();
     LESENSE_ScanFreqSet(0U, 64U);
-    LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_1);
+    LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_2);
 
     //Scan pins, configure
     static const LESENSE_ChAll_TypeDef initChsSense = {
@@ -173,15 +173,12 @@ uint16_t capsenseCalibrateVal=0;
 
     while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL)); 
 
-    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT);
-    //capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT) -
-    //                                  CAPLESENSE_SENSITIVITY_OFFS;
+    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT) -
+                                      CAPLESENSE_SENSITIVITY_OFFS;
 
-#if 1
     LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
                             LESENSE_ACMP_VDD_SCALE,
                             capsenseCalibrateVal);
-#endif
 }
 
 void capSenseScanComplete(void) {
