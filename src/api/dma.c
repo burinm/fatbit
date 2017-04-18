@@ -1,9 +1,11 @@
 #include "dma.h"
 #include "em_cmu.h"
 #include "em_core.h"
+#include "em_gpio.h"
 #include "dmactrl.h"
 #include "adc.h"
 #include "sleep.h"
+#include "periph.h"
 
 //Maybee combine functionality?
 #include "main.h"
@@ -17,7 +19,7 @@
 #endif
 
 
-#if defined USING_DMA_FOR_TEMP || defined USING_DMA_FOR_LEUART
+#if defined USING_DMA_FOR_LIGHT || defined USING_DMA_FOR_LEUART
 void DMA_Setup() {
 
     CMU_ClockEnable(cmuClock_DMA, true);
@@ -31,7 +33,7 @@ void DMA_Setup() {
 }
 #endif
 
-#ifdef USING_DMA_FOR_TEMP
+#ifdef USING_DMA_FOR_LIGHT
 
     DMA_CB_TypeDef ADC_cb;
 
@@ -79,8 +81,9 @@ void DMA_Setup() {
              //ADC off
             ADC0->CMD = ADC_CMD_SINGLESTOP;
             unblockSleepMode(EM1);
+            GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
 
-            tempC = temperature_tally();
+            tempC = sunlight_tally();
 
     #ifdef SEND_EXTERNAL_NOTIFICATIONS
             //enqueue temperature message, we are already in critial section
@@ -141,6 +144,7 @@ void DMA_Setup() {
         LEUART0->CTRL &= ~LEUART_CTRL_TXDMAWU;
         LEUART0_disable();
         CORE_CriticalDisableIrq();
+#ifdef SEND_EXTERNAL_NOTIFICATIONS
         // Check message Q for another message. Setup new transfer if not empty
         if (circbuf_tiny_read(&O_Q,(uint32_t**)&m)) {
             if (m) {
@@ -156,6 +160,7 @@ void DMA_Setup() {
                                  SOURCE_MESSAGE_LENGTH-1);
             }
         }
+#endif
 
         CORE_CriticalEnableIrq();
     }

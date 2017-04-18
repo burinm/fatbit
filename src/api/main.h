@@ -2,22 +2,22 @@
 #define __MAIN_H__
 
 // If defined, "printf"-like logs go to the console
-//#define DEBUG_ON
+#define DEBUG_ON
 
 #define LOWEST_POWER_MODE           EM2
 #define CALIBRATE_LE_ULFRCO         true
 
 // If defined, use DMA to read internal temp, else poll
-#define USING_DMA_FOR_TEMP
+#define USING_DMA_FOR_LIGHT
 
 // If defined, use DMA to send LEUART messages 
 #define USING_DMA_FOR_LEUART
 
-// If defined, use Gecko internal sensor, else use TSL2651
+// If defined, implement Gecko internal sensor
 #define INTERNAL_LIGHT_SENSOR
 
 // If defined, implement I2C accelerometer
-#define ACCELEROMETER_SENSOR
+//#define ACCELEROMETER_SENSOR
 
 // If defined, turn on touch sensor routines
 //#define CAPSENSE_ENABLE
@@ -26,7 +26,7 @@
 //#define THREE_PART_TIMER
 
 // Enable/Disable sending serial messages about status
-#define SEND_EXTERNAL_NOTIFICATIONS
+//#define SEND_EXTERNAL_NOTIFICATIONS
 
 /*
   See letimer.h

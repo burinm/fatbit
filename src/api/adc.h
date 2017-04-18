@@ -3,29 +3,13 @@
 
 #include <stdint.h>
 
-// Room temperature ranges
-#define TEMP_HI 35 
-#define TEMP_LO 15 
+#define ADC_INPUT_PORT      gpioPortD
+#define ADC_INPUT_PORT_NUM  2
 
-// Sensistive to touch at this range
-//#define TEMP_HI 26 
-//#define TEMP_LO 23 
+#define ADC_NUMBER_SAMPLES 100
 
-//#define ADC_NUMBER_SAMPLES 750
-//#define ADC_NUMBER_SAMPLES 1000
-#define ADC_NUMBER_SAMPLES 500
-
-//#define ADC_PRESCALE 52 // (53 - 1)  20000 samples/3us aquisition/12 bits, 13 clocks
-//#define ADC_PRESCALE 24 // (25 - 1)  40000 samples/3us aquisition/12 bits, 14 clocks
-
-//This one measures 27.88ms, should be 27mS... - 1000 samples
-//#define ADC_PRESCALE 26 // (27 - 1)  40000 samples/3us aquisition/12 bits, 14 clocks
-
-//Measures 5.25ms, calculated 5.46ms - 500 samples
-//#define ADC_PRESCALE 8 // (9 - 1)  87500 (91503) samples/3us aquisition/12 bits, 17 clocks
-
-//Measures 4.7ms, calculated 6.07ms - 500 samples
-#define ADC_PRESCALE 9 // (10 - 1)  87500 (82352) samples/3us aquisition/12 bits, 17 clocks
+//Measures 1.94ms, calculated 1.93ms - 100 samples
+#define ADC_PRESCALE 18 // (10 - 1)  51851 samples/s  3us aquisition/12 bits, 15 clocks
 
 extern uint16_t adc_sample_buffer[ADC_NUMBER_SAMPLES];
 
@@ -36,17 +20,17 @@ void ADC0_Setup();
 /* ADC0 interrupt handler, used for interrupt driven
  *  temperature sampling
  */
-#ifndef USING_DMA_FOR_TEMP
+#ifndef USING_DMA_FOR_LIGHT
     void ADC0_IRQHandler();
 #endif
 
 /* Tally up average, return temperature
     **Critical, protect **
 
-    Return: Temperature in Celscius
+    Return: average sunlight exposure 
 
  */
-uint8_t temperature_tally();
+uint8_t sunlight_tally();
 
 /* convertToCelsius
     Silicon Labs (c) 2017 - from class notes ecen5023 - IOT

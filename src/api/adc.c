@@ -4,6 +4,7 @@
 #include "em_cmu.h"
 #include "em_adc.h"
 #include "em_core.h"
+#include "em_gpio.h"
 #include "letimer.h"
 
 //Maybee combine functionality?
@@ -38,9 +39,9 @@ void ADC0_Setup() {
      const ADC_InitSingle_TypeDef ADC_singleinit = {
         .prsSel =  adcPRSSELCh0,              /* PRS ch0 (if enabled). */
         .acqTime = adcAcqTime1,              /* Don't know what this does, needs to be 1. */
-        .reference = adcRef1V25,              /* 1.25V internal reference. */
+        .reference = adcRefVDD,              /* VDD internal reference. */
         .resolution = adcRes12Bit,            /* 12 bit resolution. */
-        .input = adcSingleInpTemp,            /* Internal temperature selected. */
+        .input = adcSingleInputCh2,            /* External Channel 2 selected. */
         .diff = false,                        /* Single ended input. */
         .prsEnable = false,                   /* PRS disabled. */
         .leftAdjust = false,                  /* Right adjust. */
@@ -49,7 +50,7 @@ void ADC0_Setup() {
 
     ADC_InitSingle(ADC0, &ADC_singleinit);
     
-#ifndef USING_DMA_FOR_TEMP
+#ifndef USING_DMA_FOR_LIGHT
     CORE_CriticalDisableIrq();
         ADC0->IFC = ADC_IFC_SINGLE;
         ADC0->IEN |= ADC_IEN_SINGLE;
@@ -59,7 +60,7 @@ void ADC0_Setup() {
 
 }
 
-#ifndef USING_DMA_FOR_TEMP
+#ifndef USING_DMA_FOR_LIGHT
     void ADC0_IRQHandler() {
     int intFlags;
     uint8_t tempC;
@@ -77,8 +78,9 @@ void ADC0_Setup() {
                 //ADC off
                 ADC0->CMD = ADC_CMD_SINGLESTOP;
                 unblockSleepMode(EM1);
+                GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
 
-                tempC = temperature_tally();
+                tempC = sunlight_tally();
 
                 #ifdef SEND_EXTERNAL_NOTIFICATIONS
                     //enqueue temperature message
@@ -94,42 +96,19 @@ void ADC0_Setup() {
 #endif
 
 // Critical section - LED0 state
-uint8_t temperature_tally() {
+uint8_t sunlight_tally() {
 uint32_t average=0;
 
     for (int i=0; i<ADC_NUMBER_SAMPLES; i++) {
         average+=adc_sample_buffer[i];
-        //if (i % 10 == 0) { PRINTSWO_UINT( adc_sample_buffer[i] ); }
+        if (i % 10 == 0) { PRINTSWO_UINT( adc_sample_buffer[i] ); }
     }
 
-PRINTSWO_UINT(average);
+//PRINTSWO_UINT(average);
 
     average = average / ADC_NUMBER_SAMPLES;
-PRINTSWO_UINT(average);
-    uint8_t tempC = ((uint32_t)convertToCelsius(average));
-    PRINTSWO_UINT(tempC);
+//PRINTSWO_UINT(average);
 
 
-    if ( tempC < TEMP_HI && tempC > TEMP_LO ) {
-         led1_off();
-         led1_off();
-    } else {
-         led1_on();
-    }
-return tempC;
+return average;
 }    
-
-float convertToCelsius(int32_t adcSample)
-{
-    float temp;
-    /* Factory calibration temperature from device information page. */
-    float cal_temp_0 = (float)((DEVINFO->CAL & _DEVINFO_CAL_TEMP_MASK)
-            >> _DEVINFO_CAL_TEMP_SHIFT);
-    float cal_value_0 = (float)((DEVINFO->ADC0CAL2
-                & _DEVINFO_ADC0CAL2_TEMP1V25_MASK)
-            >> _DEVINFO_ADC0CAL2_TEMP1V25_SHIFT);
-    /* Temperature gradient (from datasheet) */
-    float t_grad = -6.27;
-    temp = (cal_temp_0 - ((cal_value_0 - adcSample) / t_grad));
-    return temp;
-}

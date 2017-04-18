@@ -7,12 +7,12 @@
 #include "em_core.h"
 #include "em_acmp.h"
 
-#if defined USING_DMA_FOR_TEMP || defined USING_DMA_FOR_LEUART
+#if defined USING_DMA_FOR_LIGHT || defined USING_DMA_FOR_LEUART
     #include "dma.h"
     #include "em_dma.h"
 #endif
 
-#ifdef USING_DMA_FOR_TEMP
+#ifdef USING_DMA_FOR_LIGHT
     #include "adc.h"
 #endif
 
@@ -164,25 +164,17 @@ CORE_CriticalDisableIrq();
     // First part of sequence
     if (intFlags & LETIMER_IFS_COMP0) {
 
-        /* Temperature section */
-
-        // DMA setup
-#ifdef USING_DMA_FOR_TEMP
-        DMA_ActivateBasic(DMA_CHANNEL_FOR_ADC, true, false, &adc_sample_buffer,(void*)&(ADC0->SINGLEDATA), ADC_NUMBER_SAMPLES-1);
-#endif
-        // ADC on
-        blockSleepMode(EM1);
-        ADC0->CMD = ADC_CMD_SINGLESTART;
-
         /* Light indicator section */
 #ifdef INTERNAL_LIGHT_SENSOR
         GPIO_PinOutSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
-        if (is_led0_on()) {
-            ACMP_fire_up(VDD_LIGHTNESS);
-        } else {
-            ACMP_fire_up(VDD_DARKNESS);
-        }
-        while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
+#endif
+
+#ifdef PULSE_RATE_SENSOR
+        /*
+            If not using LESENSE, turn on ACMP here
+            ACMP_fire_up();
+            while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
+        */
 #endif
 
 #ifdef THREE_PART_TIMER
@@ -199,33 +191,26 @@ CORE_CriticalDisableIrq();
     if (intFlags & LETIMER_IFS_COMP1) {
         if (le_is_message_send_interrupt == 0) {
 
-
+        /* Light indicator section */
 #ifdef INTERNAL_LIGHT_SENSOR
-            if (is_led0_on()) {
-                if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
-                    led0_off();
 
-                    #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                        // enqueue led off message
-                        m = s_message_new(S_LED_OFF);
-                        circbuf_tiny_write(&O_Q, (uint32_t*)m);
-                    #endif
+        // DMA setup
+#ifdef USING_DMA_FOR_LIGHT
+        DMA_ActivateBasic(DMA_CHANNEL_FOR_ADC, true, false, &adc_sample_buffer,(void*)&(ADC0->SINGLEDATA), ADC_NUMBER_SAMPLES-1);
+#endif
+        // ADC on
+        blockSleepMode(EM1);
+        ADC0->CMD = ADC_CMD_SINGLESTART;
 
-                }
-            } else {
-                if ((ACMP0->STATUS & ACMP_STATUS_ACMPOUT) == 0) {
-                    led0_on();
+        //Remember to turn off EXCITE Pin in respective handlers
+        //GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
+#endif
 
-                    #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                        // enqueue led on message
-                        m = s_message_new(S_LED_ON);
-                        circbuf_tiny_write(&O_Q, (uint32_t*)m);
-                    #endif
-                }
+#ifdef PULSE_RATE_SENSOR
+            if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
+                //Do something
             }
             ACMP_Disable(ACMP0);
-            GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
-
 #endif
 
 #ifdef THREE_PART_TIMER

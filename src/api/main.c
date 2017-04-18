@@ -4,7 +4,7 @@
 #include "periph.h"
 #include "sleep.h"
 #include "main.h"
-#if defined USING_DMA_FOR_TEMP || defined USING_DMA_FOR_LEUART
+#if defined USING_DMA_FOR_LIGHT || defined USING_DMA_FOR_LEUART
     #include "dma.h" 
 #endif
 #include "timers.h"
@@ -112,17 +112,22 @@ clock_defaults();
     //Setup LES_LIGHT_EXCITE 
     GPIO_PinModeSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM,
                         gpioModePushPull, 0);
+
+      //ADC input channel 2
+    GPIO_PinModeSet(ADC_INPUT_PORT, ADC_INPUT_PORT_NUM,
+                        gpioModeInput, 0);
+
+    // Use for sampling light sensor 
+    ADC0_Setup();
 #endif
 
-    // Setup for temperature measurement    
-    //ADC0_Setup();
 
-#if defined USING_DMA_FOR_TEMP || defined USING_DMA_FOR_LEUART
+#if defined USING_DMA_FOR_LIGHT || defined USING_DMA_FOR_LEUART
      DMA_Setup();
 #endif
 
     // Setup DMA
-#ifdef USING_DMA_FOR_TEMP
+#ifdef USING_DMA_FOR_LIGHT
     DMA_Setup_ADC();
 #endif
 
@@ -150,9 +155,9 @@ clock_defaults();
 
   LETIMER0_calc_le_ticks(LOWEST_POWER_MODE,
                 LE_PERIOD_SECONDS, LE_ON_SECONDS, &le_comp0, &le_regular_on_ticks);
-  //LETIMER0_setup(LOWEST_POWER_MODE, le_comp0, le_regular_on_ticks);
+  LETIMER0_setup(LOWEST_POWER_MODE, le_comp0, le_regular_on_ticks);
+  //blockSleepMode(EM2);
 
-blockSleepMode(EM2);
   /* Infinite loop */
   while (1) {
     sleep();
