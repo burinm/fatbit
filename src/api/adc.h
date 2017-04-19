@@ -7,6 +7,7 @@
 #define ADC_INPUT_PORT_NUM  2
 
 #define ADC_NUMBER_SAMPLES 100
+#define ADC_NUMBER_AVERAGES 10 //Keep under 255, counter is uint8_t 
 
 //Measures 1.94ms, calculated 1.93ms - 100 samples
 #define ADC_PRESCALE 18 // (10 - 1)  51851 samples/s  3us aquisition/12 bits, 15 clocks

@@ -73,10 +73,7 @@ clock_defaults();
     led1_off(); //start off for debugging
 
     LED0_setup();
-    /* Initial state is darkness/LED on
-        LED0 is both the state and the indicator for dark mode
-    */
-    led0_on();
+    led0_off();
 
 
 #ifdef SEND_EXTERNAL_NOTIFICATIONS
@@ -92,7 +89,7 @@ clock_defaults();
     s_message *m = s_message_new(S_LED_ON);
     circbuf_tiny_write(&O_Q, (uint32_t*)m);
 
-    #if 1
+    #if 0
     for (int test=0;test<10;test++) {
         m = s_message_new(S_LED_ON);
         circbuf_tiny_write(&O_Q, (uint32_t*)m);

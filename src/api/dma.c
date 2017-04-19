@@ -75,7 +75,7 @@ void DMA_Setup() {
 
     // DMA IRQ routine is set by SDK, callback
     void ADCdmaTransferDone(unsigned int channel, bool primary, void *user) {
-    uint8_t tempC;
+    uint8_t sunlight;
 
         CORE_CriticalDisableIrq();
              //ADC off
@@ -83,12 +83,12 @@ void DMA_Setup() {
             unblockSleepMode(EM1);
             GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
 
-            tempC = sunlight_tally();
+            sunlight = sunlight_tally();
 
     #ifdef SEND_EXTERNAL_NOTIFICATIONS
-            //enqueue temperature message, we are already in critial section
-            s_message *m = s_message_new(S_TEMP);
-            s_message_set_value(m,tempC);
+            //enqueue sunlight message, we are already in critial section
+            s_message *m = s_message_new(S_SUN);
+            s_message_set_value(m,sunlight);
             circbuf_tiny_write(&O_Q, (uint32_t*)m);
     #endif
         CORE_CriticalEnableIrq();

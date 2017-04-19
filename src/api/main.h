@@ -2,9 +2,9 @@
 #define __MAIN_H__
 
 // If defined, "printf"-like logs go to the console
-#define DEBUG_ON
+//#define DEBUG_ON
 
-#define LOWEST_POWER_MODE           EM2
+#define LOWEST_POWER_MODE           EM2 //Because of LESENSE, EM2 is the lowest
 #define CALIBRATE_LE_ULFRCO         true
 
 // If defined, use DMA to read internal temp, else poll
@@ -17,16 +17,16 @@
 #define INTERNAL_LIGHT_SENSOR
 
 // If defined, implement I2C accelerometer
-//#define ACCELEROMETER_SENSOR
+#define ACCELEROMETER_SENSOR
 
 // If defined, turn on touch sensor routines
-//#define CAPSENSE_ENABLE
+#define CAPSENSE_ENABLE
 
 // Code to split LETIMER period into three divisions
 //#define THREE_PART_TIMER
 
 // Enable/Disable sending serial messages about status
-//#define SEND_EXTERNAL_NOTIFICATIONS
+#define SEND_EXTERNAL_NOTIFICATIONS
 
 /*
   See letimer.h

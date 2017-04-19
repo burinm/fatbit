@@ -18,6 +18,9 @@
 uint16_t adc_sample_count=0;
 uint16_t adc_sample_buffer[ADC_NUMBER_SAMPLES] = {0};
 
+uint16_t last_averages[ADC_NUMBER_AVERAGES] = {0};
+uint8_t  last_averages_count = 0;
+
 void ADC0_Setup() {
 
     CMU_ClockEnable(cmuClock_ADC0, true);
@@ -63,7 +66,7 @@ void ADC0_Setup() {
 #ifndef USING_DMA_FOR_LIGHT
     void ADC0_IRQHandler() {
     int intFlags;
-    uint8_t tempC;
+    uint8_t sunlight;
 
     CORE_CriticalDisableIrq();
         intFlags = ADC_IntGet(ADC0);
@@ -80,12 +83,12 @@ void ADC0_Setup() {
                 unblockSleepMode(EM1);
                 GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
 
-                tempC = sunlight_tally();
+                sunlight = sunlight_tally();
 
                 #ifdef SEND_EXTERNAL_NOTIFICATIONS
                     //enqueue temperature message
-                    s_message *m = s_message_new(S_TEMP);
-                    s_message_set_value(m,tempC);
+                    s_message *m = s_message_new(S_SUN);
+                    s_message_set_value(m,sunlight);
                     circbuf_tiny_write(&O_Q, (uint32_t*)m);
                 #endif
             }
@@ -101,7 +104,7 @@ uint32_t average=0;
 
     for (int i=0; i<ADC_NUMBER_SAMPLES; i++) {
         average+=adc_sample_buffer[i];
-        if (i % 10 == 0) { PRINTSWO_UINT( adc_sample_buffer[i] ); }
+        //if (i % 10 == 0) { PRINTSWO_UINT( adc_sample_buffer[i] ); }
     }
 
 //PRINTSWO_UINT(average);
@@ -110,5 +113,21 @@ uint32_t average=0;
 //PRINTSWO_UINT(average);
 
 
-return average;
+    last_averages[last_averages_count]=average;
+    last_averages_count++;
+    if (last_averages_count == ADC_NUMBER_AVERAGES) {
+        last_averages_count = 0;
+    }
+
+    average=0;
+    for (int i=0; i<ADC_NUMBER_AVERAGES; i++) {
+        average+=last_averages[i];
+    }
+    average=average/ADC_NUMBER_AVERAGES;
+    PRINTSWO_UINT( average );
+    
+
+
+//Sunlight score 0-255
+return (average >> 4);
 }    
