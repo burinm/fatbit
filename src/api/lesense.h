@@ -16,14 +16,24 @@
  ******************************************************************************/
 
 
-#define CAP_ACMP_EXTERNAL_PORT        gpioPortC
-#define CAP_ACMP_EXTERNAL_PIN         1
+//Capacitance sensor
+#define CAP_ACMP_EXTERNAL_PORT          gpioPortC
+#define CAP_ACMP_EXTERNAL_PIN           1
 
-#define LESENSE_ACMP_VDD_SCALE         25 //1.29 25/63, (61/63 prescale)
-#define CAPLESENSE_SENSITIVITY_OFFS    1U
+#define LESENSE_ACMP_CAP_VDD_SCALE      25 //1.29 25/63, (61/63 prescale)
+#define CAPLESENSE_SENSITIVITY_OFFS     1U
 
-#define CAPLESENSE_CHANNEL_INT        LESENSE_IF_CH1
-#define LESENSE_CHANNEL_INPUT         1
+#define CAPLESENSE_CHANNEL_INT          LESENSE_IF_CH1
+#define LESENSE_CHANNEL_INPUT_CAP       1
+
+//Pulse sensor
+#define LESENSE_ACMP_PULSE_VDD_SCALE    20 //1.01v 20/63, (61/63 prescale)
+#define PULSE_ACMP_EXTERNAL_PORT        gpioPortC
+#define PULSE_ACMP_EXTERNAL_PIN         3
+
+#define PULSE_CHANNEL_INT               LESENSE_IF_CH3
+#define LESENSE_CHANNEL_INPUT_PULSE     3
+
 
 #define LESENSE_DISABLED_CH_CONF \
   { \
@@ -62,13 +72,36 @@
     lesenseClkLF,             /* Use the LF clock for excitation timing. */ \
     lesenseClkLF,             /* Use the LF clock for sample timing. */ \
     0x00U,                    /* Excitation time is set to 0 excitation clock cycles. */ \
-    127,                    /* Sample delay is set to 1(+1) sample clock cycles. */ \
+    127,                    /* Sample delay is set to 127(+1) sample clock cycles. */ \
     0x00U,                    /* Measure delay is set to 0 excitation clock cycles.*/ \
-    LESENSE_ACMP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */ \
+    LESENSE_ACMP_CAP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */ \
     lesenseSampleModeCounter, /* Counter will be used in comparison. */ \
     lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */ \
     0x0EU,                   /* Counter threshold has been set to 0x0E. */ \
     lesenseCompModeLess       /* Compare mode has been set to trigger interrupt on "less". */ \
+  }
+
+#define LESENSE_PULSE_CH_CONF_SLEEP \
+  { \
+    true,                     /* Enable scan channel. */ \
+    true,                     /* Enable the assigned pin on scan channel. */ \
+    true,                     /* Enable interrupts on channel. */ \
+    lesenseChPinExDis,        /* GPIO pin is disabled during the excitation period. */ \
+    lesenseChPinIdleDis,      /* GPIO pin is disabled during the idle period. */ \
+    false,                    /* Don't use alternate excitation pins for excitation. */ \
+    false,                    /* Disabled to shift results from this channel to the decoder register. */ \
+    false,                    /* Disabled to invert the scan result bit. */ \
+    true,                     /* Enabled to store counter value in the result buffer. */ \
+    lesenseClkLF,             /* Use the LF clock for excitation timing. */ \
+    lesenseClkLF,             /* Use the LF clock for sample timing. */ \
+    0x00U,                    /* Excitation time is set to 0 excitation clock cycles. */ \
+    127,                    /* Sample delay is set to 1(+1) sample clock cycles. */ \
+    0x00U,                    /* Measure delay is set to 0 excitation clock cycles.*/ \
+    LESENSE_ACMP_PULSE_VDD_SCALE,   /* ACMP threshold */ \
+    lesenseSampleModeACMP, /* Counter will be used in comparison. */ \
+    lesenseSetIntLevel,       /* Interrupt is generated if the sensor triggers. */ \
+    0x0EU,                   /* Counter threshold has been set to 0x0E. */ \
+    lesenseCompModeGreaterOrEq       /* Compare mode has been set to trigger interrupt on "more". */ \
   }
 
 void LESENSE_First();

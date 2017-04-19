@@ -22,6 +22,9 @@
 // If defined, turn on touch sensor routines
 #define CAPSENSE_ENABLE
 
+// If defined, turn on pulse rate sensor routines
+#define PULSE_RATE_SENSOR
+
 // Code to split LETIMER period into three divisions
 //#define THREE_PART_TIMER
 

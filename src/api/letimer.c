@@ -207,10 +207,12 @@ CORE_CriticalDisableIrq();
 #endif
 
 #ifdef PULSE_RATE_SENSOR
+            /*
             if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
                 //Do something
             }
             ACMP_Disable(ACMP0);
+           */ 
 #endif
 
 #ifdef THREE_PART_TIMER

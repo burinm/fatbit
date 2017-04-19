@@ -1,3 +1,4 @@
+#include "main.h"
 #include "lesense.h"
 #include "em_cmu.h"
 #include "em_gpio.h"
@@ -26,37 +27,46 @@ void capSenseChTrigger(void);
 static void (*lesenseScanCb)(void) = capSenseScanComplete;
 static void (*lesenseChCb)(void) = capSenseChTrigger;
 
+#ifdef PULSE_RATE_SENSOR
+    void pulseChTrigger(void);
+    static void (*lesensePulseCb)(void) = pulseChTrigger;
+#endif
+
 void LESENSE_First() {
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
     CMU_ClockEnable(cmuClock_HFLE, true);
     CMU_ClockEnable(cmuClock_LESENSE, true);
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
 
-    //Port C1, input
+//ACMP0 - external capacitance sensor, and pulse sensor
+
+    //Port C1, input external capacitance sensor
     GPIO_PinModeSet(CAP_ACMP_EXTERNAL_PORT, CAP_ACMP_EXTERNAL_PIN, gpioModeInputPull, 0);
 
-    //Use ACMP0 for external custom touch
+#ifdef PULSE_RATE_SENSOR
+    //Port C3, input external pulse sensor
+    GPIO_PinModeSet(PULSE_ACMP_EXTERNAL_PORT, PULSE_ACMP_EXTERNAL_PIN, gpioModeInputPull, 0);
+#endif
+
+    //Use ACMP0
     CMU_ClockEnable(cmuClock_ACMP0, true);
 
-    //Disable ACMP out to a pin
+    //Disable ACMP0 out to a pin
     ACMP_GPIOSetup(ACMP0, 0, false, false);
 
-    /* ACMP capsense configuration constant table. */
-    //static const ACMP_CapsenseInit_TypeDef initACMP =
+    /* ACMP configuration for external capacitance sensor. */
     static const ACMP_Init_TypeDef initACMP =
     {
         .fullBias                 = false,
         .halfBias                 = false,
-        .biasProg                 =                  0x7,
+        .biasProg                 = 0x7,
         .warmTime                 = acmpWarmTime512,
         .hysteresisLevel          = acmpHysteresisLevel7,
-        //.resistor                 = acmpResistor0,
         .lowPowerReferenceEnabled = false,
-        .vddLevel                 =                 0x3D,
+        .vddLevel                 = 0x3D,
         .enable                   = false
     };
 
-    //ACMP_CapsenseInit(ACMP1, &initACMP);
     ACMP_Init(ACMP0, &initACMP);
 
     //ACMP negSel
@@ -138,8 +148,13 @@ void LESENSE_Setup() {
         {                                                    
           LESENSE_DISABLED_CH_CONF,        /* Channel 0. */  
           LESENSE_CAPSENSE_CH_CONF_SLEEP,  /* Channel 1.  PortC, 1*/  
+          //LESENSE_DISABLED_CH_CONF,          /* Channel 1.  PortC, 1*/  
           LESENSE_DISABLED_CH_CONF,        /* Channel 2. */  
+#ifdef PULSE_RATE_SENSOR
+          LESENSE_PULSE_CH_CONF_SLEEP,        /* Channel 3. */  
+#else
           LESENSE_DISABLED_CH_CONF,        /* Channel 3. */  
+#endif
           LESENSE_DISABLED_CH_CONF,        /* Channel 4. */  
           LESENSE_DISABLED_CH_CONF,        /* Channel 5. */  
           LESENSE_DISABLED_CH_CONF,        /* Channel 6. */  
@@ -173,11 +188,11 @@ uint16_t capsenseCalibrateVal=0;
 
     while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL)); 
 
-    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT) -
+    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT_CAP) -
                                       CAPLESENSE_SENSITIVITY_OFFS;
 
     LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
-                            LESENSE_ACMP_VDD_SCALE,
+                            LESENSE_ACMP_CAP_VDD_SCALE,
                             capsenseCalibrateVal);
 }
 
@@ -187,13 +202,20 @@ void capSenseScanComplete(void) {
 
 void capSenseChTrigger(void)
 {
-    led1_toggle();
+    led0_toggle();
 }
+
+#ifdef PULSE_RATE_SENSOR
+    void pulseChTrigger(void) {
+        led1_toggle();
+    }
+#endif
 
 void LESENSE_IRQHandler(void)
 { 
 CORE_CriticalDisableIrq();
     uint32_t count;
+    uint32_t lsense_ints;
 
     /* LESENSE scan complete interrupt. */
     if (LESENSE_IF_SCANCOMPLETE & LESENSE_IntGetEnabled())
@@ -211,8 +233,9 @@ CORE_CriticalDisableIrq();
         }
     }
 
+    lsense_ints = LESENSE_IntGetEnabled();
     /* LESENSE channel interrupt. */
-    if (CAPLESENSE_CHANNEL_INT & LESENSE_IntGetEnabled())
+    if (CAPLESENSE_CHANNEL_INT & lsense_ints)
     { 
         /* Clear flags. */
         LESENSE_IntClear(CAPLESENSE_CHANNEL_INT);
@@ -223,5 +246,19 @@ CORE_CriticalDisableIrq();
             lesenseChCb();
         }
     }
+#ifdef PULSE_RATE_SENSOR
+    if (PULSE_CHANNEL_INT & lsense_ints)
+    { 
+        /* Clear flags. */
+        LESENSE_IntClear(PULSE_CHANNEL_INT);
+
+        /* Call callback function. */
+        if (lesensePulseCb != 0x00000000)
+        { 
+            lesensePulseCb();
+        }
+    }
+#endif
+
 CORE_CriticalEnableIrq();
 }
