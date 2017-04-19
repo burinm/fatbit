@@ -21,10 +21,9 @@
  *
  ******************************************************************************/
 
-void capSenseScanComplete(void);
-void capSenseChTrigger(void);
+uint8_t first_scan=1;
 
-static void (*lesenseScanCb)(void) = capSenseScanComplete;
+void capSenseChTrigger(void);
 static void (*lesenseChCb)(void) = capSenseChTrigger;
 
 #ifdef PULSE_RATE_SENSOR
@@ -84,7 +83,7 @@ void LESENSE_First() {
             .invACMP0     = false,
             .invACMP1     = false,
             .dualSample   = false,
-            .storeScanRes = false,
+            .storeScanRes = true,
             .bufOverWr    = true,
             .bufTrigLevel = lesenseBufTrigHalf,
             .wakeupOnDMA  = lesenseDMAWakeUpDisable,
@@ -148,10 +147,9 @@ void LESENSE_Setup() {
         {                                                    
           LESENSE_DISABLED_CH_CONF,        /* Channel 0. */  
           LESENSE_CAPSENSE_CH_CONF_SLEEP,  /* Channel 1.  PortC, 1*/  
-          //LESENSE_DISABLED_CH_CONF,          /* Channel 1.  PortC, 1*/  
           LESENSE_DISABLED_CH_CONF,        /* Channel 2. */  
 #ifdef PULSE_RATE_SENSOR
-          LESENSE_PULSE_CH_CONF_SLEEP,        /* Channel 3. */  
+          LESENSE_PULSE_CH_CONF_SLEEP,     /* Channel 3. */  
 #else
           LESENSE_DISABLED_CH_CONF,        /* Channel 3. */  
 #endif
@@ -180,25 +178,33 @@ CORE_CriticalEnableIrq();
 #endif
 
     NVIC_EnableIRQ(LESENSE_IRQn);
+
+#if 0
+    for (int i=0;i<LSENSE_TOTAL_CHANNELS;i++) {
+    LESENSE->BUF[i].DATA=0xff+i;
+    }
+    LESENSE_ResultBufferClear();
+#endif
     LESENSE_ScanStart();
 }
 
 void LESENSE_Calibrate() {
 uint16_t capsenseCalibrateVal=0;
 
+#if 1
     while (!(LESENSE->STATUS & LESENSE_STATUS_BUFHALFFULL)); 
 
-    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(LESENSE_CHANNEL_INPUT_CAP) -
+    capsenseCalibrateVal = LESENSE_ScanResultDataBufferGet(0) -
                                       CAPLESENSE_SENSITIVITY_OFFS;
 
     LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
                             LESENSE_ACMP_CAP_VDD_SCALE,
                             capsenseCalibrateVal);
-}
 
-void capSenseScanComplete(void) {
-    //led0_toggle();
-};
+    //Dummy read to keep buffers aligned
+    (void)LESENSE_ScanResultDataBufferGet(1);
+#endif
+}
 
 void capSenseChTrigger(void)
 {
@@ -217,19 +223,32 @@ CORE_CriticalDisableIrq();
     uint32_t count;
     uint32_t lsense_ints;
 
+    uint16_t lsense_cap_sens;
+
     /* LESENSE scan complete interrupt. */
     if (LESENSE_IF_SCANCOMPLETE & LESENSE_IntGetEnabled())
     { 
         LESENSE_IntClear(LESENSE_IF_SCANCOMPLETE);
 
+        if (first_scan) {
+            //Calibrate on first scan, Only do this once
+            first_scan=0;
+            LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
 
-        /* Read out value from LESENSE buffer */
-        count = LESENSE_ScanResultDataGet();
+                //count = LESENSE_ScanResultDataGet();
+                lsense_cap_sens = LESENSE_ScanResultDataBufferGet(0);
 
-        /* Call callback function. */
-        if (lesenseScanCb != 0x00000000)
-        { 
-            lesenseScanCb();
+#ifdef PULSE_RATE_SENSOR
+                count = LESENSE_ScanResultDataBufferGet(1);
+                //count = LESENSE_ScanResultDataGet();
+#endif
+
+            lsense_cap_sens -=  CAPLESENSE_SENSITIVITY_OFFS;
+
+            LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
+                                    LESENSE_ACMP_CAP_VDD_SCALE,
+                                    count);
+
         }
     }
 

@@ -15,6 +15,7 @@
  *
  ******************************************************************************/
 
+#define LSENSE_TOTAL_CHANNELS           16
 
 //Capacitance sensor
 #define CAP_ACMP_EXTERNAL_PORT          gpioPortC
