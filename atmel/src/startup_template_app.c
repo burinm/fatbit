@@ -9,12 +9,22 @@
 #include "button.h"
 #include "uart_samb11.h"
 #include "samb11_xplained_pro.h"
+#include "hr_sensor.h"
 
 //#include "at30tse75x.h"
 
 #include "startup_template_app.h"
 #include "s_message.h"
 #include "circbuf_tiny.h"
+
+//Heart Rate defines
+#define HR_CHAR_VALUE_LEN                                                       (10)
+#define HR_VALUE_FORMAT_UINT16                                              (0x1 << 0)
+#define SENSOR_CONTACT_FTR_NOT_SPRTD_NOT_CONTACT                            (0x1 << 2)
+#define SENSOR_CONTACT_FTR_NOT_SPRTD_CONTACT_DTD                            (0x3 << 1)
+#define ENERGY_EXPENDED_FIELD_PRESENT                                       (0x1 << 3)
+#define RR_INTERVAL_VALUE_PRESENT                                           (0x1 << 4)
+
 
 //incoming message queue, circular buffer
 //Needs critical protection
@@ -23,8 +33,18 @@ circbuf_tiny_t M_Q;
 
 volatile bool Temp_Notification_Flag = false;
 static void htp_temperature_send(float);
+static void hr_measurment_send(uint8_t rate);
 
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params);
+static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params);
+
+static void app_reset_handler(void);
+static void app_notification_handler(uint8_t notification_enable);
+
+//at_ble_status_t app_notification_cfm_handler(void *params);
+
+
+
 static const ble_event_callback_t app_htpt_handle[] = {
     NULL, // AT_BLE_HTPT_CREATE_DB_CFM
     NULL, // AT_BLE_HTPT_ERROR_IND
@@ -37,13 +57,24 @@ static const ble_event_callback_t app_htpt_handle[] = {
     NULL // AT_BLE_HTPT_MEAS_INTV_CHG_REQ
 };
 
+static const ble_event_callback_t app_hr_handle[] = {
+    NULL, // AT_BLE_HTPT_CREATE_DB_CFM
+    NULL, // AT_BLE_HTPT_ERROR_IND
+    NULL, // AT_BLE_HTPT_DISABLE_IND
+    NULL, // AT_BLE_HTPT_TEMP_SEND_CFM
+    NULL, // AT_BLE_HTPT_MEAS_INTV_CHG_IND
+    app_hr_cfg_indntf_ind_handler, // AT_BLE_HTPT_CFG_INDNTF_IND
+    NULL, // AT_BLE_HTPT_ENABLE_RSP
+    NULL, // AT_BLE_HTPT_MEAS_INTV_UPD_RSP
+    NULL // AT_BLE_HTPT_MEAS_INTV_CHG_REQ
+};
+
 
 volatile bool Timer_Flag = false;
 static void timer_callback_handler(void);
 
 volatile at_ble_status_t status;
 
-static void htp_temperature_print(float);
 static void ble_advertise (void);
 
 at_ble_handle_t htpt_conn_handle;
@@ -76,6 +107,21 @@ static const ble_event_callback_t app_gap_cb[] = {
     NULL // AT_BLE_CON_CHANNEL_MAP_IND
 };
 
+#if 0
+//New for heart rate - 
+static const ble_event_callback_t app_gatt_server_handle[] = {
+    app_notification_cfm_handler,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+#endif
 
 void configure_gpio(void);
 
@@ -98,8 +144,15 @@ int main (void)
     /* initialize the BLE chip and Set the Device Address */
     ble_device_init(NULL);
     
-    /* Initialize the htp service */
+    /* Initialize the temperature service */
     htp_init();
+    /* Initialize the heart rate service */
+    hr_sensor_init(NULL);
+    /* Registering the app_notification_handler with the profile */
+    register_hr_notification_handler(app_notification_handler);
+    /* Registering the app_reset_handler with the profile */
+    register_hr_reset_handler(app_reset_handler);
+
     /* Register Bluetooth events Callbacks */
     register_ble_callbacks();
 
@@ -207,13 +260,29 @@ static void register_ble_callbacks (void)
     if (status != true) {
         printf("\n##Error when Registering SAMB11 gap callbacks");
     }
+
+#if 0
+    printf("\nAssignment 3.2: Register bluetooth gat callbacks");
+    status = ble_mgr_events_callback_handler(REGISTER_CALL_BACK,\
+    BLE_GATT_SERVER_EVENT_TYPE,app_gatt_server_handle);
+    if (status != true) {
+        printf("\n##Error when Registering gatt callbacks");
+    }
+#endif
     
+    // Temperature service
     status = ble_mgr_events_callback_handler(REGISTER_CALL_BACK,\
     BLE_GATT_HTPT_EVENT_TYPE,app_htpt_handle);
     if (status != true) {
         printf("\n##Error when Registering SAMB11 htpt callbacks");
     }
 
+    // Heart Rate service
+    status = ble_mgr_events_callback_handler(REGISTER_CALL_BACK,\
+    BLE_GATT_HTPT_EVENT_TYPE,app_hr_handle);
+    if (status != true) {
+        printf("\n##Error when Registering SAMB11 htpt callbacks");
+    }
 }
 
 static void htp_init (void)
@@ -275,7 +344,7 @@ printf("message pulled off queue [%s], ",message->message);
 
                 case S_PULSE:
                     printf("[Pulse Rate]\n");
-                    //htp_temperature_send(s_message_get_value(message));
+                    hr_measurment_send(s_message_get_value(message));
                 break;
 
                 case S_NONE:
@@ -336,6 +405,25 @@ static void htp_temperature_send(float temperature)
     }
 }
 
+/* Sent heartrate value */
+static void hr_measurment_send(uint8_t rate)
+{
+    uint8_t hr_data[HR_CHAR_VALUE_LEN];
+    uint8_t idx = 0;
+
+    memset(hr_data,0,HR_CHAR_VALUE_LEN);
+
+    hr_data[0] = RR_INTERVAL_VALUE_PRESENT; //flags
+    hr_data[1] = rate; 
+    hr_data[2] = 0; hr_data[3] = 0;         //Energy expended
+    hr_data[4] = 0; hr_data[5] = 0;         //RR value 1
+    hr_data[6] = 0; hr_data[7] = 0;         //RR value 2
+    
+    
+  /* Sending the data for notifications*/
+    hr_sensor_send_notification(hr_data, 8);
+}
+
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params)
 {
     at_ble_htpt_cfg_indntf_ind_t htpt_cfg_indntf_ind_params;
@@ -347,6 +435,23 @@ static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params)
     }
     else {
         printf("HTP Temperature Notification Stopped");
+        Temp_Notification_Flag = false;
+    }
+    return AT_BLE_SUCCESS;
+}
+
+//Heart rate callback
+static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params)
+{
+    at_ble_htpt_cfg_indntf_ind_t htpt_cfg_indntf_ind_params;
+    memcpy((uint8_t *)&htpt_cfg_indntf_ind_params, params,
+    sizeof(at_ble_htpt_cfg_indntf_ind_t));
+    if (htpt_cfg_indntf_ind_params.ntf_ind_cfg == 0x03) {
+        printf("Started HTP Heart Rate Notification");
+        Temp_Notification_Flag = true;
+    }
+    else {
+        printf("HTP Heart Rate Notification Stopped");
         Temp_Notification_Flag = false;
     }
     return AT_BLE_SUCCESS;
@@ -364,3 +469,56 @@ void configure_gpio(void) {
     #define LED0_PINMUX MUX_LP_GPIO_22_GPIO
     gpio_pinmux_cofiguration(LED0_GPIO,LED0_PINMUX);
 }
+
+// Heart Rate callbacks
+/** Notification handler function called by the profile
+ *  notification_enable which will tell the state of the
+ *  application
+ */
+static void app_notification_handler(uint8_t notification_enable)
+{
+    if (notification_enable == true) {
+        printf("app_notification_handler (true)\n\r");
+        //DBG_LOG("Notification Enabled");
+        //hw_timer_start(NOTIFICATION_INTERVAL);
+    } else {
+        printf("app_notification_handler (false)\n\r");
+        //hw_timer_stop();
+        //notification_flag = false;
+        //DBG_LOG("Notification Disabled");
+    }
+}
+
+/** Energy expended handler called by profile to reset the energy values
+ *
+ */
+static void app_reset_handler(void)
+{
+
+    printf("app_reset_handler\n\r");
+#if 0
+    energy_expended_val = 0;
+    DBG_LOG("Energy Expended is made '0'on user Reset");
+#endif
+}
+
+#if 0
+/** hr_notification_confirmation_handler called by ble manager 
+ *  to give the status of notification sent
+ *  at_ble_cmd_complete_event_t address of the cmd completion
+ */
+at_ble_status_t app_notification_cfm_handler(void *params)
+{
+    at_ble_cmd_complete_event_t event_params;
+    memcpy(&event_params,params,sizeof(at_ble_cmd_complete_event_t));
+    if (event_params.status == AT_BLE_SUCCESS) {
+        printf("App Notification Successfully sent over the air");
+        //notification_sent = true;
+    } else {
+        printf("Sending Notification over the air failed");
+        //notification_sent = false;
+    }
+    return AT_BLE_SUCCESS;
+}
+#endif
+

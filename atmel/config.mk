@@ -87,7 +87,10 @@ ecen5023/atmel/src/uart_samb11.c \
 ecen5023/atmel/src/s_queue.c \
 ecen5023/atmel/src/s_message.c \
 ecen5023/atmel/src/circbuf_tiny.c \
-ecen5023/atmel/src/ble_manager.c
+ecen5023/atmel/src/ble_manager.c \
+ecen5023/atmel/src/hr_sensor.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/heart_rate/heart_rate.c \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/device_infomation/device_info.c
 
 # List of assembler source files.
 ASSRCS = 
@@ -130,6 +133,8 @@ $(ASF_DIR)/sam0/boards/samb11_xplained_pro/board_config \
 $(ASF_DIR)/common/components/memory/eeprom/at30tse75x \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/dualtimer/module_config \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/uart/module_config \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/heart_rate \
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/device_infomation
 
 # Additional search paths for libraries.
 LIB_PATH =  \
@@ -184,7 +189,6 @@ CPPFLAGS = \
 -D BLE_DEVICE_ROLE=BLE_ROLE_ALL \
 -D BOARD=SAMB11_XPLAINED_PRO \
 -D CHIPVERSION_B0 \
--D OTAU_FEATURE=false \
 -D I2C_MASTER_CALLBACK_MODE=true \
 -D ARM_MATH_CM0PLUS=true \
 -D __SAMB11G18A__
