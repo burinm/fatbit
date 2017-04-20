@@ -104,11 +104,11 @@ int main (void)
     ble_device_init(NULL);
     
     /* Initialize the temperature sensor */
-    at30tse_init();
+    //at30tse_init();
     /* configure the temperature sensor ADC */
-    at30tse_write_config_register(AT30TSE_CONFIG_RES(AT30TSE_CONFIG_RES_12_bit));
+    //at30tse_write_config_register(AT30TSE_CONFIG_RES(AT30TSE_CONFIG_RES_12_bit));
     /* read the temperature from the sensor */
-    htp_temperature_print(at30tse_read_temperature());
+    //htp_temperature_print(at30tse_read_temperature());
     /* Initialize the htp service */
     htp_init();
     /* Register Bluetooth events Callbacks */
@@ -285,7 +285,17 @@ printf("message pulled off queue [%s], ",message->message);
 
                 case S_TEMP:
                     printf("[Set temp]\n");
+                    //htp_temperature_send(s_message_get_value(message));
+                break;
+
+                case S_SUN:
+                    printf("[Sunlight Level]\n");
                     htp_temperature_send(s_message_get_value(message));
+                break;
+
+                case S_PULSE:
+                    printf("[Pulse Rate]\n");
+                    //htp_temperature_send(s_message_get_value(message));
                 break;
 
                 case S_NONE:
