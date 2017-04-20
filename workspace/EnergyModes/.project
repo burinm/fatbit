@@ -371,6 +371,16 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/periph.h</locationURI>
 		</link>
 		<link>
+			<name>src/rtc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/rtc.c</locationURI>
+		</link>
+		<link>
+			<name>src/rtc.h</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/src/api/rtc.h</locationURI>
+		</link>
+		<link>
 			<name>src/s_message.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/atmel/src/s_message.c</locationURI>

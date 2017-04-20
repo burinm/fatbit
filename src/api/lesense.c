@@ -4,8 +4,15 @@
 #include "em_gpio.h"
 #include "em_acmp.h"
 #include "em_lesense.h"
+#include "rtc.h"
+#include "em_rtc.h"
 
 #include "caplesense.h"
+
+#ifdef SEND_EXTERNAL_NOTIFICATIONS
+    #include "../../atmel/src/s_message.h"
+    #include "circbuf_tiny.h"
+#endif
 
 /* Most of this code lifted from the Cap sense touch demo, modified for
     a single touch event - wake up */
@@ -21,7 +28,11 @@
  *
  ******************************************************************************/
 
-uint8_t first_scan=1;
+static uint32_t channel_results[LSENSE_TOTAL_CHANNELS] = {0};
+
+static uint8_t pulse_duration_count=0;
+static uint8_t pulse_last_time=0;
+
 
 void capSenseChTrigger(void);
 static void (*lesenseChCb)(void) = capSenseChTrigger;
@@ -213,7 +224,7 @@ void capSenseChTrigger(void)
 
 #ifdef PULSE_RATE_SENSOR
     void pulseChTrigger(void) {
-        led1_toggle();
+        LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
     }
 #endif
 
@@ -222,6 +233,7 @@ void LESENSE_IRQHandler(void)
 CORE_CriticalDisableIrq();
     uint32_t count;
     uint32_t lsense_ints;
+    uint32_t pulse_read_time;
 
     uint16_t lsense_cap_sens;
 
@@ -230,26 +242,37 @@ CORE_CriticalDisableIrq();
     { 
         LESENSE_IntClear(LESENSE_IF_SCANCOMPLETE);
 
-        if (first_scan) {
-            //Calibrate on first scan, Only do this once
-            first_scan=0;
-            LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
-
-                //count = LESENSE_ScanResultDataGet();
-                lsense_cap_sens = LESENSE_ScanResultDataBufferGet(0);
-
-#ifdef PULSE_RATE_SENSOR
-                count = LESENSE_ScanResultDataBufferGet(1);
-                //count = LESENSE_ScanResultDataGet();
-#endif
-
-            lsense_cap_sens -=  CAPLESENSE_SENSITIVITY_OFFS;
-
-            LESENSE_ChannelThresSet(CAP_ACMP_EXTERNAL_PIN,
-                                    LESENSE_ACMP_CAP_VDD_SCALE,
-                                    count);
-
+        for (int i=0; i<LSENSE_TOTAL_CHANNELS;i++) {
+            channel_results[i] = LESENSE_ScanResultDataGet();
         }
+
+          if (channel_results[1]) {
+                pulse_duration_count++;
+                if (pulse_duration_count == 5) {
+                    pulse_read_time=RTC->CNT;
+
+                    //Skip measuring if this is the first consecutive beat
+                    // within 2 second RTC window.
+                    if (pulse_read_time > SLOWEST_HEARTBEAT) {
+                        pulse_measure= RTC_TICKS_PER_SECOND * 60 / pulse_read_time;    
+                        //led1_toggle();
+                        #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                            //enqueue pulse message
+                            s_message *m = s_message_new(S_PULSE);
+                            s_message_set_value(m,pulse_measure);
+                            circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                        #endif
+
+                    }
+                    //End of pulse - start timer
+                    RTC_Enable(false);
+                    RTC_Enable(true);
+                }
+          } else {
+                pulse_duration_count=0;
+                LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
+         }
+
     }
 
     lsense_ints = LESENSE_IntGetEnabled();

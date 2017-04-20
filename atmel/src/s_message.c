@@ -30,6 +30,9 @@ e_sm_type s_get_message_type(s_message *m) {
         case    'S':
             return S_SUN;
             break;
+        case    'P':
+            return S_PULSE;
+            break;
         default:
             return S_NONE;
     };
@@ -58,6 +61,9 @@ s_message * s_message_new(e_sm_type t) {
             break;
         case    S_SUN:
             m->message[S_MESSAGE_TYPE_OFFSET] = 'S';
+            break;
+        case    S_PULSE:
+            m->message[S_MESSAGE_TYPE_OFFSET] = 'P';
             break;
         default:
             m->message[S_MESSAGE_TYPE_OFFSET] = '0';

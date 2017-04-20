@@ -153,6 +153,8 @@ clock_defaults();
   LETIMER0_calc_le_ticks(LOWEST_POWER_MODE,
                 LE_PERIOD_SECONDS, LE_ON_SECONDS, &le_comp0, &le_regular_on_ticks);
   LETIMER0_setup(LOWEST_POWER_MODE, le_comp0, le_regular_on_ticks);
+
+  RTC_Setup();
   //blockSleepMode(EM2);
 
   /* Infinite loop */

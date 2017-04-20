@@ -53,6 +53,7 @@ SOURCES += main.c sleep.c periph.c dma.c adc.c acmp.c letimer.c leuart.c timers.
 SOURCES += debug.c
 SOURCES += accel_ext.c circbuf_tiny.c
 SOURCES += lesense.c em_lesense.c
+SOURCES += rtc.c 
 #SOURCES += retargetio.c
 OBJS :=$(SOURCES:%.c=%.o)
 OBJS += startup_efm32lg.o
