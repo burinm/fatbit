@@ -74,7 +74,6 @@ $(ASF_DIR)/sam0/utils/cmsis/samb11/source/system_samb11.c \
 $(ASF_DIR)/sam0/utils/stdio/read.c \
 $(ASF_DIR)/sam0/utils/stdio/write.c \
 $(ASF_DIR)/sam0/utils/syscalls/gcc/syscalls.c \
-$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/ble_mgr/ble_manager.c \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/dualtimer/timer_hw.c \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/gpio/button.c \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/gpio/led.c \
@@ -87,7 +86,8 @@ ecen5023/atmel/src/startup_template_app.c \
 ecen5023/atmel/src/uart_samb11.c \
 ecen5023/atmel/src/s_queue.c \
 ecen5023/atmel/src/s_message.c \
-ecen5023/atmel/src/circbuf_tiny.c
+ecen5023/atmel/src/circbuf_tiny.c \
+ecen5023/atmel/src/ble_manager.c
 
 # List of assembler source files.
 ASSRCS = 
@@ -96,7 +96,6 @@ ASSRCS =
 INC_PATH = \
 ecen5023/atmel/src \
 ecen5023/atmel/inc \
-$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/ble_mgr \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/inc \
 $(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/services/dualtimer \
 $(ASF_DIR)/sam0/drivers/dualtimer \

@@ -10,15 +10,11 @@
 #include "uart_samb11.h"
 #include "samb11_xplained_pro.h"
 
-#include "at30tse75x.h"
+//#include "at30tse75x.h"
 
 #include "startup_template_app.h"
-//#include "s_queue.h"
 #include "s_message.h"
 #include "circbuf_tiny.h"
-
-#ifdef GECKO_TEMPERATURE_READ
-#endif
 
 //incoming message queue, circular buffer
 //Needs critical protection
@@ -40,7 +36,6 @@ static const ble_event_callback_t app_htpt_handle[] = {
     NULL, // AT_BLE_HTPT_MEAS_INTV_UPD_RSP
     NULL // AT_BLE_HTPT_MEAS_INTV_CHG_REQ
 };
-
 
 
 volatile bool Timer_Flag = false;
@@ -103,12 +98,6 @@ int main (void)
     /* initialize the BLE chip and Set the Device Address */
     ble_device_init(NULL);
     
-    /* Initialize the temperature sensor */
-    //at30tse_init();
-    /* configure the temperature sensor ADC */
-    //at30tse_write_config_register(AT30TSE_CONFIG_RES(AT30TSE_CONFIG_RES_12_bit));
-    /* read the temperature from the sensor */
-    //htp_temperature_print(at30tse_read_temperature());
     /* Initialize the htp service */
     htp_init();
     /* Register Bluetooth events Callbacks */
@@ -156,16 +145,6 @@ int main (void)
 
 
     }
-}
-
-static void htp_temperature_print(float temperature)
-{
-    /* Display temperature on com port */
-    #ifdef HTPT_FAHRENHEIT
-    printf("\nTemperature: %d Fahrenheit\r\n", (uint16_t)temperature);
-    #else
-    printf("\nTemperature: %d Deg Celsius\r\n", (uint16_t)temperature);
-    #endif
 }
 
 static void ble_advertise (void)
@@ -247,7 +226,8 @@ static void htp_init (void)
     1,
     30,
     1,
-    HTPT_AUTH,
+    //HTPT_AUTH,
+    HTPT_UNAUTH,
     &htpt_conn_handle);
     if (status != AT_BLE_SUCCESS){
         printf("HTP Data Base creation failed");
@@ -322,7 +302,7 @@ printf("message pulled off queue [%s], ",message->message);
     hw_timer_start(1);
 }
 
-/* Sending the temperature value after reading it from IO1 Xplained Pro */
+/* Send the temperature value */
 static void htp_temperature_send(float temperature)
 {
     at_ble_prf_date_time_t timestamp;
