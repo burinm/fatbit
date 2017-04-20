@@ -15,7 +15,14 @@
  *
  ******************************************************************************/
 
-#define LSENSE_TOTAL_CHANNELS           16
+#define LESENSE_TOTAL_CHANNELS          16
+#define LESENSE_SCAN_PERIOD             64U //1/64 second between scans
+#define LESENSE_CLK_DIV                 lesenseClkDiv_2 // /2
+
+#define CAP_SAMPLE_LENGTH               127 // 127 * (1 / (32786/2)) = 7.75mS
+#define PULSE_SAMPLE_LENGTH             127 // 127 * (1 / (32786/2)) = 7.75mS
+
+#define PULSE_DURATION_COUNT            5
 
 //Capacitance sensor
 #define CAP_ACMP_EXTERNAL_PORT          gpioPortC
@@ -73,7 +80,7 @@
     lesenseClkLF,             /* Use the LF clock for excitation timing. */ \
     lesenseClkLF,             /* Use the LF clock for sample timing. */ \
     0x00U,                    /* Excitation time is set to 0 excitation clock cycles. */ \
-    127,                    /* Sample delay is set to 127(+1) sample clock cycles. */ \
+    CAP_SAMPLE_LENGTH,       /* Sample delay is set to (+1) sample clock cycles. */ \
     0x00U,                    /* Measure delay is set to 0 excitation clock cycles.*/ \
     LESENSE_ACMP_CAP_VDD_SCALE,   /* ACMP threshold has been set to LESENSE_ACMP_VDD_SCALE. */ \
     lesenseSampleModeCounter, /* Counter will be used in comparison. */ \
@@ -96,7 +103,7 @@
     lesenseClkLF,             /* Use the LF clock for excitation timing. */ \
     lesenseClkLF,             /* Use the LF clock for sample timing. */ \
     0x00U,                    /* Excitation time is set to 0 excitation clock cycles. */ \
-    127,                    /* Sample delay is set to 1(+1) sample clock cycles. */ \
+    PULSE_SAMPLE_LENGTH,      /* Sample delay is set to (+1) sample clock cycles. */ \
     0x00U,                    /* Measure delay is set to 0 excitation clock cycles.*/ \
     LESENSE_ACMP_PULSE_VDD_SCALE,   /* ACMP threshold */ \
     lesenseSampleModeACMP, /* Counter will be used in comparison. */ \

@@ -14,8 +14,9 @@
     #include "circbuf_tiny.h"
 #endif
 
-/* Most of this code lifted from the Cap sense touch demo, modified for
-    a single touch event - wake up */
+/* Most of the initialization code for LESENSE/ACMP lifted from the Cap sense
+   touch demo, modified for
+    a single touch event, pulse sensor - wake up */
 
 /******************************************************************************
  * License
@@ -28,7 +29,7 @@
  *
  ******************************************************************************/
 
-static uint32_t channel_results[LSENSE_TOTAL_CHANNELS] = {0};
+static uint32_t channel_results[LESENSE_TOTAL_CHANNELS] = {0};
 
 static uint8_t pulse_duration_count=0;
 static uint8_t pulse_last_time=0;
@@ -48,7 +49,7 @@ void LESENSE_First() {
     CMU_ClockEnable(cmuClock_LESENSE, true);
     CMU_ClockDivSet(cmuClock_LESENSE, cmuClkDiv_1);
 
-//ACMP0 - external capacitance sensor, and pulse sensor
+    //ACMP0 - external capacitance sensor, and pulse sensor
 
     //Port C1, input external capacitance sensor
     GPIO_PinModeSet(CAP_ACMP_EXTERNAL_PORT, CAP_ACMP_EXTERNAL_PIN, gpioModeInputPull, 0);
@@ -79,8 +80,7 @@ void LESENSE_First() {
 
     ACMP_Init(ACMP0, &initACMP);
 
-    //ACMP negSel
-    //I think since lesenseACMPModeMuxThres is set, +Sel is set by LESENSE
+    //ACMP negSel, since lesenseACMPModeMuxThres is set, posSel is set by LESENSE
     ACMP_ChannelSet(ACMP0, acmpChannelVDD, acmpChannel1);
 
     //Actual LESENSE set
@@ -104,7 +104,7 @@ void LESENSE_First() {
 
         .timeCtrl         =
         { 
-            .startDelay     =          0U
+            .startDelay   = 0U
         },
 
         .perCtrl          =
@@ -115,7 +115,7 @@ void LESENSE_First() {
             .dacCh1Data     = lesenseACMPThres,
             .dacCh1ConvMode = lesenseDACConvModeDisable,
             .dacCh1OutMode  = lesenseDACOutModeDisable,
-            .dacPresc       =                        0U,
+            .dacPresc       = 0U,
             .dacRef         = lesenseDACRefBandGap,
             .acmp0Mode      = lesenseACMPModeMuxThres, //Using ACMP0
             .acmp1Mode      = lesenseACMPModeDisable,
@@ -150,8 +150,8 @@ void LESENSE_Setup() {
     while (LESENSE_STATUS_SCANACTIVE & LESENSE_StatusGet());
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
     LESENSE_ResultBufferClear();
-    LESENSE_ScanFreqSet(0U, 64U);
-    LESENSE_ClkDivSet(lesenseClkLF, lesenseClkDiv_2);
+    LESENSE_ScanFreqSet(0U, LESENSE_SCAN_PERIOD);
+    LESENSE_ClkDivSet(lesenseClkLF, LESENSE_CLK_DIV);
 
     //Scan pins, configure
     static const LESENSE_ChAll_TypeDef initChsSense = {
@@ -181,6 +181,7 @@ void LESENSE_Setup() {
 
     //This should set up channel interrupts
     LESENSE_ChannelAllConfig(&initChsSense);
+
 #if 0
 CORE_CriticalDisableIrq();
     LESENSE_IntClear(LESENSE_IEN_SCANCOMPLETE);
@@ -191,7 +192,7 @@ CORE_CriticalEnableIrq();
     NVIC_EnableIRQ(LESENSE_IRQn);
 
 #if 0
-    for (int i=0;i<LSENSE_TOTAL_CHANNELS;i++) {
+    for (int i=0;i<LESENSE_TOTAL_CHANNELS;i++) {
     LESENSE->BUF[i].DATA=0xff+i;
     }
     LESENSE_ResultBufferClear();
@@ -242,20 +243,34 @@ CORE_CriticalDisableIrq();
     { 
         LESENSE_IntClear(LESENSE_IF_SCANCOMPLETE);
 
-        for (int i=0; i<LSENSE_TOTAL_CHANNELS;i++) {
+        for (int i=0; i<LESENSE_TOTAL_CHANNELS;i++) {
             channel_results[i] = LESENSE_ScanResultDataGet();
         }
 
           if (channel_results[1]) {
                 pulse_duration_count++;
-                if (pulse_duration_count == 5) {
+
+                /* Unless the high signal from the pulse sensor is
+                              PULSE_DURATION_COUNT = 5
+                              PULSE_SAMPLE_LENGTH  = 127
+
+                    (1 / (32768/2) * 127) = 7.75mS * 5 = 38.76mS
+                    don't count it as a pulse
+                */             
+                if (pulse_duration_count == PULSE_DURATION_COUNT) {
                     pulse_read_time=RTC->CNT;
 
-                    //Skip measuring if this is the first consecutive beat
-                    // within 2 second RTC window.
-                    if (pulse_read_time > SLOWEST_HEARTBEAT) {
+                    /* Skip measuring if this is the first consecutive beat
+                        within 2 second RTC window, in which case the stopped
+                        timer will read RTC->CNT=0
+
+                        Also, if the RTC timer has been started, skip if the
+                        measurement is out of the range of a human heartbeat.
+                        This will filter out some noise from the sensor
+                    */
+                    if ( pulse_read_time > FASTEST_HEARTBEAT && 
+                        pulse_read_time < SLOWEST_HEARTBEAT) {
                         pulse_measure= RTC_TICKS_PER_SECOND * 60 / pulse_read_time;    
-                        //led1_toggle();
                         #ifdef SEND_EXTERNAL_NOTIFICATIONS
                             //enqueue pulse message
                             s_message *m = s_message_new(S_PULSE);
