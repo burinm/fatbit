@@ -23,6 +23,16 @@
 #define ENERGY_EXPENDED_FIELD_PRESENT                                       (0x1 << 3)
 #define RR_INTERVAL_VALUE_PRESENT                                           (0x1 << 4)
 
+//GPIO
+#define LED_GPIO        LED0_GPIO
+#define LED_PINMUX      MUX_LP_GPIO_22_GPIO
+#define BUZZER_GPIO     EXT3_PIN_5
+#define BUZZER_GPIO_MUX MUX_LP_GPIO_20_GPIO
+
+#define GPIO_ON(x)      gpio_pin_set_output_level(x,true)
+#define GPIO_OFF(x)     gpio_pin_set_output_level(x,false)
+
+
 void ble_advertise(void);
 
 //incoming message queue, circular buffer
@@ -189,8 +199,8 @@ int main (void)
 #endif
 
     configure_gpio();
-    LED_Off(LED0);
-    //LED_On(LED0);
+    LED_Off(LED_GPIO);
+    GPIO_OFF(BUZZER_GPIO);
 
     /* UART with DMA */
     circbuf_tiny_init(&M_Q);
@@ -221,12 +231,12 @@ printf("message pulled off queue [%s], ",message->message);
                 switch(s_get_message_type(message)) {
                 case S_LED_ON:
                     printf("[Turn on LED]\n");
-                    LED_On(LED0);
+                    LED_On(LED_GPIO);
                 break;
 
                 case S_LED_OFF:
                     printf("[Turn off LED]\n");
-                    LED_Off(LED0);
+                    LED_Off(LED_GPIO);
                 break;
 
                 case S_TEMP:
@@ -376,37 +386,32 @@ static void htp_init (void)
     }
 }
 
-/* Timer callback */
+/* Timer callback - Buzzer control*/
 static void timer_callback_handler(void)
 {
-//cpu_irq_enter_critical();
-printf("Timer POP (Timer_loop_count = %d)\n\r",Timer_loop_count);
     /* Stop timer */
     hw_timer_stop();
 
-    switch(Timer_loop_count) {
-        case 0:
-        case 2:
-            LED_On(LED0);
-            break;
-        case 1:
-        case 3:
-            LED_Off(LED0);
-            break;
-    };
-
     Timer_loop_count++;
 
-    if ( Timer_loop_count < 4) {
-        /* Restart Timer */
-         int dummy=0;
-         //at_ble_event_user_defined_post((void*)&dummy);
-         hw_timer_start_ms(100);
-    } else {
-        Timer_loop_count=0;
-    }
-    
-//cpu_irq_leave_critical();
+    switch(Timer_loop_count) {
+        case 1:
+        case 3:
+            GPIO_ON(BUZZER_GPIO);
+            LED_On(LED_GPIO);
+            /* Start timer */
+            hw_timer_start_ms(200);
+            break;
+        case 2:
+        case 4:
+            GPIO_OFF(BUZZER_GPIO);
+            LED_Off(LED_GPIO);
+            /* Start timer */
+            hw_timer_start_ms(100);
+            break;
+        case 5:
+            Timer_loop_count=0;
+    };
 }
 
 void configure_gpio(void) { 
@@ -414,11 +419,15 @@ void configure_gpio(void) {
     gpio_get_config_defaults(&config_gpio);
     config_gpio.direction  = GPIO_PIN_DIR_OUTPUT;
     config_gpio.input_pull = GPIO_PIN_PULL_NONE;
-    gpio_pin_set_config(LED0_GPIO, &config_gpio);
 
-    //#define LED0_PINMUX PINMUX_LP_GPIO_22_GPIO this throws overflow warning
-    #define LED0_PINMUX MUX_LP_GPIO_22_GPIO
-    gpio_pinmux_cofiguration(LED0_GPIO,LED0_PINMUX);
+    //On Board LED
+    gpio_pin_set_config(LED_GPIO, &config_gpio);
+    gpio_pinmux_cofiguration(LED_GPIO,LED_PINMUX);
+
+    //Haptic Feedback Buzzer
+    gpio_pin_set_config(BUZZER_GPIO, &config_gpio);
+    gpio_pinmux_cofiguration(BUZZER_GPIO,BUZZER_GPIO_MUX);
+
 }
 
 
@@ -554,8 +563,8 @@ static void app_notification_handler(uint8_t notification_enable)
 /* Write notification */
 static void app_reset_handler(void)
 {
-    printf("app_reset_handler (Timer_loop_count=%d)\n\r",Timer_loop_count);
-    //This will blink LED
+    printf("app_reset_handler\n\r",Timer_loop_count);
+    //This will blink LED/BUZZ haptic
     hw_timer_start_ms(100);
 
     //TODO: do I need this?
