@@ -33,13 +33,14 @@ circbuf_tiny_t M_Q;
 void process_command_messages(void);
 
 //Leave these volatile if they are modified in interrupt routine
-volatile bool Timer_Flag = false;
+volatile bool Timer_Count = 0;
 volatile bool Sunlight_Notification_Flag = false;
 volatile bool HeartRate_Notification_Flag = false;
 
 static void htp_temperature_send(float);
 static void htp_sunlight_send(float);
 static void hr_measurment_send(uint8_t rate);
+static void hr_measurment_reset();
 
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params);
 static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params);
@@ -119,6 +120,8 @@ at_ble_status_t app_notification_cfm_handler(void *params)
 
 
 static at_ble_status_t post_heart_rate(void *params) {
+    //hr_measurment_reset();
+     hw_timer_start(1);
 }
 
 static const ble_event_callback_t app_htpt_handle[] = {
@@ -156,9 +159,9 @@ int main (void)
     /* Initialize serial console */
     serial_console_init();
     /* Hardware timer */
-    //hw_timer_init();
+    hw_timer_init();
     /* Register the callback */
-    //hw_timer_register_callback(timer_callback_handler);
+    hw_timer_register_callback(timer_callback_handler);
     /* Start timer */
     //hw_timer_start(1);
 
@@ -185,7 +188,7 @@ int main (void)
 
     configure_gpio();
     LED_Off(LED0);
-    LED_On(LED0);
+    //LED_On(LED0);
 
     /* UART with DMA */
     circbuf_tiny_init(&M_Q);
@@ -376,10 +379,29 @@ static void timer_callback_handler(void)
 {
     /* Stop timer */
     hw_timer_stop();
-    /* Set timer Alarm flag */
-    Timer_Flag = true;
-    /* Restart Timer */
-    hw_timer_start(1);
+
+    switch(Timer_Count) {
+        case 0:
+        case 2:
+            LED_On(LED0);
+            break;
+        case 1:
+        case 3:
+            LED_Off(LED0);
+            break;
+    };
+
+    Timer_Count++;
+
+    if ( Timer_Count < 4) {
+        /* Restart Timer */
+        //hw_timer_start(1);
+         int dummy=0;
+         at_ble_event_user_defined_post((void*)&dummy);
+    } else {
+        Timer_Count=0;
+    }
+    
 }
 
 void configure_gpio(void) { 
@@ -466,6 +488,21 @@ static void hr_measurment_send(uint8_t rate)
     hr_sensor_send_notification(hr_data, 6);
 }
 
+static void hr_measurment_reset()
+{
+    uint8_t hr_data[HR_CHAR_VALUE_LEN];
+    memset(hr_data,0,HR_CHAR_VALUE_LEN);
+
+    hr_data[0] = RR_INTERVAL_VALUE_PRESENT | ENERGY_EXPENDED_FIELD_PRESENT; //flags
+    hr_data[1] = 0; 
+    hr_data[2] = 0; hr_data[3] = 0;         //Energy expended
+    hr_data[2] = 0; hr_data[3] = 0;         //RR value 1
+    hr_data[4] = 0; hr_data[5] = 0;         //RR value 2
+    
+  /* Sending the data for notifications*/
+    hr_sensor_send_notification(hr_data, 8);
+}
+
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params)
 {
     at_ble_htpt_cfg_indntf_ind_t htpt_cfg_indntf_ind_params;
@@ -513,4 +550,9 @@ static void app_notification_handler(uint8_t notification_enable)
 static void app_reset_handler(void)
 {
     printf("app_reset_handler\n\r");
+    //This will blink LED
+    hw_timer_start(1);
+
+    //TODO: do I need this?
+    hr_measurment_reset();
 }
