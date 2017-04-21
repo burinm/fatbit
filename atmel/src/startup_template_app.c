@@ -33,7 +33,7 @@ circbuf_tiny_t M_Q;
 void process_command_messages(void);
 
 //Leave these volatile if they are modified in interrupt routine
-volatile bool Timer_Count = 0;
+static volatile uint8_t Timer_loop_count = 0;
 volatile bool Sunlight_Notification_Flag = false;
 volatile bool HeartRate_Notification_Flag = false;
 
@@ -48,6 +48,7 @@ static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params);
 static void app_reset_handler(void);
 static void app_notification_handler(uint8_t notification_enable);
 
+void hw_timer_start_ms(uint32_t delay);
 static void timer_callback_handler(void);
 static void htp_init(void);
 
@@ -121,7 +122,8 @@ at_ble_status_t app_notification_cfm_handler(void *params)
 
 static at_ble_status_t post_heart_rate(void *params) {
     //hr_measurment_reset();
-     hw_timer_start(1);
+    printf("Restart timer post (Timer_loop_count=%d)\n\r",Timer_loop_count);
+    hw_timer_start_ms(100);
 }
 
 static const ble_event_callback_t app_htpt_handle[] = {
@@ -163,7 +165,7 @@ int main (void)
     /* Register the callback */
     hw_timer_register_callback(timer_callback_handler);
     /* Start timer */
-    //hw_timer_start(1);
+    //hw_timer_start_ms(100);
 
     printf("\n\rSAMB11 BLE Application");
     /* initialize the BLE chip and Set the Device Address */
@@ -377,10 +379,12 @@ static void htp_init (void)
 /* Timer callback */
 static void timer_callback_handler(void)
 {
+//cpu_irq_enter_critical();
+printf("Timer POP (Timer_loop_count = %d)\n\r",Timer_loop_count);
     /* Stop timer */
     hw_timer_stop();
 
-    switch(Timer_Count) {
+    switch(Timer_loop_count) {
         case 0:
         case 2:
             LED_On(LED0);
@@ -391,17 +395,18 @@ static void timer_callback_handler(void)
             break;
     };
 
-    Timer_Count++;
+    Timer_loop_count++;
 
-    if ( Timer_Count < 4) {
+    if ( Timer_loop_count < 4) {
         /* Restart Timer */
-        //hw_timer_start(1);
          int dummy=0;
-         at_ble_event_user_defined_post((void*)&dummy);
+         //at_ble_event_user_defined_post((void*)&dummy);
+         hw_timer_start_ms(100);
     } else {
-        Timer_Count=0;
+        Timer_loop_count=0;
     }
     
+//cpu_irq_leave_critical();
 }
 
 void configure_gpio(void) { 
@@ -549,10 +554,20 @@ static void app_notification_handler(uint8_t notification_enable)
 /* Write notification */
 static void app_reset_handler(void)
 {
-    printf("app_reset_handler\n\r");
+    printf("app_reset_handler (Timer_loop_count=%d)\n\r",Timer_loop_count);
     //This will blink LED
-    hw_timer_start(1);
+    hw_timer_start_ms(100);
 
     //TODO: do I need this?
-    hr_measurment_reset();
+    //hr_measurment_reset();
+}
+
+void hw_timer_start_ms(uint32_t delay)
+{       
+    if(delay <= 0) {
+        delay = 1;
+    }
+
+    dualtimer_set_counter(DUALTIMER_TIMER1,DUALTIMER_SET_CURRUNT_REG,26000*delay);
+    dualtimer_enable(DUALTIMER_TIMER1);
 }
