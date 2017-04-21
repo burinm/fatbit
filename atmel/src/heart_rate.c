@@ -61,7 +61,7 @@
 uint16_t hr_measurement_value = 0;
 
 /** initial body sensor location value */
-uint8_t body_sensor_location_value = CHEST;
+uint8_t body_sensor_location_value = WRIST;
 
 /** initial heart rate control point value */
 uint8_t hr_control_point_value = 0;
@@ -80,7 +80,7 @@ uint8_t hr_control_point_value = 0;
 void hr_init_service(hr_gatt_service_handler_t *heart_rate_serv)
 {
 	hr_measurement_value = 0;
-	body_sensor_location_value = CHEST;
+	body_sensor_location_value = WRIST;
 	hr_control_point_value = 0;
 
 	heart_rate_serv->serv_handle = 0;

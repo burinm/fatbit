@@ -337,12 +337,14 @@ void hr_sensor_service_define(void)
 		DBG_LOG_DEV("hr service defined succesfully");
 	} 
 	
+#if 0
 	if ((status = dis_primary_service_define(&dis_service_handler)) !=
 			AT_BLE_SUCCESS) {
 		DBG_LOG("Dis Service definition failed,reason: %x", status);
 	} else {
 		DBG_LOG_DEV("dis service defined succesfully");
 	}
+#endif
 }
 
 /**
