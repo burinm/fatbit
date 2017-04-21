@@ -2,7 +2,7 @@
 
 ATMEL_ASF_SDK=/home/burin/xdk-asf-3.32.0
 
-find . -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile > cscope.files
+find . -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile  | grep -v "BLEDEBUG" > cscope.files
 find ${ATMEL_ASF_SDK}/common2/components/memory/eeprom/at30tse75x -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile >> cscope.files
 find ${ATMEL_ASF_SDK}/sam0/drivers/i2c -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile >> cscope.files
 find ${ATMEL_ASF_SDK}/common/utils/interrupt -iname "*.h" -or -iname "*.c" -or -iname "*.s" -or -name Makfile >> cscope.files

@@ -60,6 +60,9 @@
 #include "hr_sensor.h"
 #include "ble_utils.h"
 
+//TODO: put this in a global header file
+extern void ble_advertise (void);
+
 /****************************************************************************************
 *							        Globals		
 *                                       *
@@ -257,6 +260,8 @@ at_ble_status_t hr_sensor_char_changed_handler(
 at_ble_status_t hr_sensor_disconnect_event_handler(
 		void *disconnect)
 {
+   ble_advertise();
+    printf("AT_BLE_DISCONNECTED callback\n\r");
 	ALL_UNUSED(disconnect);   
 	return AT_BLE_SUCCESS;
 }
@@ -269,6 +274,7 @@ at_ble_status_t hr_sensor_disconnect_event_handler(
 at_ble_status_t hr_sensor_connected_state_handler(
 							void *params)
 {
+    printf("AT_BLE_CONNECTED callback\n\r");
 	at_ble_connected_t conn_params;
 	memcpy(&conn_params,params,sizeof(at_ble_connected_t));
 	connection_handle = (at_ble_handle_t)conn_params.handle;

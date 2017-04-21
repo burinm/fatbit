@@ -23,6 +23,8 @@
 #define ENERGY_EXPENDED_FIELD_PRESENT                                       (0x1 << 3)
 #define RR_INTERVAL_VALUE_PRESENT                                           (0x1 << 4)
 
+void ble_advertise(void);
+
 //incoming message queue, circular buffer
 //Needs critical protection
 circbuf_tiny_t M_Q;
@@ -46,7 +48,6 @@ static void app_reset_handler(void);
 static void app_notification_handler(uint8_t notification_enable);
 
 static void timer_callback_handler(void);
-static void ble_advertise(void);
 static void htp_init(void);
 
 //GAP callbacks
@@ -63,30 +64,6 @@ at_ble_handle_t htpt_conn_handle;
 static at_ble_status_t post_heart_rate(void *params);
 
 at_ble_status_t app_notification_cfm_handler(void *params);
-
-#if 0
-static const ble_event_callback_t app_gap_handle[] = {
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    hr_sensor_connected_state_handler,
-    hr_sensor_disconnect_event_handler,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
-#endif
 
 static const ble_event_callback_t app_gap_handle[] = {
     NULL, // AT_BLE_UNDEFINED_EVENT
@@ -281,7 +258,7 @@ printf("message pulled off queue [%s], ",message->message);
         }
 }
 
-static void ble_advertise (void)
+void ble_advertise (void)
 {
     printf("\nAssignment 2.1 : Start Advertising");
     status = ble_advertisement_data_set();
