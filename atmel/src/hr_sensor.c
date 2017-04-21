@@ -60,10 +60,6 @@
 #include "hr_sensor.h"
 #include "ble_utils.h"
 
-#define DBG_LOG          printf("\r\n");\
-                         printf
-#define DBG_LOG_PTS      DBG_LOG
-
 /****************************************************************************************
 *							        Globals		
 *                                       *
@@ -360,11 +356,12 @@ void hr_sensor_service_init(void)
  */
 void hr_sensor_init(void *param)
 {
-	at_ble_status_t status;
+	//at_ble_status_t status;
 
 	hr_sensor_service_init();
 	hr_sensor_service_define();
 	
+#if 0
 	ble_mgr_events_callback_handler(REGISTER_CALL_BACK,
 	BLE_GAP_EVENT_TYPE,
 	hr_sensor_gap_handle);
@@ -376,6 +373,7 @@ void hr_sensor_init(void *param)
 	if (status != AT_BLE_SUCCESS) {
 		DBG_LOG("Advertisement data set failed reason %d",status);
 	}	
+#endif
 	
 	/* Handles received */
 	DBG_LOG_PTS("\n\nThe handle for heart rate service 0x%04x",
