@@ -274,7 +274,7 @@ at_ble_status_t hr_sensor_disconnect_event_handler(
 at_ble_status_t hr_sensor_connected_state_handler(
 							void *params)
 {
-    printf("AT_BLE_CONNECTED callback\n\r");
+    printf("\n\rAT_BLE_CONNECTED callback\n\r");
 	at_ble_connected_t conn_params;
 	memcpy(&conn_params,params,sizeof(at_ble_connected_t));
 	connection_handle = (at_ble_handle_t)conn_params.handle;

@@ -47,10 +47,10 @@ static volatile uint8_t Timer_loop_count = 0;
 volatile bool Sunlight_Notification_Flag = false;
 volatile bool HeartRate_Notification_Flag = false;
 
-static void htp_temperature_send(float);
+//static void htp_temperature_send(float);
 static void htp_sunlight_send(float);
 static void hr_measurment_send(uint8_t rate);
-static void hr_measurment_reset();
+//static void hr_measurment_reset(void);
 
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params);
 static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params);
@@ -84,7 +84,7 @@ static const ble_event_callback_t app_gap_handle[] = {
     NULL, // AT_BLE_ADV_REPORT
     NULL, // AT_BLE_RAND_ADDR_CHANGED
     hr_sensor_connected_state_handler, // AT_BLE_CONNECTED
-    hr_sensor_disconnect_event_handler, // AT_BLE_DISCONNECTED
+    ble_disconnected_cb, // AT_BLE_DISCONNECTED
     NULL, // AT_BLE_CONN_PARAM_UPDATE_DONE
     NULL, // AT_BLE_CONN_PARAM_UPDATE_REQUEST
     ble_paired_cb, // AT_BLE_PAIR_DONE
@@ -131,9 +131,9 @@ at_ble_status_t app_notification_cfm_handler(void *params)
 
 
 static at_ble_status_t post_heart_rate(void *params) {
-    //hr_measurment_reset();
     printf("Restart timer post (Timer_loop_count=%d)\n\r",Timer_loop_count);
     hw_timer_start_ms(100);
+    return AT_BLE_SUCCESS;
 }
 
 static const ble_event_callback_t app_htpt_handle[] = {
@@ -174,12 +174,11 @@ int main (void)
     hw_timer_init();
     /* Register the callback */
     hw_timer_register_callback(timer_callback_handler);
-    /* Start timer */
-    //hw_timer_start_ms(100);
 
     printf("\n\rSAMB11 BLE Application");
     /* initialize the BLE chip and Set the Device Address */
     ble_device_init(NULL);
+    printf("\n\r");
     
     /* Initialize the temperature service */
     htp_init();
@@ -217,7 +216,6 @@ int main (void)
 }
 
 void process_command_messages() {
-        printf("?");
         //Check for incoming messages
         s_message *message=NULL;
         uint8_t is_entry;
@@ -275,7 +273,7 @@ printf("message pulled off queue [%s], ",message->message);
 
 void ble_advertise (void)
 {
-    printf("\nAssignment 2.1 : Start Advertising");
+    printf("Start Advertising (initial)\n\r");
     status = ble_advertisement_data_set();
     if(status != AT_BLE_SUCCESS)
     {
@@ -301,9 +299,10 @@ void ble_advertise (void)
 static at_ble_status_t ble_paired_cb (void *param)
 {
     at_ble_pair_done_t *pair_params = param;
-    printf("\nAssignment 3.2: Application paired ");
+    printf("\n\rApplication paired\n\r");
+
     /* Enable the HTP Profile */
-    printf("\nAssignment 4.1: enable health temperature service ");
+    printf("Enable health temperature service\n\r");
     status = at_ble_htpt_enable(pair_params->handle,
     HTPT_CFG_INTERM_MEAS_NTF);
     if(status != AT_BLE_SUCCESS){
@@ -318,15 +317,14 @@ static at_ble_status_t ble_paired_cb (void *param)
 /* Callback registered for AT_BLE_DISCONNECTED event */
 static at_ble_status_t ble_disconnected_cb (void *param)
 {
-    printf("\nAssignment 3.2: Application disconnected ");
+    printf("\n\rAT_BLE_DISCONNECTED\n\r");
     ble_advertise();
-    ALL_UNUSED(param);return AT_BLE_SUCCESS;
+    return AT_BLE_SUCCESS;
 }
 
 /* Register GAP callbacks at BLE manager level*/
 static void register_ble_callbacks (void)
 {
-
     status = ble_mgr_events_callback_handler(REGISTER_CALL_BACK,
     BLE_GAP_EVENT_TYPE,
     app_gap_handle);
@@ -369,7 +367,7 @@ static void register_ble_callbacks (void)
 
 static void htp_init (void)
 {
-    printf("\nAssignment 4.1: Init Health temperature service ");
+    printf("Init Health temperature service\n\r");
     /* Create htp service in GATT database*/
     status = at_ble_htpt_create_db(
     HTPT_TEMP_TYPE_CHAR_SUP,
@@ -432,6 +430,7 @@ void configure_gpio(void) {
 
 
 /* Send the temperature value */
+#if 0
 static void htp_temperature_send(float temperature)
 {
     at_ble_prf_date_time_t timestamp;
@@ -464,6 +463,7 @@ static void htp_temperature_send(float temperature)
         #endif
     }
 }
+#endif
 
 /* Send the sunlight value */
 static void htp_sunlight_send(float sun)
@@ -502,6 +502,7 @@ static void hr_measurment_send(uint8_t rate)
     hr_sensor_send_notification(hr_data, 6);
 }
 
+#if 0
 static void hr_measurment_reset()
 {
     uint8_t hr_data[HR_CHAR_VALUE_LEN];
@@ -516,6 +517,7 @@ static void hr_measurment_reset()
   /* Sending the data for notifications*/
     hr_sensor_send_notification(hr_data, 8);
 }
+#endif
 
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params)
 {
@@ -523,11 +525,11 @@ static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params)
     memcpy((uint8_t *)&htpt_cfg_indntf_ind_params, params,
     sizeof(at_ble_htpt_cfg_indntf_ind_t));
     if (htpt_cfg_indntf_ind_params.ntf_ind_cfg == 0x03) {
-        printf("Started Sunlight Notification");
+        printf("Started Sunlight Notification\n\r");
         Sunlight_Notification_Flag = true;
     }
     else {
-        printf("Sunlight Notification Stopped");
+        printf("Sunlight Notification Stopped\n\r");
         Sunlight_Notification_Flag = false;
     }
     return AT_BLE_SUCCESS;
@@ -554,16 +556,16 @@ static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params)
 static void app_notification_handler(uint8_t notification_enable)
 {
     if (notification_enable == true) {
-        printf("app_notification_handler (true)\n\r");
+        printf("Heart Rate notification (true)\n\r");
     } else {
-        printf("app_notification_handler (false)\n\r");
+        printf("Heart Rate notification (false)\n\r");
     }
 }
 
 /* Write notification */
 static void app_reset_handler(void)
 {
-    printf("app_reset_handler\n\r",Timer_loop_count);
+    printf("app_reset_handler\n\r");
     //This will blink LED/BUZZ haptic
     hw_timer_start_ms(100);
 
