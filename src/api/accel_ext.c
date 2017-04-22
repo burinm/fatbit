@@ -122,7 +122,6 @@ CORE_CriticalDisableIrq();
 
     intFlags = GPIO_IntGet();
     GPIO_IntClear(1<<ACCEL_SENSOR_INT_PORT_NUM);
-    led0_toggle();
 
     if ( intFlags & (1<<ACCEL_SENSOR_INT_PORT_NUM) ) {
         int_src = mma8452q_read_register(MMA8452Q_REG_INT_SOURCE);

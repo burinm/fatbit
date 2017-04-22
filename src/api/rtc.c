@@ -33,8 +33,6 @@ CORE_CriticalDisableIrq();
         // This would be a pulse 30 BPM - so stop timer
         pulse_measure=0;
         RTC_Enable(false);
-        
-
     }
   
 CORE_CriticalEnableIrq();
