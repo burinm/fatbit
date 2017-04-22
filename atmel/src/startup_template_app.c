@@ -53,7 +53,6 @@ static void hr_measurment_send(uint8_t rate);
 //static void hr_measurment_reset(void);
 
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params);
-static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params);
 
 static void app_reset_handler(void);
 static void app_notification_handler(uint8_t notification_enable);
@@ -148,22 +147,6 @@ static const ble_event_callback_t app_htpt_handle[] = {
     NULL // AT_BLE_HTPT_MEAS_INTV_CHG_REQ
 };
 
-#if 0
-static const ble_event_callback_t app_hr_handle[] = {
-    NULL, // AT_BLE_HTPT_CREATE_DB_CFM
-    NULL, // AT_BLE_HTPT_ERROR_IND
-    NULL, // AT_BLE_HTPT_DISABLE_IND
-    NULL, // AT_BLE_HTPT_TEMP_SEND_CFM
-    NULL, // AT_BLE_HTPT_MEAS_INTV_CHG_IND
-    app_hr_cfg_indntf_ind_handler, // AT_BLE_HTPT_CFG_INDNTF_IND
-    NULL, // AT_BLE_HTPT_ENABLE_RSP
-    NULL, // AT_BLE_HTPT_MEAS_INTV_UPD_RSP
-    NULL // AT_BLE_HTPT_MEAS_INTV_CHG_REQ
-};
-#endif
-
-
-
 int main (void)
 {
 
@@ -246,12 +229,20 @@ printf("message pulled off queue [%s], ",message->message);
 
                 case S_SUN:
                     printf("[Sunlight Level]\n");
-                    htp_sunlight_send(s_message_get_value(message));
+                    if (Sunlight_Notification_Flag) {
+                        htp_sunlight_send(s_message_get_value(message));
+                    } else {
+                        printf("(sun discarded)\n");
+                    }
                 break;
 
                 case S_PULSE:
                     printf("[Pulse Rate]\n");
-                    hr_measurment_send(s_message_get_value(message));
+                    if (HeartRate_Notification_Flag) {
+                        hr_measurment_send(s_message_get_value(message));
+                    } else {
+                        printf("(hr discarded)\n");
+                    }
                 break;
 
                 case S_NONE:
@@ -537,32 +528,15 @@ static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params)
     return AT_BLE_SUCCESS;
 }
 
-#if 0
-//Heart rate service start/stop callback 
-static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params)
-{
-    at_ble_htpt_cfg_indntf_ind_t htpt_cfg_indntf_ind_params;
-    memcpy((uint8_t *)&htpt_cfg_indntf_ind_params, params,
-    sizeof(at_ble_htpt_cfg_indntf_ind_t));
-    if (htpt_cfg_indntf_ind_params.ntf_ind_cfg == 0x03) {
-        printf("Started HTP Heart Rate Notification");
-        HeartRate_Notification_Flag = true;
-    }
-    else {
-        printf("HTP Heart Rate Notification Stopped");
-        HeartRate_Notification_Flag = false;
-    }
-    return AT_BLE_SUCCESS;
-}
-#endif
-
 // Heart Rate notification callback
 static void app_notification_handler(uint8_t notification_enable)
 {
     if (notification_enable == true) {
         printf("Heart Rate notification (true)\n\r");
+        HeartRate_Notification_Flag = true;
     } else {
         printf("Heart Rate notification (false)\n\r");
+        HeartRate_Notification_Flag = false;
     }
 }
 
