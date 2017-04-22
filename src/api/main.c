@@ -13,6 +13,10 @@
 #include "light_sensor_ext.h"
 #include "leuart.h"
 
+#ifdef LCD_MESSAGES
+    #include "segmentlcd.h"
+#endif
+
     #include "em_leuart.h"
 #include "debug.h"
 
@@ -74,6 +78,12 @@ clock_defaults();
 
     LED0_setup();
     led0_off();
+
+#ifdef LCD_MESSAGES
+    SegmentLCD_Init(false);
+    SegmentLCD_Write("FAT BIT"); 
+    //SegmentLCD_Disable();
+#endif
 
 
 #ifdef SEND_EXTERNAL_NOTIFICATIONS

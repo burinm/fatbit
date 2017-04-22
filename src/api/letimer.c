@@ -36,6 +36,11 @@
 
 #include "debug.h"
 
+#ifdef LCD_MESSAGES
+    #include "segmentlcd.h"
+    uint8_t lcd_keep_on=0;
+#endif
+
 uint16_t le_send_message_ticks;
 uint16_t le_regular_on_ticks;
 static uint8_t le_is_message_send_interrupt=0;
@@ -294,6 +299,14 @@ CORE_CriticalDisableIrq();
 #endif
 
     }
+
+    #ifdef LCD_MESSAGES
+        lcd_keep_on--;
+        if (!lcd_keep_on) {
+            SegmentLCD_AllOff();
+        }
+    #endif
+
 
 CORE_CriticalEnableIrq();
 }

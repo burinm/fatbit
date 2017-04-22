@@ -391,6 +391,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/ecen5023/atmel/src/s_message.h</locationURI>
 		</link>
 		<link>
+			<name>src/segmentlcd.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/opt/Gecko_SDK-5.0.0/hardware/kit/common/drivers/segmentlcd.c</locationURI>
+		</link>
+		<link>
 			<name>src/sleep.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/api/sleep.c</locationURI>

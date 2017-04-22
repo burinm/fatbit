@@ -7,6 +7,11 @@
 #include "rtc.h"
 #include "em_rtc.h"
 
+#ifdef LCD_MESSAGES
+    #include "letimer.h"
+    #include "segmentlcd.h"
+#endif
+
 #include "caplesense.h"
 
 #ifdef SEND_EXTERNAL_NOTIFICATIONS
@@ -257,6 +262,10 @@ CORE_CriticalDisableIrq();
                     (1 / (32768/2) * 127) = 7.75mS * 5 = 38.76mS
                     don't count it as a pulse
                 */             
+                #ifdef LCD_MESSAGES
+                    SegmentLCD_ARing(pulse_duration_count & 7,1);
+                #endif
+
                 if (pulse_duration_count == PULSE_DURATION_COUNT) {
                     pulse_read_time=RTC->CNT;
 
@@ -271,6 +280,13 @@ CORE_CriticalDisableIrq();
                     if ( pulse_read_time > FASTEST_HEARTBEAT && 
                         pulse_read_time < SLOWEST_HEARTBEAT) {
                         pulse_measure= RTC_TICKS_PER_SECOND * 60 / pulse_read_time;    
+
+                        #ifdef LCD_MESSAGES
+                            lcd_keep_on=3;
+                                SegmentLCD_Number(pulse_measure);
+                                SegmentLCD_EnergyMode(0,1);
+                        #endif
+
                         #ifdef SEND_EXTERNAL_NOTIFICATIONS
                             //enqueue pulse message
                             s_message *m = s_message_new(S_PULSE);
@@ -284,6 +300,12 @@ CORE_CriticalDisableIrq();
                     RTC_Enable(true);
                 }
           } else {
+                    #ifdef LCD_MESSAGES
+                        for (int j=0;j<8;j++) {
+                            SegmentLCD_ARing(j,0);
+                        }
+                        SegmentLCD_EnergyMode(0,0);
+                    #endif
                 pulse_duration_count=0;
                 LESENSE_IntDisable(LESENSE_IEN_SCANCOMPLETE);
          }

@@ -31,6 +31,9 @@
 // Enable/Disable sending serial messages about status
 #define SEND_EXTERNAL_NOTIFICATIONS
 
+// Enable LCD messages
+#define LCD_MESSAGES
+
 /*
   See letimer.h
     To set Samping time period                  LE_PERIOD_SECONDS

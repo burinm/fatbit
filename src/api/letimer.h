@@ -7,6 +7,10 @@ extern uint16_t ulfrco_ticks;
 extern uint16_t le_send_message_ticks;
 extern uint16_t le_regular_on_ticks;
 
+#ifdef LCD_MESSAGES
+    extern uint8_t lcd_keep_on;
+#endif
+
 #define LETIMER_ULFRCO_TICK_S  1000 
 #define LETIMER_LFXO_TICK_S   32768
 
