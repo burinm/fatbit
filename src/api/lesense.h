@@ -24,6 +24,8 @@
 
 #define PULSE_DURATION_COUNT            5
 
+#define PULSE_MAX_VARIANCE              20 // +/- 20BPM
+
 //Capacitance sensor
 #define CAP_ACMP_EXTERNAL_PORT          gpioPortC
 #define CAP_ACMP_EXTERNAL_PIN           1

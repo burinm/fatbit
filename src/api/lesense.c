@@ -281,18 +281,30 @@ CORE_CriticalDisableIrq();
                         pulse_read_time < SLOWEST_HEARTBEAT) {
                         pulse_measure= RTC_TICKS_PER_SECOND * 60 / pulse_read_time;    
 
-                        #ifdef LCD_MESSAGES
-                            lcd_keep_on=3;
-                                SegmentLCD_Number(pulse_measure);
-                                SegmentLCD_EnergyMode(0,1);
-                        #endif
+                        /* One last check, if the pulse varied by more than
+                            PULSE_MAX_VARIANCE, then throw out the result
+                        */
 
-                        #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                            //enqueue pulse message
-                            s_message *m = s_message_new(S_PULSE);
-                            s_message_set_value(m,pulse_measure);
-                            circbuf_tiny_write(&O_Q, (uint32_t*)m);
-                        #endif
+                        if ( pulse_measure < (pulse_last_time + PULSE_MAX_VARIANCE) &&
+                             pulse_measure > (pulse_last_time - PULSE_MAX_VARIANCE)) {
+                            /*
+                                For those playing along at home, it takes three
+                                successful pulses to get into here
+                            */
+                            #ifdef LCD_MESSAGES
+                                lcd_keep_on=3;
+                                    SegmentLCD_Number(pulse_measure);
+                                    SegmentLCD_EnergyMode(0,1);
+                            #endif
+
+                            #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                                //enqueue pulse message
+                                s_message *m = s_message_new(S_PULSE);
+                                s_message_set_value(m,pulse_measure);
+                                circbuf_tiny_write(&O_Q, (uint32_t*)m);
+                            #endif
+                        }
+                        pulse_last_time = pulse_measure;
 
                     }
                     //End of pulse - start timer
