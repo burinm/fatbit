@@ -86,6 +86,7 @@ bool notification_confirm = true;
 /** @brief contains the connection handle functions **/
 at_ble_handle_t connection_handle;
 
+#if 0
 static const ble_event_callback_t hr_sensor_gap_handle[] = {
 	NULL,
 	NULL,
@@ -107,7 +108,9 @@ static const ble_event_callback_t hr_sensor_gap_handle[] = {
 	NULL,
 	NULL
 };
+#endif
 
+#if 0
 static const ble_event_callback_t hr_sensor_gatt_server_handle[] = {
 	hr_sensor_notification_cfm_handler,
 	NULL,
@@ -120,6 +123,7 @@ static const ble_event_callback_t hr_sensor_gatt_server_handle[] = {
 	NULL,
 	NULL
 };
+#endif
 
 /****************************************************************************************
 *							        Implementations
@@ -354,7 +358,7 @@ void hr_sensor_service_init(void)
 {
 	hr_init_service(&hr_service_handler);
 
-	dis_init_service(&dis_service_handler);
+	//dis_init_service(&dis_service_handler);
 }
 
 /** @brief hr_sensor_init initializes and defines the services of the hr profile

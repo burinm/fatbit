@@ -148,6 +148,7 @@ static const ble_event_callback_t app_htpt_handle[] = {
     NULL // AT_BLE_HTPT_MEAS_INTV_CHG_REQ
 };
 
+#if 0
 static const ble_event_callback_t app_hr_handle[] = {
     NULL, // AT_BLE_HTPT_CREATE_DB_CFM
     NULL, // AT_BLE_HTPT_ERROR_IND
@@ -159,6 +160,7 @@ static const ble_event_callback_t app_hr_handle[] = {
     NULL, // AT_BLE_HTPT_MEAS_INTV_UPD_RSP
     NULL // AT_BLE_HTPT_MEAS_INTV_CHG_REQ
 };
+#endif
 
 
 
@@ -535,6 +537,7 @@ static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params)
     return AT_BLE_SUCCESS;
 }
 
+#if 0
 //Heart rate service start/stop callback 
 static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params)
 {
@@ -551,6 +554,7 @@ static at_ble_status_t app_hr_cfg_indntf_ind_handler(void *params)
     }
     return AT_BLE_SUCCESS;
 }
+#endif
 
 // Heart Rate notification callback
 static void app_notification_handler(uint8_t notification_enable)
