@@ -305,6 +305,7 @@ CORE_CriticalDisableIrq();
         if (!lcd_keep_on) {
             SegmentLCD_AllOff();
         }
+        SegmentLCD_Symbol(LCD_SYMBOL_ANT,0);
     #endif
 
 

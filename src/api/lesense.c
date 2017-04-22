@@ -39,15 +39,6 @@ static uint32_t channel_results[LESENSE_TOTAL_CHANNELS] = {0};
 static uint8_t pulse_duration_count=0;
 static uint8_t pulse_last_time=0;
 
-
-void capSenseChTrigger(void);
-static void (*lesenseChCb)(void) = capSenseChTrigger;
-
-#ifdef PULSE_RATE_SENSOR
-    void pulseChTrigger(void);
-    static void (*lesensePulseCb)(void) = pulseChTrigger;
-#endif
-
 void LESENSE_First() {
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
     CMU_ClockEnable(cmuClock_HFLE, true);
@@ -223,17 +214,6 @@ uint16_t capsenseCalibrateVal=0;
 #endif
 }
 
-void capSenseChTrigger(void)
-{
-    led0_toggle();
-}
-
-#ifdef PULSE_RATE_SENSOR
-    void pulseChTrigger(void) {
-        LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
-    }
-#endif
-
 void LESENSE_IRQHandler(void)
 { 
 CORE_CriticalDisableIrq();
@@ -256,11 +236,12 @@ CORE_CriticalDisableIrq();
                 pulse_duration_count++;
 
                 /* Unless the high signal from the pulse sensor is
+                    38ms, don't count it as a pulse
+
                               PULSE_DURATION_COUNT = 5
                               PULSE_SAMPLE_LENGTH  = 127
 
                     (1 / (32768/2) * 127) = 7.75mS * 5 = 38.76mS
-                    don't count it as a pulse
                 */             
                 #ifdef LCD_MESSAGES
                     SegmentLCD_ARing(pulse_duration_count & 7,1);
@@ -330,24 +311,17 @@ CORE_CriticalDisableIrq();
     { 
         /* Clear flags. */
         LESENSE_IntClear(CAPLESENSE_CHANNEL_INT);
-
-        /* Call callback function. */
-        if (lesenseChCb != 0x00000000)
-        { 
-            lesenseChCb();
-        }
+        #ifdef LCD_MESSAGES
+                SegmentLCD_Symbol(LCD_SYMBOL_ANT,1);
+        #endif
     }
+
 #ifdef PULSE_RATE_SENSOR
     if (PULSE_CHANNEL_INT & lsense_ints)
     { 
         /* Clear flags. */
         LESENSE_IntClear(PULSE_CHANNEL_INT);
-
-        /* Call callback function. */
-        if (lesensePulseCb != 0x00000000)
-        { 
-            lesensePulseCb();
-        }
+        LESENSE_IntEnable(LESENSE_IEN_SCANCOMPLETE);
     }
 #endif
 

@@ -17,10 +17,10 @@
 
 #define LESENSE_TOTAL_CHANNELS          16
 #define LESENSE_SCAN_PERIOD             64U //1/64 second between scans
-#define LESENSE_CLK_DIV                 lesenseClkDiv_2 // /2
+#define LESENSE_CLK_DIV                 lesenseClkDiv_4 // /2
 
 #define CAP_SAMPLE_LENGTH               127 // 127 * (1 / (32786/2)) = 7.75mS
-#define PULSE_SAMPLE_LENGTH             127 // 127 * (1 / (32786/2)) = 7.75mS
+#define PULSE_SAMPLE_LENGTH             32 // 127 * (1 / (32786/2)) = 7.75mS
 
 #define PULSE_DURATION_COUNT            5
 
