@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define SUNLIGHT_LOW_THRESH 20 
+#define SUNLIGHT_ALERT_TIMES 3
+
 #define ADC_INPUT_PORT      gpioPortD
 #define ADC_INPUT_PORT_NUM  2
 

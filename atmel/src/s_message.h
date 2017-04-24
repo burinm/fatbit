@@ -5,7 +5,7 @@
 
 #define S_GLOBAL_IDS
 
-typedef enum { S_NONE=0, S_LED_ON, S_LED_OFF, S_TEMP, S_SUN, S_PULSE } e_sm_type; 
+typedef enum { S_NONE=0, S_LED_ON, S_LED_OFF, S_TEMP, S_SUN, S_PULSE, S_NOTIFY } e_sm_type; 
 
 #define QUEUE_LENGTH    25
 #define SOURCE_MESSAGE_LENGTH   (8)

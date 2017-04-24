@@ -90,6 +90,11 @@ void DMA_Setup() {
             s_message *m = s_message_new(S_SUN);
             s_message_set_value(m,sunlight);
             circbuf_tiny_write(&O_Q, (uint32_t*)m);
+            if (sunlight < SUNLIGHT_LOW_THRESH) {
+                m = s_message_new(S_NOTIFY);
+                s_message_set_value(m,SUNLIGHT_ALERT_TIMES);
+                circbuf_tiny_write(&O_Q, (uint32_t*)m);
+            }
     #endif
         CORE_CriticalEnableIrq();
     }

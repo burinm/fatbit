@@ -51,6 +51,7 @@ volatile bool HeartRate_Notification_Flag = false;
 static void htp_sunlight_send(float);
 static void hr_measurment_send(uint8_t rate);
 //static void hr_measurment_reset(void);
+static void buzz_start(uint8_t times);
 
 static at_ble_status_t app_htpt_cfg_indntf_ind_handler(void *params);
 
@@ -131,7 +132,7 @@ at_ble_status_t app_notification_cfm_handler(void *params)
 
 static at_ble_status_t post_heart_rate(void *params) {
     printf("Restart timer post (Timer_loop_count=%d)\n\r",Timer_loop_count);
-    hw_timer_start_ms(100);
+    buzz_start(2); 
     return AT_BLE_SUCCESS;
 }
 
@@ -243,6 +244,11 @@ printf("message pulled off queue [%s], ",message->message);
                     } else {
                         printf("(hr discarded)\n");
                     }
+                break;
+
+                case S_NOTIFY:
+                    printf("[NOTIFY ALERT]\n");
+                    buzz_start(s_message_get_value(message));
                 break;
 
                 case S_NONE:
@@ -377,32 +383,45 @@ static void htp_init (void)
     }
 }
 
+static void buzz_start(uint8_t times) {
+cpu_irq_enter_critical();
+    //Add alerts
+    Timer_loop_count += (times * 2) + 1;
+cpu_irq_leave_critical();
+
+    hw_timer_start_ms(100);
+}
+
 /* Timer callback - Buzzer control*/
 static void timer_callback_handler(void)
 {
     /* Stop timer */
     hw_timer_stop();
 
-    Timer_loop_count++;
+    if (Timer_loop_count == 1) {
+        GPIO_OFF(BUZZER_GPIO);
+        LED_Off(LED_GPIO);
+        return;
+    } 
 
-    switch(Timer_loop_count) {
-        case 1:
-        case 3:
-            GPIO_ON(BUZZER_GPIO);
-            LED_On(LED_GPIO);
-            /* Start timer */
-            hw_timer_start_ms(200);
-            break;
-        case 2:
-        case 4:
+    switch(Timer_loop_count % 2) { //Even or Odd
+        case 0:
             GPIO_OFF(BUZZER_GPIO);
             LED_Off(LED_GPIO);
             /* Start timer */
             hw_timer_start_ms(100);
             break;
-        case 5:
-            Timer_loop_count=0;
+        case 1:
+            GPIO_ON(BUZZER_GPIO);
+            LED_On(LED_GPIO);
+            /* Start timer */
+            hw_timer_start_ms(200);
+            break;
     };
+
+    if (Timer_loop_count) {
+        Timer_loop_count--;
+    }
 }
 
 void configure_gpio(void) { 
@@ -545,7 +564,7 @@ static void app_reset_handler(void)
 {
     printf("app_reset_handler\n\r");
     //This will blink LED/BUZZ haptic
-    hw_timer_start_ms(100);
+    buzz_start(2); 
 
     //TODO: do I need this?
     //hr_measurment_reset();
