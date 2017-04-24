@@ -2,7 +2,12 @@
 #include "../../../drivers/src/driver/mma8452q.h"
 #include "em_gpio.h"
 #include "em_core.h"
+#include "main.h"
 
+#ifdef LCD_MESSAGES
+    #include "segmentlcd.h"
+    #include "letimer.h"
+#endif
 
 /* Global indicates if I2C communication successfully 
     opened accelerometer device. 0=no, 1=yes
@@ -30,6 +35,26 @@ if (mma8452q_on(1) > 0) {
     return;
 }
 
+/* Setup Double Tap detection */
+    //single tap, latch on, Z axis
+mma8452q_write_register(MMA8452Q_REG_PULSE_CFG,
+    MMA8452Q_PULSE_CFG_ELE | MMA8452Q_PULSE_CFG_ZDPEFE);
+
+    //Set threshold, g force
+mma8452q_write_register(MMA8452Q_REG_PULSE_THSZ,
+    SINGTAP_SENSOR_G_THRESH_Z);
+
+    //Set length of tap
+mma8452q_write_register(MMA8452Q_REG_PULSE_TMLT,
+    SINGTAP_TIME_LIMIT);
+
+    //Set length until next tap
+mma8452q_write_register(MMA8452Q_REG_PULSE_LTCY,
+    SINGTAP_LATENCY);
+
+    //Set window until double tap
+mma8452q_write_register(MMA8452Q_REG_PULSE_WIND,
+    DOUBLETAP_WINDOW);
 
 /* Setup Motion detection */
 
@@ -39,7 +64,7 @@ mma8452q_write_register(MMA8452Q_REG_FF_MT_CFG,
 mma8452q_write_register(MMA8452Q_REG_FF_MT_THS,
     //Set debounce counter to clear on non-event, set G threshold
     (ACCEL_SENSOR_G_THRESH & MMA8452Q_FF_MT_THS_MASK) |
-    (MMA8452Q_FF_MT_THS_DBCNTM & MMA8452Q_FF_MT_THS_DBCNTM_CLEAR));
+    (MMA8452Q_FF_MT_THS_DBCNTM & MMA8452Q_FF_MT_THS_DBCNTM_DECREMENT));
 
 /* Set debounce counter */
 
@@ -54,12 +79,12 @@ mma8452q_write_register(MMA8452Q_REG_CTRL_REG3,
     //MMA8452Q_CTRL_REG3_IPOL | MMA8452Q_CTRL_REG3_PP_OD);
     MMA8452Q_CTRL_REG3_IPOL | MMA8452Q_CTRL_REG3_WAKE_FF_MT); //Active high, push pull, Freefall/Motion can wake from sleep
 
-    //Freefall/Motion interrupt on
+    //Freefall/Motion interrupt on, Pulse/Tap interrupt on
 mma8452q_write_register(MMA8452Q_REG_CTRL_REG4,
-    MMA8452Q_CTRL_REG4_INT_EN_FF_MT);
-    //Route Freefall/Motion interrupt to INT1 pin
+    MMA8452Q_CTRL_REG4_INT_EN_FF_MT | MMA8452Q_CTRL_REG4_INT_EN_PULSE);
+    //Route Freefall/Motion, Pulse/Tap  interrupt to INT1 pin
 mma8452q_write_register(MMA8452Q_REG_CTRL_REG5,
-    MMA8452Q_CTRL_REG5_INT_CFG_FF_MT);
+    MMA8452Q_CTRL_REG5_INT_CFG_FF_MT | MMA8452Q_CTRL_REG5_INT_CFG_PULSE);
 
 /* Setup mma8452q power on mode */
 
@@ -128,8 +153,26 @@ CORE_CriticalDisableIrq();
         if (int_src & MMA8452Q_INT_SRC_FF_MNT) { //Motion/Freefall event
             //Reading this register clears it, if ELE was set in FF_MT_CFG
             mt_reason = mma8452q_read_register(MMA8452Q_REG_FF_MT_SRC);
-            if ( mt_reason & MMA8452Q_FF_MT_SRC_EA) { // FF_MT_CFG prereqs satisfied
-                led1_toggle();
+            if (mt_reason & MMA8452Q_FF_MT_SRC_EA) { // FF_MT_CFG prereqs satisfied
+                #ifdef LCD_MESSAGES
+                    SegmentLCD_LowerNumber(motion_ticks);
+                    lcd_motion_keep_on=3;
+                    lcd_keep_on=3;
+                #endif
+                //led1_toggle();
+            }
+        }
+
+        if (int_src & MMA8452Q_INT_SRC_PULSE) { // Pulse/Tap event
+            mt_reason =  mma8452q_read_register(MMA8452Q_REG_PULSE_SRC);
+            if (mt_reason & MMA8452Q_PULSE_SRC_AXZ) { // Z-axis event 
+                SegmentLCD_Write("Reset");
+                led0_off();
+                led1_off();
+                motion_ticks=MOTION_TICKS_TOP;
+                lcd_motion_keep_on=2;
+                lcd_keep_on=2;
+                //led0_toggle();
             }
         }
         //If we setup different kinds of interrupts, the corresponding registers must be read

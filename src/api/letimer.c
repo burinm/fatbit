@@ -39,11 +39,14 @@
 #ifdef LCD_MESSAGES
     #include "segmentlcd.h"
     uint8_t lcd_keep_on=0;
+    uint8_t lcd_motion_keep_on=0;
 #endif
 
 uint16_t le_send_message_ticks;
 uint16_t le_regular_on_ticks;
 static uint8_t le_is_message_send_interrupt=0;
+
+uint16_t motion_ticks=MOTION_TICKS_TOP;
 
 #ifdef THREE_PART_TIMER
     static uint8_t letimer_frame=0;
@@ -132,11 +135,6 @@ void LETIMER0_setup(e_emode e, uint16_t le_comp0, uint16_t le_comp1) {
     LETIMER_Init(LETIMER0, &letimerInit);
 
 #ifdef THREE_PART_TIMER
-    /* Accelerometer will run in 3 frames (periods) in a row
-        1) Power on, program
-        2,3) Detect motion
-        3) Power off
-    */ 
     letimer_frame=0;
 #endif
 
@@ -174,14 +172,6 @@ CORE_CriticalDisableIrq();
         GPIO_PinOutSet(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
 #endif
 
-#ifdef PULSE_RATE_SENSOR
-        /*
-            If not using LESENSE, turn on ACMP here
-            ACMP_fire_up();
-            while ((ACMP0->STATUS & ACMP_STATUS_ACMPACT) == 0);
-        */
-#endif
-
 #ifdef THREE_PART_TIMER
         letimer_frame++;
         switch (letimer_frame) {
@@ -211,15 +201,6 @@ CORE_CriticalDisableIrq();
         //GPIO_PinOutClear(LES_LIGHT_EXCITE_PORT, LES_LIGHT_EXCITE_PORT_NUM);
 #endif
 
-#ifdef PULSE_RATE_SENSOR
-            /*
-            if (ACMP0->STATUS & ACMP_STATUS_ACMPOUT) {
-                //Do something
-            }
-            ACMP_Disable(ACMP0);
-           */ 
-#endif
-
 #ifdef THREE_PART_TIMER
             switch (letimer_frame) {
                 case 1:
@@ -230,6 +211,33 @@ CORE_CriticalDisableIrq();
                     break;
             }
 #endif
+            //End of second sequece, update display and stats
+            #ifdef LCD_MESSAGES
+                if (lcd_keep_on) {
+                    lcd_keep_on--;
+                 }
+
+                if (lcd_motion_keep_on) {
+                    lcd_motion_keep_on--;
+                    SegmentLCD_LowerNumber(motion_ticks);
+                 } else {
+                    SegmentLCD_AlphaNumberOff();
+                 }                    
+
+                if (!lcd_keep_on) {
+                    SegmentLCD_AllOff();
+                }
+                SegmentLCD_Symbol(LCD_SYMBOL_ANT,0);
+            #endif
+            
+            if (motion_ticks) {
+                motion_ticks--;
+            } else { // Slug alarm
+                led0_on();
+                led1_on();
+            }
+            //
+
         }
             #ifdef SEND_EXTERNAL_NOTIFICATIONS
 
@@ -299,14 +307,6 @@ CORE_CriticalDisableIrq();
 #endif
 
     }
-
-    #ifdef LCD_MESSAGES
-        lcd_keep_on--;
-        if (!lcd_keep_on) {
-            SegmentLCD_AllOff();
-        }
-        SegmentLCD_Symbol(LCD_SYMBOL_ANT,0);
-    #endif
 
 
 CORE_CriticalEnableIrq();

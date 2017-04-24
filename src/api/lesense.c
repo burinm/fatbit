@@ -273,7 +273,7 @@ CORE_CriticalDisableIrq();
                                 successful pulses to get into here
                             */
                             #ifdef LCD_MESSAGES
-                                lcd_keep_on=3;
+                                lcd_keep_on=2;
                                     SegmentLCD_Number(pulse_measure);
                                     SegmentLCD_EnergyMode(0,1);
                             #endif

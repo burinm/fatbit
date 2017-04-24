@@ -62,6 +62,7 @@ CMU_ClockEnable(cmuClock_GPIO, true);
     accel_sensor_power_on();
 #endif
 
+
 clock_defaults();
 
     if (CALIBRATE_LE_ULFRCO) {
@@ -82,9 +83,10 @@ clock_defaults();
 #ifdef LCD_MESSAGES
     SegmentLCD_Init(false);
     SegmentLCD_Write("FAT BIT"); 
+    lcd_keep_on=3;
+    lcd_motion_keep_on=3;
     //SegmentLCD_Disable();
 #endif
-
 
 #ifdef SEND_EXTERNAL_NOTIFICATIONS
     //Need to adjust power settings now...
@@ -151,7 +153,6 @@ clock_defaults();
     LESENSE_Setup();
     LESENSE_Calibrate();
 #endif
-
 
   //This needs to happen last because it is the main driver
   uint16_t le_comp0;
