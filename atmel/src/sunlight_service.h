@@ -30,6 +30,14 @@ bool sunlight_send_notification(uint8_t sun);
 extern sunlight_gatt_service_handler_t sunlight_service_handle;
 extern volatile bool Sunlight_Notification_Flag;
 at_ble_status_t sunlight_char_changed_handler(void *params);
-at_ble_status_t mystery_function(void *params);
+at_ble_status_t mystery1(void *params);
+at_ble_status_t mystery2(void *params);
+at_ble_status_t mystery3(void *params);
+at_ble_status_t mystery4(void *params);
+at_ble_status_t mystery5(void *params);
+at_ble_status_t mystery6(void *params);
+at_ble_status_t mystery7(void *params);
+at_ble_status_t mystery8(void *params);
+at_ble_status_t mystery9(void *params);
 
 #endif  

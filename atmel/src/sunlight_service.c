@@ -32,7 +32,7 @@ void sunlight_service_init(sunlight_gatt_service_handler_t * sunlight_service) {
     sunlight_service->serv_chars[0].value_max_len = sizeof(uint8_t);
     
     /* Permissions */
-    sunlight_service->serv_chars[0].value_permissions = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;
+    sunlight_service->serv_chars[0].value_permissions = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR | AT_BLE_ATTR_WRITABLE_NO_AUTHN_NO_AUTHR;
     
     /* user defined name */
     sunlight_service->serv_chars[0].user_desc = SUNLIGHT_SERVICE_DESC;
@@ -93,7 +93,7 @@ printf("sunlight_send_notification %d\n\r",sun);
 #endif
 
 
-#if 0
+#if 1
     /** Sending the indication for the updated characteristic */
     if ((status = at_ble_indication_send(sunlight_service_handle.serv_handle,
                                         sunlight_service_handle.serv_chars[0].char_val_handle
@@ -146,7 +146,47 @@ at_ble_status_t sunlight_char_changed_handler(void *params)
     return AT_BLE_SUCCESS;
 }
 
-at_ble_status_t mystery_function(void *params) {
-    printf("mystery\n");
+at_ble_status_t mystery1(void *params) {
+    printf("mystery1\n");
+return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t mystery2(void *params) {
+    printf("sunlight send indication callback\n\r");
+return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t mystery3(void *params) {
+    printf("mystery3\n");
+return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t mystery4(void *params) {
+    printf("mystery4\n");
+return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t mystery5(void *params) {
+    printf("mystery5\n");
+return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t mystery6(void *params) {
+    printf("mystery6\n");
+return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t mystery7(void *params) {
+    printf("mystery7\n");
+return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t mystery8(void *params) {
+    printf("mystery8\n");
+return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t mystery9(void *params) {
+    printf("mystery9\n");
 return AT_BLE_SUCCESS;
 }

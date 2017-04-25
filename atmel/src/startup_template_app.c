@@ -114,16 +114,16 @@ static const ble_event_callback_t gatt_server_handle[] = {
 };
 
 static const ble_event_callback_t gatt_server_handle2[] = {
-    mystery_function,
-    mystery_function,
+    mystery1,
+    mystery2,
     sunlight_char_changed_handler,
-    mystery_function,
-    mystery_function,
-    mystery_function,
-    mystery_function,
-    mystery_function,
-    mystery_function,
-    mystery_function
+    mystery3,
+    mystery4,
+    mystery5,
+    mystery6,
+    mystery7,
+    mystery8,
+    mystery9
 };
 
 static const ble_event_callback_t custom_event_handle[] = {
@@ -219,6 +219,7 @@ int main (void)
 
     while(true) {
         ble_event_task(100);
+//sunlight_send_notification(123);
         process_command_messages();
     }
 }
@@ -340,6 +341,7 @@ at_ble_status_t status;
     at_ble_pair_done_t *pair_params = param;
     printf("\n\rApplication paired\n\r");
 
+#if 0
     /* Enable the HTP Profile */
     printf("Enable health temperature service\n\r");
     status = at_ble_htpt_enable(pair_params->handle,
@@ -350,6 +352,7 @@ at_ble_status_t status;
     }
 
     ALL_UNUSED(param);
+#endif
     return AT_BLE_SUCCESS;
 }
 
@@ -373,6 +376,7 @@ at_ble_status_t status;
         printf("\n##Error when Registering gap callbacks");
     }
 
+#if 1
     //Gatt callbacks
     status = ble_mgr_events_callback_handler(REGISTER_CALL_BACK,
     BLE_GATT_SERVER_EVENT_TYPE,
@@ -380,13 +384,16 @@ at_ble_status_t status;
     if (status != true) {
         printf("\n##Error when Registering gatt callbacks");
     }
+#endif
 
+#if 0
     status = ble_mgr_events_callback_handler(REGISTER_CALL_BACK,
     BLE_GATT_SERVER_EVENT_TYPE,
     gatt_server_handle2);
     if (status != true) {
         printf("\n##Error when Registering gatt callbacks");
     }
+#endif
 
     status = ble_mgr_events_callback_handler(REGISTER_CALL_BACK,
     BLE_CUSTOM_EVENT_TYPE,
