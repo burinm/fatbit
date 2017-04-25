@@ -183,6 +183,7 @@ int main (void)
 
     /* Initialize the temperature service */
     htp_init();
+
     
     /* Initialize the heart rate service */
     hr_sensor_init(NULL);
@@ -341,7 +342,6 @@ at_ble_status_t status;
     at_ble_pair_done_t *pair_params = param;
     printf("\n\rApplication paired\n\r");
 
-#if 0
     /* Enable the HTP Profile */
     printf("Enable health temperature service\n\r");
     status = at_ble_htpt_enable(pair_params->handle,
@@ -351,8 +351,6 @@ at_ble_status_t status;
         while(true);
     }
 
-    ALL_UNUSED(param);
-#endif
     return AT_BLE_SUCCESS;
 }
 
