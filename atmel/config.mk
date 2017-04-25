@@ -89,7 +89,8 @@ ecen5023/atmel/src/circbuf_tiny.c \
 ecen5023/atmel/src/ble_manager.c \
 ecen5023/atmel/src/hr_sensor.c \
 ecen5023/atmel/src/heart_rate.c \
-$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/device_infomation/device_info.c
+$(ASF_DIR)/thirdparty/wireless/ble_smart_sdk/ble_services/device_infomation/device_info.c \
+ecen5023/atmel/src/sunlight_service.c
 
 # List of assembler source files.
 ASSRCS = 

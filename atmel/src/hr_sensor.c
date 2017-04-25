@@ -86,45 +86,6 @@ bool notification_confirm = true;
 /** @brief contains the connection handle functions **/
 at_ble_handle_t connection_handle;
 
-#if 0
-static const ble_event_callback_t hr_sensor_gap_handle[] = {
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	hr_sensor_connected_state_handler,
-	hr_sensor_disconnect_event_handler,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-#endif
-
-#if 0
-static const ble_event_callback_t hr_sensor_gatt_server_handle[] = {
-	hr_sensor_notification_cfm_handler,
-	NULL,
-	hr_sensor_char_changed_handler,
-	NULL,
-	NULL,
-	hr_sensor_char_write_request,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-#endif
-
 /****************************************************************************************
 *							        Implementations
 *                                       *
@@ -155,6 +116,8 @@ void register_hr_reset_handler(hr_reset_callback_t hr_reset_handler)
  */
 at_ble_status_t hr_sensor_char_write_request(void * params)
 {
+printf("hr_sensor_char_write_request\n\r");
+
 	at_ble_characteristic_write_request_t request;
 	at_ble_status_t status;
 	
@@ -237,22 +200,30 @@ bool hr_sensor_send_notification(uint8_t *hr_data, uint8_t length)
 at_ble_status_t hr_sensor_char_changed_handler(
 		void *params)
 {
+
 	uint8_t action_event;
 
 	at_ble_characteristic_changed_t change_params;
 	memcpy((uint8_t *)&change_params, params,
 			sizeof(at_ble_characteristic_changed_t));
 
-	action_event = hr_write_value_handler(&hr_service_handler,
-			&change_params);
+    //printf("hr_sensor_char_changed_handler handle=%d handle2 %d length %d offset %d\n\r",change_params.conn_handle,change_params.char_handle,change_params.char_len,change_params.char_offset);
 
-	if ((action_event == HR_NOTIFICATION_DISABLE) ||
-			(action_event == HR_NOTIFICATION_ENABLE)) {
-		notification_cb(action_event);
-	} else if (action_event == HR_CONTROL_POINT_RESET) {
-		reset_cb();
-	}
+    //This is not obvious... (and doesn't work for the control point)
+    //if (change_params.char_handle == hr_service_handler.serv_chars[0].client_config_handle) {
+    //    printf("heart rate char changed\n\r");
 
+        action_event = hr_write_value_handler(&hr_service_handler,
+                &change_params);
+
+        if ((action_event == HR_NOTIFICATION_DISABLE) ||
+                (action_event == HR_NOTIFICATION_ENABLE)) {
+            notification_cb(action_event);
+        } else if (action_event == HR_CONTROL_POINT_RESET) {
+            reset_cb();
+        }
+    //}
+    
 	return AT_BLE_SUCCESS;
 }
 
@@ -335,10 +306,11 @@ void hr_sensor_service_define(void)
 
 	if ((status = hr_primary_service_define(&hr_service_handler)) !=
 			AT_BLE_SUCCESS) {
-		DBG_LOG("Heart Rate Service definition Failed,reason: %x",
+		printf("Heart Rate Service definition Failed,reason: %x\n\r",
 				status);
 	} else {
-		DBG_LOG_DEV("hr service defined succesfully");
+		printf("hr service defined succesfully\n\r");
+		printf(" Handle %d \n\r",hr_service_handler.serv_handle);
 	} 
 	
 #if 0
