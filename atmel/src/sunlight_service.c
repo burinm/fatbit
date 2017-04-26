@@ -24,7 +24,7 @@ void sunlight_service_init(sunlight_gatt_service_handler_t * sunlight_service) {
         = (uint8_t)(SUNLIGHT_SERVICE_CHAR_UUID >> 8);
 
     /* Properties */
-    //sunlight_service->serv_chars[0].properties = AT_BLE_CHAR_INDICATE;
+    //sunlight_service->serv_chars[0].properties = AT_BLE_CHAR_NOTIFY;
     sunlight_service->serv_chars[0].properties = AT_BLE_CHAR_INDICATE;
 
     sunlight_service->serv_chars[0].init_value = (uint8_t *)&sunlight_uv_init_value;
