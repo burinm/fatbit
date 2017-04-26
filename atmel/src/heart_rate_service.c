@@ -4,12 +4,13 @@
 heart_rate_gatt_service_handler_t heart_rate_service_handle;
 volatile bool Heart_Rate_Notification_Flag = false;
 
+//These need to be persistant, pointers are kept to them
+uint8_t heart_rate_sensor_location_value = WRIST;
+uint8_t heart_rate_measurement_value=0;
+uint8_t heart_rate_control_point_value = 0;
 
 void heart_rate_service_init(heart_rate_gatt_service_handler_t * heart_rate_service) {
 
-    uint8_t hr_measurement_value=0;
-    uint8_t sensor_location_value = WRIST;
-    uint8_t hr_control_point_value = 0;
 
     //UUID of heart rate service
     heart_rate_service->serv_handle = 0;
@@ -30,7 +31,7 @@ void heart_rate_service_init(heart_rate_gatt_service_handler_t * heart_rate_serv
     /* Properties */
     heart_rate_service->serv_chars[0].properties = AT_BLE_CHAR_NOTIFY;
 
-    heart_rate_service->serv_chars[0].init_value = (uint8_t *)&hr_measurement_value;
+    heart_rate_service->serv_chars[0].init_value = (uint8_t *)&heart_rate_measurement_value;
     heart_rate_service->serv_chars[0].value_init_len = sizeof(uint16_t);
 
     //heart_rate_service->serv_chars[0].value_max_len = HR_MM_FLAGS_SIZE +
@@ -71,7 +72,7 @@ void heart_rate_service_init(heart_rate_gatt_service_handler_t * heart_rate_serv
     /* Properties */
     heart_rate_service->serv_chars[1].properties = AT_BLE_CHAR_READ;
 
-    heart_rate_service->serv_chars[1].init_value = &sensor_location_value;
+    heart_rate_service->serv_chars[1].init_value = &heart_rate_sensor_location_value;
 
     heart_rate_service->serv_chars[1].value_init_len = sizeof(uint8_t);
     heart_rate_service->serv_chars[1].value_max_len = sizeof(uint8_t);
@@ -111,7 +112,7 @@ void heart_rate_service_init(heart_rate_gatt_service_handler_t * heart_rate_serv
     heart_rate_service->serv_chars[2].properties = AT_BLE_CHAR_WRITE;
 
     /* Initial Value */
-    heart_rate_service->serv_chars[2].init_value = &hr_control_point_value;
+    heart_rate_service->serv_chars[2].init_value = &heart_rate_control_point_value;
 
     heart_rate_service->serv_chars[2].value_init_len = sizeof(uint8_t);
     heart_rate_service->serv_chars[2].value_max_len = sizeof(uint8_t);

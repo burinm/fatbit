@@ -4,10 +4,11 @@
 sunlight_gatt_service_handler_t sunlight_service_handle;
 volatile bool Sunlight_Notification_Flag = false;
 
+//These need to be persistant, pointers are kept to them
+uint8_t sunlight_uv_init_value = 100;
 
 void sunlight_service_init(sunlight_gatt_service_handler_t * sunlight_service) {
 
-    uint8_t sunlight_uv_init_value = 100;
 
     //UUID of sunlight service
     sunlight_service->serv_handle = 0;
