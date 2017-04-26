@@ -16,6 +16,8 @@ circbuf_tiny_t M_Q;                         //Incoming uart message queue
 //BLE GAP
 static at_ble_status_t ble_connected_cb(void *param);
 static at_ble_status_t ble_disconnected_cb(void *param);
+static at_ble_status_t ble_conn_param_done(void *param);
+static at_ble_status_t ble_conn_param_request(void *param);
 static at_ble_status_t ble_paired_cb(void *param);
 
 static const ble_event_callback_t gap_app_cbs[] = {
@@ -26,8 +28,8 @@ static const ble_event_callback_t gap_app_cbs[] = {
     NULL, // AT_BLE_RAND_ADDR_CHANGED
     ble_connected_cb, // AT_BLE_CONNECTED
     ble_disconnected_cb, // AT_BLE_DISCONNECTED
-    NULL, // AT_BLE_CONN_PARAM_UPDATE_DONE
-    NULL, // AT_BLE_CONN_PARAM_UPDATE_REQUEST
+    ble_conn_param_done, // AT_BLE_CONN_PARAM_UPDATE_DONE
+    ble_conn_param_request, // AT_BLE_CONN_PARAM_UPDATE_REQUEST
     ble_paired_cb, // AT_BLE_PAIR_DONE
     NULL, // AT_BLE_PAIR_REQUEST
     NULL, // AT_BLE_SLAVE_SEC_REQUEST
@@ -88,7 +90,7 @@ int main(void) {
     //ble_set_ulp_mode(BLE_ULP_MODE_SET);
 
     while(1) {
-        ble_event_task(100);
+        ble_event_task(SERVICE_EVENT_LOOP_TIMEOUT);
         process_command_messages();
     }
 }
@@ -109,8 +111,8 @@ at_ble_status_t status;
     AT_BLE_ADV_GEN_DISCOVERABLE,
     NULL,
     AT_BLE_ADV_FP_ANY,
-    1000,
-    655,
+    SERVICE_ADVERTISING_INTERVAL,
+    SERVICE_ADVERTISING_TIMEOUT,
     0);
 
     if(status != AT_BLE_SUCCESS)
@@ -127,6 +129,25 @@ at_ble_connected_t *connected = (at_ble_connected_t *)param;
     master_connection_handle=connected->handle;
 
     printf("ble_connected_cb\n\r");
+    // Request to change connection interval
+    at_ble_connection_params_t conn_update = {
+        // Minimum of connection interval
+        .con_intv_min = SERVICE_CONN_INT_MIN,
+        // Maximum of connection interval
+        .con_intv_max = SERVICE_CONN_INT_MAX,
+        // Connection latency
+        .con_latency = SERVICE_CONN_LAT,
+        // Link supervision time-out
+        .superv_to = SERVICE_CONN_SUP_TIMOUT,
+        // Minimum CE length
+        .ce_len_min = SERVICE_CONN_CE_MIN,
+        // Maximum CE length
+        .ce_len_max = SERVICE_CONN_CE_MAX
+    };
+
+    at_ble_connection_param_update(master_connection_handle,
+        &conn_update);
+
     return AT_BLE_SUCCESS;
 }
 
@@ -136,6 +157,17 @@ static at_ble_status_t ble_disconnected_cb(void *param)
     ble_advertise();
     return AT_BLE_SUCCESS;
 }
+
+static at_ble_status_t ble_conn_param_done(void *param) {
+    printf("ble_conn_param_done\n\r");
+    return AT_BLE_SUCCESS;
+}
+
+static at_ble_status_t ble_conn_param_request(void *param) {
+    printf("ble_conn_param_request\n\r");
+    return AT_BLE_SUCCESS;
+}
+
 
 static at_ble_status_t ble_paired_cb(void *param)
 {
