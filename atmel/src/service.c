@@ -124,11 +124,20 @@ at_ble_status_t status;
 
 //BLE GAP events
 at_ble_status_t ble_connected_cb(void *param) {
+at_ble_status_t status;
+
 at_ble_connected_t *connected = (at_ble_connected_t *)param;
+
+    printf("ble_connected_cb\n\r");
+    printf("    handle 0x%x\n\r", connected->handle);
+    printf("    conn_status 0x%x\n\r", connected->conn_status);
+    printf("        con_interval %d\n\r", connected->conn_params.con_interval);
+    printf("        con_latency  %d\n\r", connected->conn_params.con_latency);
+    printf("        sup_to       %d\n\r", connected->conn_params.sup_to);
+    printf("\n\r");
 
     master_connection_handle=connected->handle;
 
-    printf("ble_connected_cb\n\r");
     // Request to change connection interval
     at_ble_connection_params_t conn_update = {
         // Minimum of connection interval
@@ -145,8 +154,13 @@ at_ble_connected_t *connected = (at_ble_connected_t *)param;
         .ce_len_max = SERVICE_CONN_CE_MAX
     };
 
-    at_ble_connection_param_update(master_connection_handle,
+    status = at_ble_connection_param_update(master_connection_handle,
         &conn_update);
+
+    if (status !=AT_BLE_SUCCESS) {
+        printf("##at_ble_connection_param_update failed 0x%x\n\r", status);
+    }
+
 
     return AT_BLE_SUCCESS;
 }
@@ -159,7 +173,14 @@ static at_ble_status_t ble_disconnected_cb(void *param)
 }
 
 static at_ble_status_t ble_conn_param_done(void *param) {
-    printf("ble_conn_param_done\n\r");
+at_ble_conn_param_update_done_t *args = (at_ble_conn_param_update_done_t *)param;
+
+    printf("ble_conn_param_done status 0x%x\n\r",args->status);
+    printf("        con_intv     %d\n\r", args->con_intv);
+    printf("        con_latency  %d\n\r", args->con_latency);
+    printf("        superv_to    %d\n\r", args->superv_to);
+    printf("\n\r");
+    
     return AT_BLE_SUCCESS;
 }
 
