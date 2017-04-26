@@ -91,8 +91,20 @@ static at_ble_status_t heart_rate_notification_confirmed_app_event(void *param)
 
 static at_ble_status_t heart_rate_char_changed_app_event(void *param)
 {
-    at_ble_characteristic_changed_t *char_handle = (at_ble_characteristic_changed_t *)param;
-    printf("Heart Rate heart_rate_char_changed_app_event\n\r");
+    at_ble_characteristic_changed_t *change_param = (at_ble_characteristic_changed_t *)param;
+
+    if (change_param->char_handle == heart_rate_service_handle.serv_chars[0].client_config_handle) {
+        //printf("This *is* the Heart Rate heart_rate_char_changed_app_event\nmr");
+        //printf(" newvalue = %d\n\r",change_param->char_new_value[0]);
+         if (change_param->char_new_value[0] == HEART_RATE_NOTIFY_ON) {
+            Heart_Rate_Notification_Flag = true;
+            printf("Heart_Rate_Notification_Flag (true)\n\r");
+        }
+        if (change_param->char_new_value[0] == HEART_RATE_NOTIFY_OFF) {
+            Heart_Rate_Notification_Flag = false;
+            printf("Heart_Rate_Notification_Flag (false)\n\r");
+        }
+    }
 
     return AT_BLE_SUCCESS;
 }

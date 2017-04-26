@@ -90,8 +90,20 @@ static at_ble_status_t sunlight_notification_confirmed_app_event(void *param)
 
 static at_ble_status_t sunlight_char_changed_app_event(void *param)
 {
-    at_ble_characteristic_changed_t *char_handle = (at_ble_characteristic_changed_t *)param;
-    printf("Sunlight sunlight_char_changed_app_event\n\r");
+    at_ble_characteristic_changed_t *change_param = (at_ble_characteristic_changed_t *)param;
+
+    if (change_param->char_handle == sunlight_service_handle.serv_chars[0].client_config_handle) {
+        //printf("This *is* the Sunlight sunlight_char_changed_app_event\nmr");
+        //printf(" newvalue = %d\n\r",change_param->char_new_value[0]);
+        if (change_param->char_new_value[0] == SUNLIGHT_NOTIFY_ON) {
+            Sunlight_Notification_Flag = true;            
+            printf("Sunlight_Notification_Flag (true)\n\r");
+        }
+        if (change_param->char_new_value[0] == SUNLIGHT_NOTIFY_OFF) {
+            Sunlight_Notification_Flag = false;
+            printf("Sunlight_Notification_Flag (false)\n\r");
+        }
+    }
 
     return AT_BLE_SUCCESS;
 }

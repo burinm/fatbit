@@ -17,6 +17,9 @@ typedef struct heart_rate_gatt_service_handler {
     at_ble_characteristic_t serv_chars[HEART_RATE_TOTAL_CHARATERISTIC_NUM];
 } heart_rate_gatt_service_handler_t;
 
+#define HEART_RATE_NOTIFY_ON       1
+#define HEART_RATE_NOTIFY_OFF      0 
+
 extern heart_rate_gatt_service_handler_t heart_rate_service_handle;
 
 

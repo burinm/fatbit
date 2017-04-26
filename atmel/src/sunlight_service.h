@@ -19,6 +19,9 @@ typedef struct sunlight_gatt_service_handler {
     at_ble_characteristic_t serv_chars[SUNLIGHT_TOTAL_CHARATERISTIC_NUM];
 } sunlight_gatt_service_handler_t;
 
+#define SUNLIGHT_NOTIFY_ON       2
+#define SUNLIGHT_NOTIFY_OFF      0 
+
 extern sunlight_gatt_service_handler_t sunlight_service_handle;
 
 
