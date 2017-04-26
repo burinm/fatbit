@@ -63,7 +63,12 @@ int main(void) {
 
     while(1) {
         ble_event_task(655);
-        //sunlight_set_value(123);
+        if (Sunlight_Notification_Flag) {
+            sunlight_set_value(123);
+        }
+        if (Heart_Rate_Notification_Flag) {
+            heart_rate_set_value(60);
+        }
     }
                 
 

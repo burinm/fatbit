@@ -33,7 +33,7 @@ void heart_rate_service_init(heart_rate_gatt_service_handler_t * heart_rate_serv
 
     //heart_rate_service->serv_chars[0].value_max_len = HR_MM_FLAGS_SIZE +
     //        HR_MM_VAL_SIZE + HR_MM_EX_SIZE + HR_MM_RR_SIZE;
-    heart_rate_service->serv_chars[0].value_max_len = sizeof(uint16_t); 
+    heart_rate_service->serv_chars[0].value_max_len = HEART_RATE_CHAR_MAX_LEN; 
 
     /* Permissions */
     heart_rate_service->serv_chars[0].value_permissions = AT_BLE_ATTR_NO_PERMISSIONS;
@@ -159,7 +159,18 @@ const ble_event_callback_t gatt_heart_rate_cbs[] = {
 void heart_rate_set_value(uint8_t value) {
 at_ble_status_t status;
 
-    if ((status = at_ble_characteristic_value_set(heart_rate_service_handle.serv_chars[0].char_val_handle, &value, sizeof(uint8_t))) != AT_BLE_SUCCESS){
+    uint8_t hr_data[HEART_RATE_CHAR_MAX_LEN];
+    memset(hr_data,0,HEART_RATE_CHAR_MAX_LEN);
+
+    #define RR_INTERVAL_VALUE_PRESENT       (0x1 << 4)
+    hr_data[0] = RR_INTERVAL_VALUE_PRESENT; //flags
+    hr_data[1] = value;
+  //  hr_data[2] = 0; hr_data[3] = 0;         //Energy expended
+    hr_data[2] = 0; hr_data[3] = 0;         //RR value 1
+    hr_data[4] = 0; hr_data[5] = 0;         //RR value 2
+
+
+    if ((status = at_ble_characteristic_value_set(heart_rate_service_handle.serv_chars[0].char_val_handle, hr_data, HEART_RATE_CHAR_MAX_LEN)) != AT_BLE_SUCCESS){
         printf("Heart Rate updating the characteristic failed%d\n\r",status);
     } else {
         printf("Heart Rate updating the characteristic value is successful\n\r");

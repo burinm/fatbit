@@ -22,6 +22,7 @@ typedef struct sunlight_gatt_service_handler {
 #define SUNLIGHT_NOTIFY_ON       2
 #define SUNLIGHT_NOTIFY_OFF      0 
 
+extern volatile bool Sunlight_Notification_Flag;
 extern sunlight_gatt_service_handler_t sunlight_service_handle;
 
 
