@@ -5,4 +5,8 @@
 
 extern at_ble_handle_t master_connection_handle;
 
+//Command processing
+void process_command_messages(void);
+
+
 #endif

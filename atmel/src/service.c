@@ -2,10 +2,16 @@
 #include "platform.h"
 #include "console_serial.h"
 #include "service.h"
+#include "peripheral.h"
+#include "uart_samb11.h"
+#include "timer_hw.h"
 #include "sunlight_service.h"
 #include "heart_rate_service.h"
+#include "circbuf_tiny.h"
+#include "s_message.h"
 
-at_ble_handle_t master_connection_handle=0;
+at_ble_handle_t master_connection_handle=0; //BLE connection handle
+circbuf_tiny_t M_Q;                         //Incoming uart message queue
 
 //BLE GAP
 static at_ble_status_t ble_connected_cb(void *param);
@@ -41,8 +47,28 @@ int main(void) {
     platform_driver_init();
     acquire_sleep_lock();
 
+    //Debugging on
     serial_console_init();
 
+    //GPIO pins init
+    configure_gpio();
+    LED_Off(LED_GPIO);
+    GPIO_OFF(BUZZER_GPIO);
+
+    /* Hardware timer */
+    hw_timer_init();
+    /* Register the callback */
+    hw_timer_register_callback(timer_callback_handler);
+
+    //UART with DMA
+    circbuf_tiny_init(&M_Q);
+    system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_26_MHZ);
+    uart_setup();
+    const char *hello_string="\r\nInitialized UART1\r\n";
+    uart_write_buffer_wait(&my_uart_instance,hello_string,strlen(hello_string));
+    dma_start_transfer_job(&uart_dma_resource_rx);
+
+    //BLE Services
     ble_device_init(NULL);
     ble_mgr_events_callback_handler(REGISTER_CALL_BACK, BLE_GAP_EVENT_TYPE,
                                      gap_app_cbs);
@@ -62,16 +88,9 @@ int main(void) {
     //ble_set_ulp_mode(BLE_ULP_MODE_SET);
 
     while(1) {
-        ble_event_task(655);
-        if (Sunlight_Notification_Flag) {
-            sunlight_set_value(123);
-        }
-        if (Heart_Rate_Notification_Flag) {
-            heart_rate_set_value(60);
-        }
+        ble_event_task(100);
+        process_command_messages();
     }
-                
-
 }
 
 void ble_advertise(void) {
@@ -122,4 +141,67 @@ static at_ble_status_t ble_paired_cb(void *param)
 {
     printf("ble_paired_cb\n\r");
     return AT_BLE_SUCCESS;
+}
+
+//Command processing
+void process_command_messages() {
+        s_message *message=NULL;
+        uint8_t is_entry;
+cpu_irq_enter_critical();
+        is_entry = circbuf_tiny_read(&M_Q,(uint32_t**)&message);
+cpu_irq_leave_critical();
+        if (is_entry) { //Check for incoming messages
+            if (message) {
+printf("message pulled off queue [%s], ",message->message);
+
+                switch(s_get_message_type(message)) {
+                case S_LED_ON:
+                    printf("[Turn on LED]\n");
+                    LED_On(LED_GPIO);
+                break;
+
+                case S_LED_OFF:
+                    printf("[Turn off LED]\n");
+                    LED_Off(LED_GPIO);
+                break;
+
+                case S_TEMP:
+                    printf("[Set temp]\n");
+                    //N/A for this product
+                break;
+
+                case S_SUN:
+                    printf("[Sunlight Level]\n");
+                    if (Sunlight_Notification_Flag) {
+                        sunlight_set_value(s_message_get_value(message));
+                    }
+                break;
+
+                case S_PULSE:
+                    printf("[Pulse Rate]\n");
+                    if (Heart_Rate_Notification_Flag) {
+                        heart_rate_set_value(s_message_get_value(message));
+                    }
+                break;
+
+                case S_NOTIFY:
+                    printf("[NOTIFY ALERT]\n");
+                    buzz_start(s_message_get_value(message));
+                break;
+
+                case S_NONE:
+                    printf("[S_NONE]\n");
+                break;
+
+                default:
+                    printf("[UNKOWN!!]\n");
+
+            }
+
+            free(message); //Do not double free
+
+            } else {
+                printf("NULL message pulled off queue!!\n");
+            }
+        }
 }

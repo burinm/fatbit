@@ -1,5 +1,6 @@
 #include "heart_rate_service.h"
 #include "service.h"
+#include "peripheral.h"
 
 heart_rate_gatt_service_handler_t heart_rate_service_handle;
 volatile bool Heart_Rate_Notification_Flag = false;
@@ -162,14 +163,14 @@ static at_ble_status_t heart_rate_notification_confirmed_app_event(void *param)
     at_ble_cmd_complete_event_t *notification_status = (at_ble_cmd_complete_event_t *)param;
     if(!notification_status->status)
     {
-        printf("Heart Rate sending notification to the peer success\n\r");
+        //printf("Heart Rate sending notification to the peer success\n\r");
     }
     return AT_BLE_SUCCESS;
 }
 
 static at_ble_status_t heart_rate_char_changed_app_event(void *param)
 {
-    printf("heart_rate_char_changed_app_event\n\r");
+    //printf("heart_rate_char_changed_app_event\n\r");
     at_ble_characteristic_changed_t *change_param = (at_ble_characteristic_changed_t *)param;
 
     if (change_param->char_handle == heart_rate_service_handle.serv_chars[0].client_config_handle) {
@@ -187,7 +188,7 @@ static at_ble_status_t heart_rate_char_changed_app_event(void *param)
 
     if (change_param->char_handle == heart_rate_service_handle.serv_chars[2].char_val_handle) {
         if (change_param->char_new_value[0] == true) {
-            printf("*buzz*\n\r");
+            buzz_start(2);
         }
     }
 
@@ -196,7 +197,7 @@ static at_ble_status_t heart_rate_char_changed_app_event(void *param)
 }
 
 static at_ble_status_t hr_gatt1_event(void *param) {
-    printf("hr_gatt1_event\n\r");
+    //printf("indication sent success\n\r");
     return AT_BLE_SUCCESS;
 }
 static at_ble_status_t hr_gatt2_event(void *param) {
@@ -259,7 +260,7 @@ at_ble_status_t status;
     if ((status = at_ble_characteristic_value_set(heart_rate_service_handle.serv_chars[0].char_val_handle, hr_data, HEART_RATE_CHAR_MAX_LEN)) != AT_BLE_SUCCESS){
         printf("Heart Rate updating the characteristic failed%d\n\r",status);
     } else {
-        printf("Heart Rate updating the characteristic value is successful\n\r");
+        //printf("Heart Rate updating the characteristic value is successful\n\r");
     }
 
 #if 1

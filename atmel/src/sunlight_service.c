@@ -84,14 +84,14 @@ static at_ble_status_t sunlight_notification_confirmed_app_event(void *param)
     at_ble_cmd_complete_event_t *notification_status = (at_ble_cmd_complete_event_t *)param;
     if(!notification_status->status)
     {
-        printf("Sunlight sending notification to the peer success\n\r");
+        //printf("Sunlight sending notification to the peer success\n\r");
     }
     return AT_BLE_SUCCESS;
 }
 
 static at_ble_status_t sunlight_char_changed_app_event(void *param)
 {
-    printf("sunlight_char_changed_app_event\n\r");
+    //printf("sunlight_char_changed_app_event\n\r");
     at_ble_characteristic_changed_t *change_param = (at_ble_characteristic_changed_t *)param;
 
     if (change_param->char_handle == sunlight_service_handle.serv_chars[0].client_config_handle) {
@@ -111,7 +111,7 @@ static at_ble_status_t sunlight_char_changed_app_event(void *param)
 }
 
 static at_ble_status_t gatt1_event(void *param) {
-    printf("gatt1_event\n\r");
+    //printf("indication sent success\n\r");
     return AT_BLE_SUCCESS;
 }
 static at_ble_status_t gatt2_event(void *param) {
@@ -163,7 +163,7 @@ at_ble_status_t status;
     if ((status = at_ble_characteristic_value_set(sunlight_service_handle.serv_chars[0].char_val_handle, &value, sizeof(uint8_t))) != AT_BLE_SUCCESS){
         printf("Sunlight updating the characteristic failed%d\n\r",status);
     } else {
-        printf("Sunlight updating the characteristic value is successful\n\r");
+        //printf("Sunlight updating the characteristic value is successful\n\r");
     }
 
 #if 1
@@ -171,10 +171,10 @@ at_ble_status_t status;
         //if((status = at_ble_notification_send(master_connection_handle,
         if((status = at_ble_indication_send(master_connection_handle,
                sunlight_service_handle.serv_chars[0].char_val_handle)) != AT_BLE_SUCCESS) {
-            printf("Sunlight sending notification failed%d\n\r",status);
+            printf("Sunlight sending indication failed%d\n\r",status);
         }
         else {
-            printf("Sunlight sending notification successful\n\r");
+            printf("Sunlight sending indication successful\n\r");
         }
    // } 
 #endif
