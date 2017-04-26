@@ -6,8 +6,20 @@
 
 #define HEART_RATE_SERVICE_UUID                 (0x180D)
 #define HEART_RATE_MEASUREMENT_CHAR_UUID        (0x2A37)
+#define BODY_SENSOR_LOCATION_CHAR_UUID          (0x2A38)
+#define HEART_RATE_CONTROL_POINT_CHAR_UUID      (0x2A39)
 
-#define HEART_RATE_TOTAL_CHARATERISTIC_NUM  1
+typedef enum {
+    OTHERS = 0,
+    CHEST,
+    WRIST,
+    FINGER,
+    HAND,
+    EAR_LOBE,
+    FOOT,
+} body_sensor_location_val;
+
+#define HEART_RATE_TOTAL_CHARATERISTIC_NUM  3
 typedef struct heart_rate_gatt_service_handler {
     /** service uuid */
     at_ble_uuid_t serv_uuid;

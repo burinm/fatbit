@@ -90,6 +90,7 @@ static at_ble_status_t sunlight_notification_confirmed_app_event(void *param)
 
 static at_ble_status_t sunlight_char_changed_app_event(void *param)
 {
+    printf("sunlight_char_changed_app_event\n\r");
     at_ble_characteristic_changed_t *change_param = (at_ble_characteristic_changed_t *)param;
 
     if (change_param->char_handle == sunlight_service_handle.serv_chars[0].client_config_handle) {

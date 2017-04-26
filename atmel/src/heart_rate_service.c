@@ -8,6 +8,8 @@ volatile bool Heart_Rate_Notification_Flag = false;
 void heart_rate_service_init(heart_rate_gatt_service_handler_t * heart_rate_service) {
 
     uint8_t hr_measurement_value=0;
+    uint8_t sensor_location_value = WRIST;
+    uint8_t hr_control_point_value = 0;
 
     //UUID of heart rate service
     heart_rate_service->serv_handle = 0;
@@ -59,7 +61,82 @@ void heart_rate_service_init(heart_rate_gatt_service_handler_t * heart_rate_serv
     /* presentation format */
     heart_rate_service->serv_chars[0].presentation_format = NULL;
 
+    /* Characteristic Info for Body Sensor Location */
+    heart_rate_service->serv_chars[1].char_val_handle = 0;
+    heart_rate_service->serv_chars[1].uuid.type = AT_BLE_UUID_16;
+    /* UUID : Body Sensor Location*/
+    heart_rate_service->serv_chars[1].uuid.uuid[0] = (uint8_t)BODY_SENSOR_LOCATION_CHAR_UUID;
+    /* UUID : Body Sensor location*/
+    heart_rate_service->serv_chars[1].uuid.uuid[1] = (uint8_t)(BODY_SENSOR_LOCATION_CHAR_UUID >> 8);
+    /* Properties */
+    heart_rate_service->serv_chars[1].properties = AT_BLE_CHAR_READ;
 
+    heart_rate_service->serv_chars[1].init_value = &sensor_location_value;
+
+    heart_rate_service->serv_chars[1].value_init_len = sizeof(uint8_t);
+    heart_rate_service->serv_chars[1].value_max_len = sizeof(uint8_t);
+
+    /* permissions */
+
+    heart_rate_service->serv_chars[1].value_permissions = (AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR);
+
+    /* user defined name */
+    heart_rate_service->serv_chars[1].user_desc = NULL;
+    heart_rate_service->serv_chars[1].user_desc_len = 0;
+    heart_rate_service->serv_chars[1].user_desc_max_len = 0;
+    /*user description permissions*/
+    heart_rate_service->serv_chars[1].user_desc_permissions = AT_BLE_ATTR_NO_PERMISSIONS;
+    /*client config permissions*/
+    heart_rate_service->serv_chars[1].client_config_permissions = AT_BLE_ATTR_NO_PERMISSIONS;
+    /*server config permissions*/
+    heart_rate_service->serv_chars[1].server_config_permissions = AT_BLE_ATTR_NO_PERMISSIONS;
+    /*user desc handles*/
+    heart_rate_service->serv_chars[1].user_desc_handle = 0;
+    /*client config handles*/
+    heart_rate_service->serv_chars[1].client_config_handle = 0;
+    /*server config handles*/
+    heart_rate_service->serv_chars[1].server_config_handle = 0;
+    /* presentation format */
+    heart_rate_service->serv_chars[1].presentation_format = NULL;
+
+    /* Characteristic Info for Heart Rate Control Point */
+    /* handle stored here */
+    heart_rate_service->serv_chars[2].char_val_handle = 0;
+    heart_rate_service->serv_chars[2].uuid.type = AT_BLE_UUID_16;
+    /* UUID : Heart Rate Control Point*/
+    heart_rate_service->serv_chars[2].uuid.uuid[0] = (uint8_t)HEART_RATE_CONTROL_POINT_CHAR_UUID;
+    /* UUID : Heart Rate Control Point*/
+    heart_rate_service->serv_chars[2].uuid.uuid[1] = (uint8_t)(HEART_RATE_CONTROL_POINT_CHAR_UUID >> 8);
+    /* Properties */
+    heart_rate_service->serv_chars[2].properties = AT_BLE_CHAR_WRITE;
+
+    /* Initial Value */
+    heart_rate_service->serv_chars[2].init_value = &hr_control_point_value;
+
+    heart_rate_service->serv_chars[2].value_init_len = sizeof(uint8_t);
+    heart_rate_service->serv_chars[2].value_max_len = sizeof(uint8_t);
+
+    /* permissions */
+    heart_rate_service->serv_chars[2].value_permissions = (AT_BLE_ATTR_WRITABLE_NO_AUTHN_NO_AUTHR);
+
+    /* user defined name */
+    heart_rate_service->serv_chars[2].user_desc = NULL;
+    heart_rate_service->serv_chars[2].user_desc_len = 0;
+    heart_rate_service->serv_chars[2].user_desc_max_len = 0;
+    /*user description permissions*/
+    heart_rate_service->serv_chars[2].user_desc_permissions = AT_BLE_ATTR_NO_PERMISSIONS;
+    /*client config permissions*/
+    heart_rate_service->serv_chars[2].client_config_permissions = AT_BLE_ATTR_NO_PERMISSIONS;
+    /*server config permissions*/
+    heart_rate_service->serv_chars[2].server_config_permissions = AT_BLE_ATTR_NO_PERMISSIONS;
+    /*user desc handles*/
+    heart_rate_service->serv_chars[2].user_desc_handle = 0;
+    /*client config handles*/
+    heart_rate_service->serv_chars[2].client_config_handle = 0;
+    /*server config handles*/
+    heart_rate_service->serv_chars[2].server_config_handle = 0;
+    /* presentation format */
+    heart_rate_service->serv_chars[2].presentation_format = NULL;
 }
 
 void heart_rate_service_define(heart_rate_gatt_service_handler_t * service) {
@@ -91,6 +168,7 @@ static at_ble_status_t heart_rate_notification_confirmed_app_event(void *param)
 
 static at_ble_status_t heart_rate_char_changed_app_event(void *param)
 {
+    printf("heart_rate_char_changed_app_event\n\r");
     at_ble_characteristic_changed_t *change_param = (at_ble_characteristic_changed_t *)param;
 
     if (change_param->char_handle == heart_rate_service_handle.serv_chars[0].client_config_handle) {
@@ -105,6 +183,13 @@ static at_ble_status_t heart_rate_char_changed_app_event(void *param)
             printf("Heart_Rate_Notification_Flag (false)\n\r");
         }
     }
+
+    if (change_param->char_handle == heart_rate_service_handle.serv_chars[2].char_val_handle) {
+        if (change_param->char_new_value[0] == true) {
+            printf("*buzz*\n\r");
+        }
+    }
+
 
     return AT_BLE_SUCCESS;
 }
