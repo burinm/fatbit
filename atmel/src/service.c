@@ -3,6 +3,7 @@
 #include "console_serial.h"
 #include "service.h"
 #include "sunlight_service.h"
+#include "heart_rate_service.h"
 
 at_ble_handle_t master_connection_handle=0;
 
@@ -51,6 +52,11 @@ int main(void) {
     ble_mgr_events_callback_handler(REGISTER_CALL_BACK, BLE_GATT_SERVER_EVENT_TYPE,
                                      gatt_sunlight_cbs); 
 
+    heart_rate_service_init(&heart_rate_service_handle);
+    heart_rate_service_define(&heart_rate_service_handle);
+    ble_mgr_events_callback_handler(REGISTER_CALL_BACK, BLE_GATT_SERVER_EVENT_TYPE,
+                                     gatt_heart_rate_cbs); 
+
     ble_advertise();
 
     //ble_set_ulp_mode(BLE_ULP_MODE_SET);
@@ -91,7 +97,6 @@ at_ble_status_t status;
 }
 
 //BLE GAP events
-
 at_ble_status_t ble_connected_cb(void *param) {
 at_ble_connected_t *connected = (at_ble_connected_t *)param;
 
