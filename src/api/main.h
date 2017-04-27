@@ -51,4 +51,8 @@
     extern circbuf_tiny_t O_Q;
 #endif
 
+#define PULSE_COUNT_BUFFER_SIZE 10
+extern volatile uint8_t pulse_count_buffer[PULSE_COUNT_BUFFER_SIZE];
+extern volatile uint8_t pulse_count_buffer_idx;
+
 #endif

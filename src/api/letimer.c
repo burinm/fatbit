@@ -211,7 +211,30 @@ CORE_CriticalDisableIrq();
                     break;
             }
 #endif
-            //End of second sequece, update display and stats
+            //End of second sequence, update display and stats
+
+            /* Average up pulses, if there is a zero entry skip it
+                This smooths out any jumps in pulse measurement,
+                and allows us to send envery 3.75 seconds, saving energy
+            */
+            uint8_t pulses_valid=0;
+            uint16_t pulse_average=0;
+            for (int i=0;i<PULSE_COUNT_BUFFER_SIZE;i++) {
+                if (pulse_count_buffer[i]) {
+                    pulse_average+=pulse_count_buffer[i];
+                    pulses_valid++;
+                }
+            }
+            pulse_average /= pulses_valid;
+
+            #ifdef SEND_EXTERNAL_NOTIFICATIONS
+                //enqueue pulse message
+                s_message *m = s_message_new(S_PULSE);
+                s_message_set_value(m,(uint8_t)pulse_average);
+                circbuf_tiny_write(&O_Q, (uint32_t*)m);
+            #endif
+
+
             #ifdef LCD_MESSAGES
                 if (lcd_keep_on) {
                     lcd_keep_on--;
@@ -226,6 +249,11 @@ CORE_CriticalDisableIrq();
 
                 if (!lcd_keep_on) {
                     SegmentLCD_AllOff();
+                    //This also means there is no pulse measurement
+                    // in progress, time out and clear the pulse buffer
+                    for (int i=0;i<PULSE_COUNT_BUFFER_SIZE;i++) {
+                        pulse_count_buffer[i]=0;
+                    }
                 }
                 SegmentLCD_Symbol(LCD_SYMBOL_ANT,0);
             #endif

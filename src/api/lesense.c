@@ -278,12 +278,11 @@ CORE_CriticalDisableIrq();
                                     SegmentLCD_EnergyMode(0,1);
                             #endif
 
-                            #ifdef SEND_EXTERNAL_NOTIFICATIONS
-                                //enqueue pulse message
-                                s_message *m = s_message_new(S_PULSE);
-                                s_message_set_value(m,pulse_measure);
-                                circbuf_tiny_write(&O_Q, (uint32_t*)m);
-                            #endif
+                            pulse_count_buffer[pulse_count_buffer_idx]=pulse_measure;
+                            pulse_count_buffer_idx++;
+                            if (pulse_count_buffer_idx == PULSE_COUNT_BUFFER_SIZE) {
+                                pulse_count_buffer_idx=0;
+                            }
                         }
                         pulse_last_time = pulse_measure;
 

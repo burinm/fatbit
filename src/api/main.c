@@ -28,6 +28,9 @@
     circbuf_tiny_t O_Q;
 #endif
 
+volatile uint8_t pulse_count_buffer[PULSE_COUNT_BUFFER_SIZE]={0};
+volatile uint8_t pulse_count_buffer_idx=0;
+
 //#include "bsp_trace.h"
 
 // This will be calibrated if CALIBRATE_LE_ULFRCO is true
