@@ -3,6 +3,8 @@
 
 #include "at_ble_api.h"
 
+#define SERVICE_TX_POWER_LEVEL          AT_BLE_TX_PWR_LVL_NEG_07_DB
+
 #define SERVICE_ADVERTISING_INTERVAL    1000    // .625ms * 1000 = 625ms
 #define SERVICE_ADVERTISING_TIMEOUT     0       // Disable adverftisement timeout
 
@@ -15,7 +17,7 @@
     So, in reality, the connection interval only needs to be less than 3.75 seconds.
 */
 
-#if 1
+#if 0
 #define SERVICE_CONN_INT_MIN           200   
 #define SERVICE_CONN_INT_MAX           240   // 1.25ms * 240 = 300ms 
 #define SERVICE_CONN_LAT               4     // 300ms * (4 + 1) = 1.5 second 
@@ -32,7 +34,7 @@
     Fastest pulse = 220BPM = 3.7BPS = 272ms (this would be the connection interval max)
 */
 
-#if 0 
+#if 1
 #define SERVICE_CONN_INT_MIN           200 
 #define SERVICE_CONN_INT_MAX           217    // 1.25ms * 272 = 271ms 
 #define SERVICE_CONN_LAT               3      // 271ms * (1+3) = 1 second

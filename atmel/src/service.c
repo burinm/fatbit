@@ -85,6 +85,8 @@ int main(void) {
     ble_mgr_events_callback_handler(REGISTER_CALL_BACK, BLE_GATT_SERVER_EVENT_TYPE,
                                      gatt_heart_rate_cbs); 
 
+    //Set Low power appropriate for wearable device
+    at_ble_tx_power_set(SERVICE_TX_POWER_LEVEL);
     ble_advertise();
 
     // Can't use timers in ULP mode, also need to reinitialize peripherals
