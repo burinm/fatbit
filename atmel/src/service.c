@@ -87,6 +87,7 @@ int main(void) {
 
     ble_advertise();
 
+    // Can't use timers in ULP mode, also need to reinitialize peripherals
     //ble_set_ulp_mode(BLE_ULP_MODE_SET);
 
     while(1) {
@@ -154,12 +155,14 @@ at_ble_connected_t *connected = (at_ble_connected_t *)param;
         .ce_len_max = SERVICE_CONN_CE_MAX
     };
 
+#if 1
     status = at_ble_connection_param_update(master_connection_handle,
         &conn_update);
 
     if (status !=AT_BLE_SUCCESS) {
         printf("##at_ble_connection_param_update failed 0x%x\n\r", status);
     }
+#endif
 
 
     return AT_BLE_SUCCESS;
@@ -167,7 +170,10 @@ at_ble_connected_t *connected = (at_ble_connected_t *)param;
 
 static at_ble_status_t ble_disconnected_cb(void *param)
 {
-    printf("ble_disconnected_cb\n\r");
+at_ble_disconnected_t *args = (at_ble_disconnected_t *)param;
+at_ble_status_t status;
+
+    printf("ble_disconnected_cb Reason: 0x%x\n\r",args->reason);
     ble_advertise();
     return AT_BLE_SUCCESS;
 }
@@ -185,7 +191,15 @@ at_ble_conn_param_update_done_t *args = (at_ble_conn_param_update_done_t *)param
 }
 
 static at_ble_status_t ble_conn_param_request(void *param) {
-    printf("ble_conn_param_request\n\r");
+    at_ble_conn_param_update_request_t *args = (at_ble_conn_param_update_request_t *)param;
+
+    printf("ble_conn_param_request \n\r");
+    printf("      R con_intv_min    %d\n\r", args->con_intv_min);
+    printf("      R con_intv_max    %d\n\r", args->con_intv_max);
+    printf("      R con_latency     %d\n\r", args->con_latency);
+    printf("      R superv_to       %d\n\r", args->superv_to);
+    printf("\n\r");
+
     return AT_BLE_SUCCESS;
 }
 
