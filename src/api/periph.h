@@ -14,6 +14,13 @@
 #define LES_LIGHT_EXCITE_PORT       gpioPortD
 #define LES_LIGHT_EXCITE_PORT_NUM   6
 
+#define PULSE_POWER_EXTERNAL_PORT       gpioPortC
+//#define PULSE_POWER_EXTERNAL_PIN        6 //This pin doesn't work?
+#define PULSE_POWER_EXTERNAL_PIN          0
+
+#define PULSE_POWER_ON   GPIO_PinOutSet(PULSE_POWER_EXTERNAL_PORT, PULSE_POWER_EXTERNAL_PIN)
+#define PULSE_POWER_OFF  GPIO_PinOutClear(PULSE_POWER_EXTERNAL_PORT, PULSE_POWER_EXTERNAL_PIN)
+
 /* Clocks */
 
 /* Set clocks to boot up configuration

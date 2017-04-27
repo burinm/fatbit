@@ -83,6 +83,13 @@ clock_defaults();
     LED0_setup();
     led0_off();
 
+    #ifdef PULSE_RATE_EXT_POWER
+        GPIO_PinModeSet(PULSE_POWER_EXTERNAL_PORT, PULSE_POWER_EXTERNAL_PIN, gpioModePushPullDrive, 1);
+        //Start with power on, otherwise glitch in capacitive touch sensor
+        PULSE_POWER_ON;
+    #endif
+
+
 #ifdef LCD_MESSAGES
     SegmentLCD_Init(false);
     SegmentLCD_Write("FAT BIT"); 

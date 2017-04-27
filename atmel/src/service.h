@@ -10,13 +10,13 @@
                                                 //  and check the UART message Q
 
 // 7.5ms <-> 4 seconds
-#define SERVICE_CONN_INT_MIN            600
-#define SERVICE_CONN_INT_MAX            600    // 1.25ms * 600 = 750ms
+#define SERVICE_CONN_INT_MIN            1000
+#define SERVICE_CONN_INT_MAX            1000    // 1.25ms * 600 = 750ms
 
 #define SERVICE_CONN_LAT                0      // Number of events
 #define SERVICE_CONN_SUP_TIMOUT         300    // 10ms * 300 = 3s
-#define SERVICE_CONN_CE_MIN             5000
-#define SERVICE_CONN_CE_MAX             5000   // .625ms * 1600 = 3.125 seconds
+#define SERVICE_CONN_CE_MIN             3200
+#define SERVICE_CONN_CE_MAX             3200   // .625ms * 3200 = 2 seconds
 
 extern at_ble_handle_t master_connection_handle;
 

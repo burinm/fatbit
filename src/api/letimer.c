@@ -6,6 +6,7 @@
 #include "em_letimer.h"
 #include "em_core.h"
 #include "em_acmp.h"
+#include "periph.h"
 
 #if defined USING_DMA_FOR_LIGHT || defined USING_DMA_FOR_LEUART
     #include "dma.h"
@@ -256,6 +257,11 @@ CORE_CriticalDisableIrq();
                     }
                 }
                 SegmentLCD_Symbol(LCD_SYMBOL_ANT,0);
+            #endif
+
+            //Turn off Heart Rate sensor power
+            #ifdef PULSE_RATE_EXT_POWER
+                PULSE_POWER_OFF;
             #endif
             
             if (motion_ticks) {

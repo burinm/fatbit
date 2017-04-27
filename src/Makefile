@@ -55,6 +55,7 @@ SOURCES += accel_ext.c circbuf_tiny.c
 SOURCES += lesense.c em_lesense.c
 SOURCES += rtc.c 
 SOURCES += segmentlcd.c 
+SOURCES += em_rtc.c 
 #SOURCES += retargetio.c
 OBJS :=$(SOURCES:%.c=%.o)
 OBJS += startup_efm32lg.o

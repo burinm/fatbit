@@ -25,6 +25,10 @@
 // If defined, turn on pulse rate sensor routines
 #define PULSE_RATE_SENSOR
 
+//If defined, use external transistor to switch IR Leds off/on
+    // (requires re-wiring product)
+#define PULSE_RATE_EXT_POWER
+
 // Code to split LETIMER period into three divisions
 //#define THREE_PART_TIMER
 

@@ -6,6 +6,7 @@
 #include "em_lesense.h"
 #include "rtc.h"
 #include "em_rtc.h"
+#include "periph.h"
 
 #ifdef LCD_MESSAGES
     #include "letimer.h"
@@ -53,6 +54,15 @@ void LESENSE_First() {
 #ifdef PULSE_RATE_SENSOR
     //Port C3, input external pulse sensor
     GPIO_PinModeSet(PULSE_ACMP_EXTERNAL_PORT, PULSE_ACMP_EXTERNAL_PIN, gpioModeInputPull, 0);
+
+#if 0
+    #ifdef PULSE_RATE_EXT_POWER
+        GPIO_PinModeSet(PULSE_POWER_EXTERNAL_PORT, PULSE_POWER_EXTERNAL_PIN, gpioModePushPullDrive, 1);
+        //Start with power on, otherwise glitch in capacitive touch sensor
+        PULSE_POWER_ON;
+    #endif
+#endif
+
 #endif
 
     //Use ACMP0
@@ -310,6 +320,12 @@ CORE_CriticalDisableIrq();
     { 
         /* Clear flags. */
         LESENSE_IntClear(CAPLESENSE_CHANNEL_INT);
+
+        //If capacitive pad touched, turn on Heart Rate sensor LEDs
+        #ifdef PULSE_RATE_EXT_POWER
+            PULSE_POWER_ON;
+        #endif
+
         #ifdef LCD_MESSAGES
                 SegmentLCD_Symbol(LCD_SYMBOL_ANT,1);
         #endif
