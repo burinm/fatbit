@@ -23,6 +23,12 @@ uint8_t  last_averages_count = 0;
 
 void ADC0_Setup() {
 
+    //Start out with high average to avoid low light
+    // warning right off the bat,
+    for (int i=0; i<ADC_NUMBER_AVERAGES; i++) {
+        last_averages[i] = ADC_LIGHT_INIT_HIGH;
+    }
+
     CMU_ClockEnable(cmuClock_ADC0, true);
 
     uint8_t adc_timebase = ADC_TimebaseCalc(0); //0 causes auto clock speed fetch
