@@ -107,8 +107,13 @@ clock_defaults();
 
 
 #ifdef SEND_EXTERNAL_NOTIFICATIONS
-    // Initial state is darkness/LED on message
-    s_message *m = s_message_new(S_LED_ON);
+    // Blink LED on SAMB11 to confirm messages starting 
+    s_message *m;
+    m = s_message_new(S_LED_OFF);
+    circbuf_tiny_write(&O_Q, (uint32_t*)m);
+    m = s_message_new(S_LED_ON);
+    circbuf_tiny_write(&O_Q, (uint32_t*)m);
+    m = s_message_new(S_LED_OFF);
     circbuf_tiny_write(&O_Q, (uint32_t*)m);
 
     #if 0

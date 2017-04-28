@@ -166,12 +166,14 @@ CORE_CriticalDisableIrq();
         if (int_src & MMA8452Q_INT_SRC_PULSE) { // Pulse/Tap event
             mt_reason =  mma8452q_read_register(MMA8452Q_REG_PULSE_SRC);
             if (mt_reason & MMA8452Q_PULSE_SRC_AXZ) { // Z-axis event 
-                SegmentLCD_Write("Reset");
+                #ifdef LCD_MESSAGES
+                    SegmentLCD_Write("Reset");
+                    motion_ticks=MOTION_TICKS_TOP;
+                    lcd_motion_keep_on=2;
+                    lcd_keep_on=2;
+                #endif
                 led0_off();
                 led1_off();
-                motion_ticks=MOTION_TICKS_TOP;
-                lcd_motion_keep_on=2;
-                lcd_keep_on=2;
                 //led0_toggle();
             }
         }
