@@ -19,12 +19,12 @@
 #define ACCEL_SENSOR_DEBOUNCE_CNT 3 
 
 // Single Tap threshold
-#define SINGTAP_SENSOR_G_THRESH_Z   16
+#define SINGTAP_SENSOR_G_THRESH_Z  10 
 //With ODR=6.25, Normal mode, LPF off 5* 10 = 50ms
-//#define SINGTAP_TIME_LIMIT  32 
-#define SINGTAP_TIME_LIMIT  34 
-#define SINGTAP_LATENCY  5 
-#define DOUBLETAP_WINDOW 25 
+#define SINGTAP_TIME_LIMIT  15 
+#define SINGTAP_LATENCY  3 
+//Must be shorter than SINGTAP_TIME_LIMIT
+#define DOUBLETAP_WINDOW 40 
 
 /* Turn on external accelerometer power rail
  *
