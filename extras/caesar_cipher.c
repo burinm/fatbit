@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include <ctype.h>
 
+/*
+ ./caesar_cipher test1.txt 
+ ./caesar_cipher test2.txt
+ ./caesar_cipher test3.txt orenh
+*/
+
 #define LETTERS_IN_ALPHA    26
 
 int is_alpha_lower(int c);
